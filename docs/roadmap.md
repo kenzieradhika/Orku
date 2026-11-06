@@ -13,7 +13,7 @@ not available APIs. Update this table when a feature ships.
 | Routing | Static/dynamic routes, method helpers, HEAD fallback, 404/405, named routes, nested prefix groups, safe URL generator | Constraints API, route middleware, compiled routing |
 | Web | Trusted PHP SSR, explicit escaping, layouts, partials, components, slots, assets | Loom `.ork` parser/compiler, islands, streamed HTML |
 | Forms | URL-encoded parsing, typed validation, lazy session-backed CSRF | Multipart uploads, authentication, session rotation workflow, rate limiting |
-| CLI | `help`, `serve`, `routes`; three runnable examples | `doctor`, project generators, `test`, `benchmark`, `optimize`, ThinkCore commands |
+| CLI | `help`, `serve`, `routes`, read-only `doctor`; three runnable examples | Project generators, `test`, `benchmark`, `optimize`, ThinkCore commands |
 | Application services | Explicit handler construction; optional scoped container; ordered callable HTTP middleware | Autowiring, route middleware, PDO package, migrations |
 | Runtime | SAPI adapter, local CLI-server integration tests | Persistent workers, worker lifecycle/reset contracts, resource auto-tuning |
 | Verification | Unit/security/live HTTP tests, PHPStan, formatting, dependency audit in CI | Production deployment validation, concurrent production-like comparison suite |

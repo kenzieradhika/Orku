@@ -26,7 +26,19 @@ final class ConsoleTest extends TestCase
         self::assertSame(0, $status);
         self::assertStringContainsString('serve', $out);
         self::assertStringContainsString('routes', $out);
-        self::assertStringNotContainsString('doctor', $out);
+        self::assertStringContainsString('doctor', $out);
+    }
+
+    public function testDoctorReportsCapabilitiesWithoutSecrets(): void
+    {
+        [$status, $out, $err] = $this->command(['doctor']);
+        self::assertSame(0, $status);
+        self::assertSame('', $err);
+        $report = json_decode($out, true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame(PHP_VERSION, $report['php']);
+        self::assertTrue($report['checks']['supported_php']);
+        self::assertArrayHasKey('debug_disabled', $report['checks']);
+        self::assertArrayNotHasKey('environment', $report);
     }
 
     public function testRouteListUsesRealApplication(): void
@@ -39,7 +51,7 @@ final class ConsoleTest extends TestCase
 
     public function testUnknownCommandsAndUnsafeArgumentsFail(): void
     {
-        foreach ([['doctor'], ['routes', '../..'], ['serve', 'hello-world', '127.0.0.1:99999'], ['serve', 'hello-world', '127.0.0.1:8000;id'], ['serve', 'missing'], ['help', 'extra']] as $arguments) {
+        foreach ([['doctor', 'extra'], ['routes', '../..'], ['serve', 'hello-world', '127.0.0.1:99999'], ['serve', 'hello-world', '127.0.0.1:8000;id'], ['serve', 'missing'], ['help', 'extra']] as $arguments) {
             [$status, , $err] = $this->command($arguments);
             self::assertNotSame(0, $status);
             self::assertNotSame('', $err);

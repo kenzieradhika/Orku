@@ -248,7 +248,8 @@ including optional Loom `.ork` templates and ThinkCore. Neither is implemented y
 | Explicit-factory scoped DI and deterministic cleanup | Implemented, optional |
 | Ordered callable middleware, short-circuit responses | Implemented, optional |
 | Named routes, nested prefix groups, safe URL generation | Implemented |
-| Autowiring, Doctor, generators | Planned v0.3 |
+| Read-only CLI Doctor runtime diagnostics | Implemented, limited to current process |
+| Autowiring, generators | Planned v0.3 |
 | Database package, worker adapter, compiled routing | Planned later |
 | Framework comparisons and performance guarantees | Not available |
 | Running full PHP framework on ESP32/ESP8266 | Unsupported |

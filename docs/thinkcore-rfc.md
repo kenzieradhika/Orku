@@ -1,0 +1,23 @@
+# ThinkCore Sense read-only contract
+
+Status: proposal, not implemented. No auto-tuning or production mutation.
+
+Initial output: JSON with platform, PHP version, configured PHP memory limit,
+effective CPU quota, effective memory ceiling and explicit availability/reason
+fields. Unknown is null, never guessed from host totals. Do not read environment
+variables wholesale, request data, process command lines or credentials.
+
+Read Linux cgroup v2 membership from `/proc/self/cgroup` and mount mapping from
+`/proc/self/mountinfo`; do not assume a host mount path. Effective limits are the
+minimum finite constraints on the ancestor hierarchy, accounting for affinity
+and quota/period. Keep fractional CPU quotas. `max` and `-1` mean unlimited only
+where that specific format defines them. Reject malformed/overflowing values.
+
+Other platforms and unsupported cgroup v1 return explicit unknown fields, not
+an unsupported claim of accurate detection. Resource readers accept fixture
+directories in tests, not arbitrary user-supplied paths through the public CLI.
+
+Tests must cover nested limits, unlimited values, fractional quota, absent or
+denied files, malformed content, mount escaping and namespace-relative paths.
+No worker-count recommendations until actual worker RSS/latency observations
+exist. No root requirement, outbound telemetry, persistent storage or config writes.
