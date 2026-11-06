@@ -9,6 +9,27 @@ use PHPUnit\Framework\TestCase;
 
 final class RuntimeTest extends TestCase
 {
+    public function testSessionPreservesAllCookieHeaderLines(): void
+    {
+        $server = new Server('', fixture: true);
+        try {
+            foreach (['GET', 'HEAD'] as $method) {
+                $response = $server->request('/cookies', $method);
+                self::assertSame(200, $response['status']);
+                $cookies = array_values(array_filter($response['header_lines'], fn (string $line) => str_starts_with(strtolower($line), 'set-cookie:')));
+                self::assertCount(4, $cookies);
+                self::assertContains('set-cookie: legacy=1; Path=/', $cookies);
+                self::assertContains('set-cookie: theme=dark; Path=/', $cookies);
+                self::assertContains('set-cookie: language=id; Expires=Wed, 09 Jun 2038 10:18:14 GMT; Path=/', $cookies);
+                self::assertCount(1, array_filter($cookies, fn (string $line) => str_contains($line, 'orku_session=')));
+                self::assertSame('no-store', $response['headers']['cache-control']);
+                self::assertSame($method === 'HEAD' ? '' : 'cookies', $response['body']);
+            }
+        } finally {
+            $server->close();
+        }
+    }
+
     public function testLocationHeaderDoesNotOverrideResponseStatus(): void
     {
         $server = new Server('', fixture: true);

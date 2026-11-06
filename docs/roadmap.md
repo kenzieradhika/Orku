@@ -9,7 +9,7 @@ not available APIs. Update this table when a feature ships.
 
 | Area | Implemented | Not implemented |
 | --- | --- | --- |
-| HTTP/core | Immutable Request/Response, headers, kernel, SAPI, safe JSON errors, reporting hook | Streaming, duplicate Set-Cookie values, automatic OPTIONS/CORS |
+| HTTP/core | Immutable Request/Response, headers, kernel, SAPI, separate Set-Cookie values, safe JSON errors, reporting hook | Streaming, automatic OPTIONS/CORS |
 | Routing | Static/dynamic routes, method helpers, HEAD fallback, 404/405, named routes, nested prefix groups, safe URL generator | Constraints API, route middleware, compiled routing |
 | Web | Trusted PHP SSR, explicit escaping, layouts, partials, components, slots, assets | Loom `.ork` parser/compiler, islands, streamed HTML |
 | Forms | URL-encoded parsing, typed validation, lazy session-backed CSRF | Multipart uploads, authentication, session rotation workflow, rate limiting |
@@ -72,7 +72,15 @@ Do not treat proposed features or historical measurements as implementation evid
 - PHP 8.3 and older unsupported; no stable API compatibility promise.
 - No worker mode, autowiring, route middleware, cross-driver migrations, or Loom compiler yet.
 - Explicit SQLite-only migrations are experimental; see [migration boundaries](migrations.md).
-- No streaming, uploads, duplicate Set-Cookie values, automatic OPTIONS/CORS.
+- No streaming, uploads, automatic OPTIONS/CORS.
+
+Multiple cookies use raw validated header values, for example
+`new Response('ok', cookies: ['theme=dark; Path=/; Secure; SameSite=Lax', 'language=id; Path=/; Secure; SameSite=Lax'])`.
+Each value emits a separate `Set-Cookie` line, never a comma-joined field.
+The existing `headers: ['Set-Cookie' => '...']` remains supported;
+`header('set-cookie')` reads that single header, not the additional `cookies` list.
+Session commit preserves application cookies. Applications own cookie encoding,
+attributes and unique name/path/domain combinations; no cookie builder is provided.
 - Route placeholders occupy whole segments; overlapping dynamic routes use registration order.
 - CLI serves repository examples, not arbitrary applications or generated projects.
 - PHP-FPM/Apache, Nginx, shared hosting, and ARM deployment remain unverified here.

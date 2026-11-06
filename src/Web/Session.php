@@ -44,7 +44,12 @@ final class Session
         $_SESSION = [];
         $cookie = 'orku_session='.$id.'; Path='.$this->path.($this->secure ? '; Secure' : '').'; HttpOnly; SameSite=Lax';
 
-        return new Response($response->body, $response->status, ['set-cookie' => $cookie, 'cache-control' => 'no-store'] + $response->headers);
+        $cookies = $response->cookies;
+        if (($existing = $response->header('set-cookie')) !== null) {
+            $cookies[] = $existing;
+        }
+
+        return new Response($response->body, $response->status, ['set-cookie' => $cookie, 'cache-control' => 'no-store'] + $response->headers, $cookies);
     }
 
     private function start(): void

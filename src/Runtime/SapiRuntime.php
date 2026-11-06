@@ -97,7 +97,10 @@ final class SapiRuntime
         ];
         header_remove('X-Powered-By');
         foreach ($response->headers + $defaults as $name => $value) {
-            header($name.': '.$value, true);
+            header($name.': '.$value, $name !== 'set-cookie');
+        }
+        foreach ($response->cookies as $cookie) {
+            header('set-cookie: '.$cookie, false);
         }
         http_response_code($response->status);
         if (!in_array($response->status, [204, 304], true)) {

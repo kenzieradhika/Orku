@@ -11,6 +11,19 @@ use PHPUnit\Framework\TestCase;
 
 final class HttpTest extends TestCase
 {
+    public function testResponsePreservesSeparateCookies(): void
+    {
+        $response = new Response('ok', headers: ['Set-Cookie' => 'legacy=1; Path=/'], cookies: ['theme=dark; Path=/', 'language=id; Path=/']);
+        self::assertSame(['theme=dark; Path=/', 'language=id; Path=/'], $response->cookies);
+        self::assertSame('legacy=1; Path=/', $response->header('set-cookie'));
+    }
+
+    public function testCookieHeaderInjectionIsRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new Response(cookies: ["theme=dark\r\nX-Injected: yes"]);
+    }
+
     public function testRequestNormalizesMethodHeadersAndEncodedPath(): void
     {
         $request = new Request('post', '/users/Jos%C3%A9+Doe', ['Content-Type' => 'application/json; charset=utf-8'], ['page' => '2'], '{"ok":true}', ['theme' => 'dark']);

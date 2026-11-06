@@ -9,8 +9,14 @@ final readonly class Response
     /** @var array<string, string> */
     public array $headers;
 
-    /** @param array<string, string> $headers */
-    public function __construct(public string $body = '', public int $status = 200, array $headers = [])
+    /** @var list<string> */
+    public array $cookies;
+
+    /**
+     * @param array<string, string> $headers
+     * @param list<string> $cookies Raw Set-Cookie values, validated as header values.
+     */
+    public function __construct(public string $body = '', public int $status = 200, array $headers = [], array $cookies = [])
     {
         if ($status < 200 || $status > 599) {
             throw new \InvalidArgumentException('Response status must be 200..599.');
@@ -19,6 +25,11 @@ final readonly class Response
             throw new \InvalidArgumentException('This response status cannot carry a body.');
         }
         $this->headers = Headers::normalize($headers);
+        $validated = [];
+        foreach ($cookies as $cookie) {
+            $validated[] = Headers::normalize(['set-cookie' => $cookie])['set-cookie'];
+        }
+        $this->cookies = $validated;
         foreach (['content-length', 'transfer-encoding'] as $name) {
             if (isset($this->headers[$name])) {
                 throw new \InvalidArgumentException('Response framing is owned by runtime adapter.');

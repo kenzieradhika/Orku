@@ -60,7 +60,7 @@ final class Server
             [$name, $value] = explode(':', $line, 2);
             $responseHeaders[strtolower($name)] = trim($value);
         }
-        return ['status' => (int) $matches[1], 'headers' => $responseHeaders, 'body' => $result];
+        return ['status' => (int) $matches[1], 'headers' => $responseHeaders, 'header_lines' => array_slice($lines, 1), 'body' => $result];
     }
 
     public function close(): void
