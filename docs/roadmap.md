@@ -1,63 +1,81 @@
-# Roadmap and limitations
+# Roadmap and implementation status
 
-## Web v0.2 local development milestone
+Current milestone: **v0.2-dev**, not a stable or production-ready release.
+This page is the canonical implementation-status table. [ORK.md](../ORK.md)
+contains the longer upgrade proposal; its examples and feature names are plans,
+not available APIs. Update this table when a feature ships.
 
-Implemented optional SSR/helpers, layouts/components/named slots, assets,
-URL-encoded validation, lazy session-backed CSRF and fullstack demo. See
-`web-architecture.md`, `web-getting-started.md`, `web-security.md` and
-`web-performance.md`. Local verification recorded separately; not a stable or
-production release. Roadmap below retains original Core-era planning.
+## Implementation status
 
-Next: authentication/session rotation lifecycle, rate limits, optional multipart
-uploads, asset fingerprints, generators and production deployment validation.
-No worker mode or SPA/hydration runtime in this milestone.
+| Area | Implemented | Not implemented |
+| --- | --- | --- |
+| HTTP/core | Immutable Request/Response, headers, kernel, SAPI, safe JSON errors, reporting hook | Streaming, duplicate Set-Cookie values, automatic OPTIONS/CORS |
+| Routing | Static/dynamic routes, method helpers, HEAD fallback, 404/405 | Groups, names, constraints API, URL generator, compiled routing |
+| Web | Trusted PHP SSR, explicit escaping, layouts, partials, components, slots, assets | Loom `.ork` parser/compiler, islands, streamed HTML |
+| Forms | URL-encoded parsing, typed validation, lazy session-backed CSRF | Multipart uploads, authentication, session rotation workflow, rate limiting |
+| CLI | `help`, `serve`, `routes`; three runnable examples | `doctor`, project generators, `test`, `benchmark`, `optimize`, ThinkCore commands |
+| Application services | Explicit handler construction | Scoped DI, middleware pipeline, PDO package, migrations |
+| Runtime | SAPI adapter, local CLI-server integration tests | Persistent workers, worker lifecycle/reset contracts, resource auto-tuning |
+| Verification | Unit/security/live HTTP tests, PHPStan, formatting, dependency audit in CI | Production deployment validation, concurrent production-like comparison suite |
+| Optimization proposals | Existing kernel/view microbenchmarks | ThinkCore, ScopeWeave, FluxCore, MemBound, TraceDNA, RouteMorph, FailMesh, QueryPulse, DriftGuard, SafeRuntime, SmartData, NativeBridge |
 
-## v0.1: Core
+TurboKernel is proposed branding for the existing small kernel and future
+extensions, not a separate implemented optimization system. Doctor is a proposed
+CLI feature. No comparative performance guarantees are available.
 
-Implemented: Composer setup, immutable Request/Response, SAPI adapter, kernel,
-safe JSON errors and logging hook, literal/dynamic routes, method helpers, HEAD,
-404/405, CLI serve/routes/help, Hello World and REST API, automated tests and
-development checks. Linear routing is baseline, not a performance conclusion.
+## Completed development milestones
 
-## v0.2: Orku Web (planned)
+### v0.1: HTTP core
 
-PHP-based SSR view API, escaped ordinary interpolation, explicit trusted HTML,
-layouts, components/slots, safe asset URLs and full-stack example with navigation,
-accessible responsive pages, server validation and CSRF-protected forms. Optional
-progressive JavaScript only. No JSX/template compiler or whole-page hydration.
+Composer setup, immutable HTTP values, SAPI adapter, kernel, safe JSON errors,
+literal/dynamic routes, method helpers, HEAD, 404/405, CLI commands, Hello World
+and REST API examples, automated checks. Dynamic matching remains linear.
 
-## v0.3: Developer experience (planned)
+### v0.2: Optional PHP web layer
 
-Constructor DI and explicit lifetimes, ordered short-circuiting middleware,
-route groups/names, typed validation, Doctor, generators and test CLI. Sessions,
-cookie handling and CSRF must be tested before browser state-changing examples.
-Authentication/rate limiting remain optional adapters, not pretend implementations.
+PHP SSR, explicit escaping (not automatic escaping of arbitrary PHP output),
+layouts/components/slots, static assets, validated URL-encoded forms, session-backed
+CSRF, and the fullstack example. No Node.js, compiler, or hydration requirement.
+See [Web architecture](web-architecture.md) and [getting started](web-getting-started.md).
 
-## v0.4: Data (planned)
+## Proposed releases
 
-Independent PDO package, prepared queries, transactions, migrations, result
-mapping and timing. No mandatory ORM or DB bootstrap in HTTP core.
+These are sequencing goals, not release dates or guarantees. Each change requires
+tests, documentation, compatibility review, and measurements for performance claims.
 
-## v0.5: Performance (planned)
+| Milestone | Proposed scope |
+| --- | --- |
+| v0.3 | Documentation reconciliation, middleware/scoped DI, route groups/names, safe URL generation, Doctor; Loom grammar proof of concept and read-only ThinkCore contracts |
+| v0.4 | Optional PDO/migrations, Loom compiler/escaping/cache foundation, request-scope lifecycle, ThinkCore recommendations, deployment validation |
+| v0.5 | Benchmark-justified routing/container optimization, experimental workers, memory budgets, state isolation and soak tests |
+| v0.6–v0.8 | Optional resilience/observability, guarded opt-in runtime tuning, later Loom features subject to demand |
+| v0.9 | API/security review, compatibility policy, reproducible benchmarks, deployment/rollback runbooks |
+| v1.0 | Stable documented API and release, with readiness evidence only for verified runtimes |
 
-Only evidence-backed route/container compilation, worker integration with scoped
-state reset and leak tests, HTTP concurrency benchmark automation. Compare pinned
-Laravel, Symfony, lightweight PHP and Go workloads fairly. No speed ranking yet.
+Native acceleration remains optional and does not block v1.0. ThinkCore starts
+read-only; no automatic production configuration changes. Existing PHP templates
+remain supported when the optional `.ork` layer arrives.
 
-## Production readiness (planned)
+## Immediate backlog
 
-Configuration validation, deployment tests, security review, observability opt-in,
-versioning/deprecation policy, API compatibility testing and broader documentation.
-CI config alone is not evidence of a successful hosted CI run.
+1. Reconcile documentation and preserve the master proposal in `ORK.md`.
+2. Establish reproducible HTTP/memory benchmarks with machine-readable results.
+3. Specify and test scoped DI, then middleware and named/grouped routes.
+4. Implement Doctor with redacted diagnostics and stable exit codes.
+5. Approve Loom grammar/escaping and ThinkCore resource-boundary RFCs before implementation.
+
+Use one coherent change per branch. Run local checks before push, then verify CI.
+Do not treat proposed features or historical measurements as implementation evidence.
 
 ## Explicit limitations
 
-- PHP 8.3 and older unsupported. No stable release, Packagist publication or tags.
-- No named/grouped routes, middleware, DI, views, static asset server, DB or worker.
-- No streaming, file uploads, duplicate Set-Cookie headers, automatic OPTIONS/CORS.
-- Only full-segment route placeholders; no optional segments or custom regex API.
-- Dynamic patterns with differing shapes can overlap; registration order decides.
-- CLI serves repository examples, not a project generator or arbitrary app runner.
-- Apache, Nginx/PHP-FPM and shared hosting recipes not integration-tested yet.
-- ESP32/ESP8266 cannot run full framework; future independent C/C++ SDK may use
-  HTTP/MQTT contract. It adds no code or dependencies to Core.
+- PHP 8.3 and older unsupported; no stable API compatibility promise.
+- No worker mode, DI, middleware, named/grouped routes, DB, or Loom compiler yet.
+- No streaming, uploads, duplicate Set-Cookie values, automatic OPTIONS/CORS.
+- Route placeholders occupy whole segments; overlapping dynamic routes use registration order.
+- CLI serves repository examples, not arbitrary applications or generated projects.
+- PHP-FPM/Apache, Nginx, shared hosting, and ARM deployment remain unverified here.
+- PHP Orku does not run natively on ESP32/ESP8266; an independent IoT SDK is only a proposal.
+
+See [verification](verification.md), [security](security.md), and
+[benchmark methodology](../benchmarks/README.md) for evidence and boundaries.

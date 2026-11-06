@@ -1,4 +1,4 @@
-# Core v0.1 architecture
+# HTTP core and Web v0.2 architecture
 
 ## Web v0.2 extension
 
@@ -33,7 +33,8 @@ capture and handlers share `Kernel::error()` response formatting.
 - HEAD fallback invokes GET, then emitter suppresses body. Handlers must avoid
   side effects on GET/HEAD. Explicit HEAD is available through `Router::add`.
 - Explicit body decoding: no eager JSON parsing for endpoints that do not need it.
-  No form/session parsing package yet. SAPI uses PHP's query and cookie parsing.
+   Optional `Orku\Web` provides URL-encoded form parsing and lazy sessions.
+   SAPI uses PHP's query and cookie parsing.
 - Request path is decoded once, plus signs remain plus signs. Reject dot segments,
   backslashes, encoded separators, control bytes and invalid UTF-8. Keep trailing
   slash significant; do not redirect unsafe methods automatically.
@@ -56,7 +57,9 @@ limits upstream. Specific Apache/Nginx/cPanel recipes await deployment testing.
 
 ## Next boundaries
 
-v0.2 adds Orku Web: trusted PHP template files, automatically escaped data API,
-explicit trusted HTML, layouts/components and an actual SSR form application.
-v0.3 adds DI, middleware, groups/names, validation and CLI diagnostics. These
-modules must not become unconditional database/frontend runtime dependencies.
+Web v0.2 already provides trusted PHP templates, explicit escaping, trusted HTML,
+layouts/components, validation and an SSR form application. Arbitrary PHP output
+is not automatically escaped.
+Proposed v0.3 work includes DI, middleware, groups/names and CLI diagnostics.
+These modules must not introduce unconditional database/frontend dependencies.
+See the [canonical status table](roadmap.md) and [master proposal](../ORK.md).

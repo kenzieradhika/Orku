@@ -224,6 +224,10 @@ not HTTP throughput or a comparison with another framework.
 
 ## Status
 
+The [canonical implementation-status table](docs/roadmap.md) separates shipped
+features from proposals. [ORK.md](ORK.md) records the staged modernization plan,
+including optional Loom `.ork` templates and ThinkCore. Neither is implemented yet.
+
 | Capability | Status |
 | --- | --- |
 | Immutable HTTP values, kernel, SAPI adapter, JSON errors | Implemented |
