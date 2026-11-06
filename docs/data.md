@@ -22,7 +22,8 @@ Transactions commit on success and roll back on exceptions. Nested transactions
 are rejected. DDL may implicitly commit on some drivers; do not rely on rollback
 for such statements. A rollback failure is surfaced with the original operation
 exception as its cause. No automatic retries, query logs, ORM, migrations,
-profiling, connection pool or cross-driver guarantees are implemented.
+profiling, connection pool or cross-driver guarantees are implemented. A separate
+[experimental SQLite migration runner](migrations.md) is available for explicit use.
 
 This is an optional namespace in the existing Composer package; splitting a
 standalone package is deferred until distribution requires it.

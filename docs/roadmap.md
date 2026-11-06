@@ -70,7 +70,8 @@ Do not treat proposed features or historical measurements as implementation evid
 ## Explicit limitations
 
 - PHP 8.3 and older unsupported; no stable API compatibility promise.
-- No worker mode, autowiring, route middleware, migrations, or Loom compiler yet.
+- No worker mode, autowiring, route middleware, cross-driver migrations, or Loom compiler yet.
+- Explicit SQLite-only migrations are experimental; see [migration boundaries](migrations.md).
 - No streaming, uploads, duplicate Set-Cookie values, automatic OPTIONS/CORS.
 - Route placeholders occupy whole segments; overlapping dynamic routes use registration order.
 - CLI serves repository examples, not arbitrary applications or generated projects.
