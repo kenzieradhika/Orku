@@ -7,7 +7,7 @@ error, serta rendering HTML di server menggunakan template PHP. Tidak membutuhka
 Node.js, database, atau paket pihak ketiga sebagai dependensi runtime.
 
 **Status: v0.2-dev.** Masih dalam pengembangan, belum rilis stabil atau siap
-produksi. Autentikasi, database, dan autowiring belum tersedia.
+produksi. Autentikasi, migrasi database, dan autowiring belum tersedia.
 
 ## Mulai cepat
 
@@ -250,7 +250,8 @@ including optional Loom `.ork` templates and ThinkCore. Neither is implemented y
 | Named routes, nested prefix groups, safe URL generation | Implemented |
 | Read-only CLI Doctor runtime diagnostics | Implemented, limited to current process |
 | Autowiring, generators | Planned v0.3 |
-| Database package, worker adapter, compiled routing | Planned later |
+| Optional PDO prepared-query/transaction foundation | Implemented, SQLite tested; see [data](docs/data.md) |
+| Standalone database package, migrations, worker adapter, compiled routing | Planned later |
 | Framework comparisons and performance guarantees | Not available |
 | Running full PHP framework on ESP32/ESP8266 | Unsupported |
 
