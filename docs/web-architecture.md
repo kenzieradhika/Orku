@@ -59,10 +59,19 @@ Unicode code points; numeric values must be finite. Request's body limit remains
 routes. Strict IDs, cookie-only transport at application boundary, HttpOnly,
 SameSite=Lax, explicit path, Secure by default, no domain attribute. Session
 cookies are emitted explicitly on the Response, not hidden header side effects.
-One session cookie suffices; Core's single-value header contract stays unchanged.
+Additional application cookies survive session commit and emit separate header lines.
 Local loopback HTTP requires explicit `secure: false`. Never infer TLS from
 Forwarded/X-Forwarded-* headers. Native session cache headers/cookie emission are
 disabled. Session storage must be private and GC configured by deployment.
+
+Call `$session->regenerate()` after successful authentication or a privilege change,
+before storing elevated identity. It starts a lazy session if needed, rotates the
+native ID, deletes the old session record, preserves data and throws on failure.
+Commit the response to deliver the new cookie. This is a primitive, not an auth
+workflow: CSRF tokens are preserved, not refreshed automatically. Immediate old-ID
+deletion can invalidate concurrent requests or lose continuity if the response is
+lost; applications must coordinate login requests. Custom session handlers must
+correctly implement strict-ID validation and deletion. Do not rotate every request.
 
 `CsrfManager` stores 32 random bytes encoded as hex in session, compares with
 `hash_equals`, rejects missing/invalid tokens with 403, and runs before validation

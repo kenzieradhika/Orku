@@ -31,6 +31,14 @@ final class Session
         $_SESSION[$key] = $value;
     }
 
+    public function regenerate(): void
+    {
+        $this->start();
+        if (!session_regenerate_id(true)) {
+            throw new \RuntimeException('Cannot rotate session ID.');
+        }
+    }
+
     public function commit(Response $response): Response
     {
         if (!$this->started) {

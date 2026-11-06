@@ -12,7 +12,7 @@ not available APIs. Update this table when a feature ships.
 | HTTP/core | Immutable Request/Response, headers, kernel, SAPI, separate Set-Cookie values, safe JSON errors, reporting hook | Streaming, automatic OPTIONS/CORS |
 | Routing | Static/dynamic routes, method helpers, HEAD fallback, 404/405, named routes, nested prefix groups, safe URL generator | Constraints API, route middleware, compiled routing |
 | Web | Trusted PHP SSR, explicit escaping, layouts, partials, components, slots, assets | Loom `.ork` parser/compiler, islands, streamed HTML |
-| Forms | URL-encoded parsing, typed validation, lazy session-backed CSRF | Multipart uploads, authentication, session rotation workflow, rate limiting |
+| Forms | URL-encoded parsing, typed validation, lazy session-backed CSRF, explicit session ID rotation primitive | Multipart uploads, authentication/logout workflow, rate limiting |
 | CLI | `help`, `serve`, `routes`, read-only `doctor`, partial `thinkcore:observe` including visible cgroup v2 memory/CPU ceilings and process CPU affinity; three runnable examples | Project generators, `test`, `benchmark`, `optimize`, tuning |
 | Application services | Explicit handler construction; optional scoped container, ordered callable HTTP middleware, PDO prepared-query/transaction foundation, experimental SQLite migrations | Autowiring, route middleware, standalone data package, cross-driver migrations |
 | Runtime | SAPI adapter, local CLI-server integration tests | Persistent workers, worker lifecycle/reset contracts, resource auto-tuning |

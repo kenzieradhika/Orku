@@ -14,6 +14,38 @@ use PHPUnit\Framework\TestCase;
 
 final class CsrfTest extends TestCase
 {
+    #[RunInSeparateProcess]
+    public function testRotationPreservesDataAndRejectsOldSessionId(): void
+    {
+        $session = new Session(new Request('GET', '/'));
+        $session->set('user', 42);
+        $old = session_id();
+        $session->regenerate();
+        $current = session_id();
+        self::assertNotSame($old, $current);
+        self::assertSame(42, $session->get('user'));
+        $response = $session->commit(Response::text('ok'));
+        self::assertStringStartsWith('orku_session='.$current.';', $response->header('set-cookie'));
+        $stale = new Session(new Request('GET', '/', cookies: ['orku_session' => $old]));
+        self::assertNull($stale->get('user'));
+        self::assertNotSame($old, session_id());
+        $stale->commit(Response::text('ok'));
+        $next = new Session(new Request('GET', '/', cookies: ['orku_session' => $current]));
+        self::assertSame(42, $next->get('user'));
+        $next->commit(Response::text('ok'));
+    }
+
+    #[RunInSeparateProcess]
+    public function testRotationCanStartALazySession(): void
+    {
+        $session = new Session(new Request('GET', '/'));
+        $session->regenerate();
+        self::assertSame(PHP_SESSION_ACTIVE, session_status());
+        self::assertNotSame('', session_id());
+        $session->commit(Response::text('ok'));
+        self::assertSame(PHP_SESSION_NONE, session_status());
+    }
+
     public function testConstructionDoesNotStartSession(): void
     {
         $status = session_status();
