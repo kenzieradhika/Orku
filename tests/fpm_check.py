@@ -46,7 +46,7 @@ def check_session(request):
                       'checks': ['session persistence', 'cookie policy', 'CSRF isolation', 'validation', '303']}))
 
 
-def main(example='hello-world'):
+def main(example='hello-world', resource_check=None):
     root = Path(__file__).resolve().parents[1]
     network = 'orku-check-' + uuid.uuid4().hex
     containers = []
@@ -56,10 +56,11 @@ def main(example='hello-world'):
     docker('network', 'create', network)
     try:
         mount = f'type=bind,src={root},dst=/workspace/Orku,readonly'
-        containers.append(docker('run', '--detach', '--rm', '--network', network,
+        limits = ['--cpus', '1', '--memory', '256m', '--memory-swap', '256m', '--pids-limit', '128'] if resource_check else []
+        containers.append(docker('run', '--detach', '--rm', *limits, '--network', network,
                                  '--network-alias', 'php', '--mount', mount,
                                  'php:8.4.26-fpm', 'php-fpm', '-F', '-d', 'expose_php=0', '-d', 'display_errors=0'))
-        containers.append(docker('run', '--detach', '--rm', '--network', network,
+        containers.append(docker('run', '--detach', '--rm', *limits, '--network', network,
                                  '--publish', '127.0.0.1::80', '--mount', mount,
                                  '--mount', f'type=bind,src={config.name},dst=/etc/nginx/conf.d/default.conf,readonly',
                                  'nginx:1.28-alpine'))
@@ -107,6 +108,8 @@ def main(example='hello-world'):
                                    check=True, capture_output=True, text=True)
         result = json.loads(benchmark.stdout)
         assert result['statuses'] == {'200': 100}, result
+        if resource_check:
+            resource_check(containers, port)
         print(json.dumps({'runtime': 'nginx:1.28-alpine + php:8.4.26-fpm',
                           'status': 'passed', 'concurrent_requests': 100, 'errors': result['errors']}))
     finally:
