@@ -19,6 +19,22 @@ Verified assertions: home/dynamic routing, HEAD without body and with length,
 no PHP source or private mount paths in those responses. CI runs this on the
 PHP 8.4 job. The Apache image uses mod_php, not PHP-FPM.
 
-Not verified: TLS, reverse proxy trust, FPM, Nginx, shared hosting, ARM, writable
+Not verified by the Apache check: TLS, reverse proxy trust, FPM, Nginx, shared hosting, ARM, writable
 session storage, persistent workers, sustained load, pool-wide resources or
 production readiness. Add separate deployment checks before claiming support.
+
+## Nginx/PHP-FPM
+
+Run `python3 tests/fpm_check.py`. Images: `nginx:1.28-alpine` and
+`php:8.4.26-fpm`. The fixture `tests/fixtures/nginx.conf` executes only the exact
+public `index.php`; other PHP paths and dot paths return 404. FPM has no published
+port. Both containers share a disposable bridge network; only Nginx exposes an
+ephemeral loopback port. Repository mounts are read-only. Cleanup stops only the
+created containers and removes their network.
+
+The check covers routing, HEAD/length, 405, security headers, source isolation and
+100 successful requests at concurrency 4. CI runs it on PHP 8.4. This is a smoke
+check, not a sustained-load or capacity claim. SAPI capture omits empty CGI
+`CONTENT_LENGTH`/`CONTENT_TYPE` metadata, as sent by Nginx when absent; nonempty
+malformed lengths remain rejected. TLS, proxy trust, session storage, sustained
+memory behavior and rollback remain separate [stable release gates](stable-release-checklist.md).

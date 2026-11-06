@@ -29,7 +29,9 @@ final class SapiRuntime
             if (str_starts_with($name, 'HTTP_')) {
                 $headers[str_replace('_', '-', substr($name, 5))] = $value;
             } elseif ($name === 'CONTENT_TYPE' || $name === 'CONTENT_LENGTH') {
-                $headers[str_replace('_', '-', $name)] = $value;
+                if ($value !== '') {
+                    $headers[str_replace('_', '-', $name)] = $value;
+                }
             }
         }
         $length = $headers['CONTENT-LENGTH'] ?? null;

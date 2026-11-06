@@ -88,7 +88,8 @@ attributes and unique name/path/domain combinations; no cookie builder is provid
 - Route placeholders occupy whole segments; overlapping dynamic routes use registration order.
 - CLI serves repository examples, not arbitrary applications or generated projects.
 - Apache/mod_php has an isolated PHP 8.4 container smoke check; see [deployment check](deployment-check.md).
-- PHP-FPM, Nginx, shared hosting, ARM and production deployment remain unverified here.
+- Nginx/PHP-FPM has an isolated PHP 8.4 smoke check, including 100 requests at concurrency 4.
+- Shared hosting, ARM, TLS and production deployment remain unverified here.
 - PHP Orku does not run natively on ESP32/ESP8266; an independent IoT SDK is only a proposal.
 
 See [verification](verification.md), [security](security.md), and

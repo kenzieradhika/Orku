@@ -9,6 +9,39 @@ use PHPUnit\Framework\TestCase;
 
 final class RuntimeTest extends TestCase
 {
+    public function testCaptureNormalizesAbsentFastCgiContentMetadata(): void
+    {
+        $server = $_SERVER;
+        try {
+            $_SERVER = ['REQUEST_METHOD' => 'GET', 'REQUEST_URI' => '/', 'CONTENT_LENGTH' => '', 'CONTENT_TYPE' => ''];
+            $request = \Orku\Runtime\SapiRuntime::capture();
+            self::assertNull($request->header('content-length'));
+            self::assertNull($request->header('content-type'));
+            $_SERVER['CONTENT_LENGTH'] = '0';
+            self::assertSame('0', \Orku\Runtime\SapiRuntime::capture()->header('content-length'));
+        } finally {
+            $_SERVER = $server;
+        }
+    }
+
+    public function testCaptureRejectsMalformedContentLength(): void
+    {
+        $server = $_SERVER;
+        try {
+            foreach ([' ', '-1', '1x', '1,1'] as $length) {
+                $_SERVER = ['CONTENT_LENGTH' => $length];
+                try {
+                    \Orku\Runtime\SapiRuntime::capture();
+                    self::fail('Malformed content length accepted.');
+                } catch (\Orku\Http\HttpException $error) {
+                    self::assertSame(400, $error->status);
+                }
+            }
+        } finally {
+            $_SERVER = $server;
+        }
+    }
+
     public function testSessionPreservesAllCookieHeaderLines(): void
     {
         $server = new Server('', fixture: true);

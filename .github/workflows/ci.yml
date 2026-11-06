@@ -23,6 +23,8 @@ jobs:
       - run: composer check
       - if: matrix.php == '8.4'
         run: python3 tests/apache_check.py
+      - if: matrix.php == '8.4'
+        run: python3 tests/fpm_check.py
       - run: php benchmarks/kernel.php 100
       - run: php benchmarks/web.php 100
       - run: composer audit
