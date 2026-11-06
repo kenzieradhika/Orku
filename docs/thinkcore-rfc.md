@@ -8,7 +8,13 @@ Null means unavailable, unsupported, malformed, overflowed or entirely unlimited
 Missing ancestor files invalidate the whole measurement, not just that ancestor.
 Hidden ancestors outside the mount/namespace cannot be measured. This is not free
 RAM or an effective machine memory guarantee; `effective_memory_bytes` and CPU
-remain null. CPU/affinity detection below is still proposed. No auto-tuning,
+remain null. `cgroup_visible_cpu_quota` reports the minimum finite quota/period
+across visible ancestors, preserving fractional CPU units. `cpu_affinity_count`
+counts `/proc/self/status` CPU ranges without allocating an array of CPU IDs.
+Malformed, overlapping, unordered or overflowing affinity ranges return null.
+CPU quota and affinity are separate snapshots, not guaranteed available capacity;
+hidden ancestor quotas and concurrent runtime changes remain unknown.
+No auto-tuning,
 recommendations, outbound telemetry, persistence or production mutation.
 
 Initial output: JSON with platform, PHP version, configured PHP memory limit,

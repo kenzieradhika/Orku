@@ -236,7 +236,7 @@ last `Kernel` constructor argument, with short-circuit responses and safe errors
 The [canonical implementation-status table](docs/roadmap.md) separates shipped
 features from proposals. [ORK.md](ORK.md) records the staged modernization plan,
 including optional Loom `.ork` templates and ThinkCore. Loom is not implemented;
-ThinkCore has read-only PHP/platform/memory-limit and visible cgroup v2 memory reporting, not hardware tuning.
+ThinkCore has read-only PHP/platform/memory-limit, visible cgroup v2 memory/CPU ceilings and CPU affinity reporting, not hardware tuning.
 
 | Capability | Status |
 | --- | --- |
@@ -250,7 +250,7 @@ ThinkCore has read-only PHP/platform/memory-limit and visible cgroup v2 memory r
 | Ordered callable middleware, short-circuit responses | Implemented, optional |
 | Named routes, nested prefix groups, safe URL generation | Implemented |
 | Read-only CLI Doctor runtime diagnostics | Implemented, limited to current process |
-| `thinkcore:observe` PHP/platform/memory-limit report | Partial; visible cgroup v2 memory ceiling, CPU/effective RAM unknown, no tuning |
+| `thinkcore:observe` PHP/platform/memory-limit report | Partial; visible cgroup v2 memory/CPU ceilings, CPU affinity; effective capacity unknown, no tuning |
 | Autowiring, generators | Planned v0.3 |
 | Optional PDO prepared-query/transaction foundation | Implemented, SQLite tested; see [data](docs/data.md) |
 | Explicit SQLite migration batches and checksum history | Experimental; see [migrations](docs/migrations.md) |
