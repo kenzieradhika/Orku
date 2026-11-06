@@ -7,7 +7,7 @@ error, serta rendering HTML di server menggunakan template PHP. Tidak membutuhka
 Node.js, database, atau paket pihak ketiga sebagai dependensi runtime.
 
 **Status: v0.2-dev.** Masih dalam pengembangan, belum rilis stabil atau siap
-produksi. Autentikasi, database, middleware, dependency injection, route group,
+produksi. Autentikasi, database, middleware, autowiring, route group,
 dan named route belum tersedia.
 
 ## Mulai cepat
@@ -222,6 +222,13 @@ Tests include live HTTP requests to all three examples, CLI validation and secur
 regressions. CI targets PHP 8.4 and 8.5. Benchmark is an in-process microbenchmark,
 not HTTP throughput or a comparison with another framework.
 
+## Optional dependency container
+
+Explicit-factory scoped DI is available without changing the HTTP kernel.
+Run `php examples/container.php`; see [container contracts and limitations](docs/scoped-di-rfc.md).
+Supported lifetimes: singleton, request, transient. Autowiring and worker scopes
+are not implemented. Always close request scopes in `finally`.
+
 ## Status
 
 The [canonical implementation-status table](docs/roadmap.md) separates shipped
@@ -236,7 +243,8 @@ including optional Loom `.ork` templates and ThinkCore. Neither is implemented y
 | Unit/security/live HTTP tests, analysis, formatting, CI config | Implemented |
 | SSR layouts/components, explicit escaping, static assets | Implemented v0.2 |
 | URL-encoded forms, typed validation, lazy session-backed CSRF | Implemented v0.2 |
-| DI, middleware, groups, named routes, Doctor, generators | Planned v0.3 |
+| Explicit-factory scoped DI and deterministic cleanup | Implemented, optional |
+| Autowiring, middleware, groups, named routes, Doctor, generators | Planned v0.3 |
 | Database package, worker adapter, compiled routing | Planned later |
 | Framework comparisons and performance guarantees | Not available |
 | Running full PHP framework on ESP32/ESP8266 | Unsupported |
