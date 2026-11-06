@@ -7,8 +7,7 @@ error, serta rendering HTML di server menggunakan template PHP. Tidak membutuhka
 Node.js, database, atau paket pihak ketiga sebagai dependensi runtime.
 
 **Status: v0.2-dev.** Masih dalam pengembangan, belum rilis stabil atau siap
-produksi. Autentikasi, database, autowiring, route group,
-dan named route belum tersedia.
+produksi. Autentikasi, database, dan autowiring belum tersedia.
 
 ## Mulai cepat
 
@@ -248,7 +247,8 @@ including optional Loom `.ork` templates and ThinkCore. Neither is implemented y
 | URL-encoded forms, typed validation, lazy session-backed CSRF | Implemented v0.2 |
 | Explicit-factory scoped DI and deterministic cleanup | Implemented, optional |
 | Ordered callable middleware, short-circuit responses | Implemented, optional |
-| Autowiring, groups, named routes, Doctor, generators | Planned v0.3 |
+| Named routes, nested prefix groups, safe URL generation | Implemented |
+| Autowiring, Doctor, generators | Planned v0.3 |
 | Database package, worker adapter, compiled routing | Planned later |
 | Framework comparisons and performance guarantees | Not available |
 | Running full PHP framework on ESP32/ESP8266 | Unsupported |
