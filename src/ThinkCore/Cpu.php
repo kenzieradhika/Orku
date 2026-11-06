@@ -44,16 +44,7 @@ final class Cpu
     /** @param callable(string): (string|false) $read */
     public static function ceiling(string $membership, string $mountinfo, callable $read): ?float
     {
-        $limit = Cgroup::ceiling($membership, $mountinfo, static function (string $path) use ($read): string|false {
-            $value = $read($path);
-            if ($value !== false && preg_match('/^max\s+([0-9]+)$/D', trim($value), $parts)) {
-                $period = Sense::memoryBytes($parts[1]);
-
-                return $period !== null && $period > 0 ? 'max' : false;
-            }
-
-            return $value !== false && trim($value) === 'max' ? false : $value;
-        }, 'cpu.max', self::quota(...));
+        $limit = Cgroup::ceiling($membership, $mountinfo, $read, 'cpu.max', self::quota(...));
 
         return $limit !== null ? (float) $limit : null;
     }

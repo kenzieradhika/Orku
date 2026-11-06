@@ -1,10 +1,14 @@
 # ThinkCore Sense read-only contract
 
-Status: partial observe-only foundation. `php bin/orku thinkcore:observe` reports
+Status: implemented bounded Linux cgroup v2 observe-only baseline. `php bin/orku thinkcore:observe` reports
 platform, PHP and parsed PHP memory_limit. On Linux, the additional
 `cgroup_visible_memory_limit_bytes` reports the minimum finite `memory.max` across
 the visible cgroup v2 ancestry, using process membership and mount mapping.
 Null means unavailable, unsupported, malformed, overflowed or entirely unlimited.
+`measurement_status` distinguishes each measurement: `available`, `unlimited`,
+`unreadable` (missing/denied files), `invalid` (including overflow), `unsupported`
+(non-Linux or no unified cgroup v2 membership), and `unmapped` (no matching mount).
+`effective_capacity` remains `unknown`, never an invented host total.
 Missing ancestor files invalidate the whole measurement, not just that ancestor.
 Hidden ancestors outside the mount/namespace cannot be measured. This is not free
 RAM or an effective machine memory guarantee; `effective_memory_bytes` and CPU
@@ -16,6 +20,15 @@ CPU quota and affinity are separate snapshots, not guaranteed available capacity
 hidden ancestor quotas and concurrent runtime changes remain unknown.
 No auto-tuning,
 recommendations, outbound telemetry, persistence or production mutation.
+
+The observe-only baseline is complete within this scope, not the complete
+ThinkCore proposal. cgroup v1 and non-Linux resource sensing are explicitly
+unsupported. Measurements are best-effort, non-atomic snapshots; hidden ancestors
+cannot be discovered from a restricted namespace. The CLI accepts no reader paths.
+Only fixed proc metadata and resource-limit files are read; no environment dump,
+command lines, credentials, user files or network access. Null is a valid result,
+not permission to tune. Configuration is never changed. Worker sizing and tuning
+require later workload/RSS/latency measurements and separate approval.
 
 Initial output: JSON with platform, PHP version, configured PHP memory limit,
 effective CPU quota, effective memory ceiling and explicit availability/reason

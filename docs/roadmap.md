@@ -56,6 +56,10 @@ Native acceleration remains optional and does not block v1.0. ThinkCore starts
 read-only; no automatic production configuration changes. Existing PHP templates
 remain supported when the optional `.ork` layer arrives.
 
+ThinkCore's bounded Linux cgroup v2 observation baseline is implemented, including
+per-measurement availability status. This does not implement recommendations,
+cgroup v1/non-Linux sensing or auto-tuning. See [observation scope](thinkcore-rfc.md).
+
 ## Immediate backlog
 
 1. Reconcile documentation and preserve the master proposal in `ORK.md`.

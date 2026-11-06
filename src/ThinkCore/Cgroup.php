@@ -12,12 +12,25 @@ final class Cgroup
      */
     public static function ceiling(string $membership, string $mountinfo, callable $read, string $file, callable $parse): int|float|null
     {
+        return self::report($membership, $mountinfo, $read, $file, $parse)['value'];
+    }
+
+    /**
+     * @param callable(string): (string|false) $read
+     * @param callable(string): (int|float|null) $parse
+     * @return array{value: int|float|null, status: string}
+     */
+    public static function report(string $membership, string $mountinfo, callable $read, string $file, callable $parse): array
+    {
         if (!in_array($file, ['memory.max', 'cpu.max'], true)) {
-            return null;
+            return ['value' => null, 'status' => 'unsupported'];
         }
         preg_match_all('/^0::([^\r\n]+)$/m', $membership, $members);
+        if ($members[1] === []) {
+            return ['value' => null, 'status' => 'unsupported'];
+        }
         if (count($members[1]) !== 1 || !self::validPath($members[1][0])) {
-            return null;
+            return ['value' => null, 'status' => 'invalid'];
         }
         $group = $members[1][0];
         foreach (explode("\n", $mountinfo) as $line) {
@@ -41,17 +54,22 @@ final class Cgroup
             while (true) {
                 $value = $read($directory.'/'.$file);
                 if ($value === false) {
-                    return null;
+                    return ['value' => null, 'status' => 'unreadable'];
                 }
                 $value = trim($value);
-                if ($value !== 'max') {
+                $unlimited = $file === 'memory.max' && $value === 'max';
+                if ($file === 'cpu.max' && preg_match('/^max\s+([0-9]+)$/D', $value, $parts)) {
+                    $period = Sense::memoryBytes($parts[1]);
+                    $unlimited = $period !== null && $period > 0;
+                }
+                if (!$unlimited) {
                     if (($bytes = $parse($value)) === null) {
-                        return null;
+                        return ['value' => null, 'status' => 'invalid'];
                     }
                     $minimum = $minimum === null ? $bytes : min($minimum, $bytes);
                 }
                 if ($directory === $boundary) {
-                    return $minimum;
+                    return ['value' => $minimum, 'status' => $minimum === null ? 'unlimited' : 'available'];
                 }
                 $directory = dirname($directory);
                 if ($directory === '/') {
@@ -60,7 +78,7 @@ final class Cgroup
             }
         }
 
-        return null;
+        return ['value' => null, 'status' => 'unmapped'];
     }
 
     private static function decode(string $path): string
