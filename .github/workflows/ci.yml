@@ -21,6 +21,8 @@ jobs:
       - run: python3 -m unittest discover -s benchmarks -p 'test_http_latency.py'
       - run: composer install --no-interaction --prefer-dist
       - run: composer check
+      - if: matrix.php == '8.4'
+        run: python3 tests/apache_check.py
       - run: php benchmarks/kernel.php 100
       - run: php benchmarks/web.php 100
       - run: composer audit
