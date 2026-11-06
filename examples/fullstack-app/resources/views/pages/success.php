@@ -1,0 +1,2 @@
+<?php declare(strict_types=1); /** @var Orku\Web\ViewContext $view */ ?>
+<section class="intro compact"><h1>Demo submission<br>validated.</h1><p class="lead">A successful POST redirects here. Feedback is not stored or sent. This page alone is not proof of a submission.</p><?= $view->component('button', ['href' => $view->string('prefix').'/contact', 'label' => 'Return to feedback form']) ?></section>

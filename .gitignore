@@ -1,0 +1,8 @@
+/vendor/
+/.phpunit.cache/
+/.php-cs-fixer.cache
+/.phpstan-cache/
+/.env
+/benchmarks/results/
+__pycache__/
+*.pyc

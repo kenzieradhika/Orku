@@ -1,0 +1,25 @@
+{
+    "name": "orku/framework",
+    "description": "Orku: Optimized Runtime Kernel Utility. A small PHP HTTP framework.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.5",
+        "phpstan/phpstan": "^2.1",
+        "friendsofphp/php-cs-fixer": "^3.89"
+    },
+    "autoload": {"psr-4": {"Orku\\": "src/"}},
+    "autoload-dev": {"psr-4": {"Orku\\Tests\\": "tests/"}},
+    "bin": ["bin/orku"],
+    "scripts": {
+        "test": "@php vendor/bin/phpunit",
+        "analyse": "@php vendor/bin/phpstan analyse --no-progress",
+        "format:check": "@php vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "check": ["@test", "@analyse", "@format:check"]
+    },
+    "config": {"sort-packages": true, "allow-plugins": false}
+}

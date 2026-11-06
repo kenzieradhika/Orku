@@ -1,0 +1,10 @@
+parameters:
+    level: max
+    paths:
+        - src
+        - examples
+        - bin/orku
+        - benchmarks/kernel.php
+        - benchmarks/web.php
+        - benchmarks/views
+    tmpDir: .phpstan-cache
