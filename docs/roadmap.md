@@ -14,7 +14,7 @@ not available APIs. Update this table when a feature ships.
 | Web | Trusted PHP SSR, explicit escaping, layouts, partials, components, slots, assets | Loom `.ork` parser/compiler, islands, streamed HTML |
 | Forms | URL-encoded parsing, typed validation, lazy session-backed CSRF | Multipart uploads, authentication, session rotation workflow, rate limiting |
 | CLI | `help`, `serve`, `routes`; three runnable examples | `doctor`, project generators, `test`, `benchmark`, `optimize`, ThinkCore commands |
-| Application services | Explicit handler construction; optional explicit-factory container with singleton/request/transient lifetimes and scope cleanup | Autowiring, middleware pipeline, PDO package, migrations |
+| Application services | Explicit handler construction; optional scoped container; ordered callable HTTP middleware | Autowiring, route middleware, PDO package, migrations |
 | Runtime | SAPI adapter, local CLI-server integration tests | Persistent workers, worker lifecycle/reset contracts, resource auto-tuning |
 | Verification | Unit/security/live HTTP tests, PHPStan, formatting, dependency audit in CI | Production deployment validation, concurrent production-like comparison suite |
 | Optimization proposals | Existing kernel/view microbenchmarks | ThinkCore, ScopeWeave, FluxCore, MemBound, TraceDNA, RouteMorph, FailMesh, QueryPulse, DriftGuard, SafeRuntime, SmartData, NativeBridge |
@@ -70,7 +70,7 @@ Do not treat proposed features or historical measurements as implementation evid
 ## Explicit limitations
 
 - PHP 8.3 and older unsupported; no stable API compatibility promise.
-- No worker mode, autowiring, middleware, named/grouped routes, DB, or Loom compiler yet.
+- No worker mode, autowiring, route middleware, named/grouped routes, DB, or Loom compiler yet.
 - No streaming, uploads, duplicate Set-Cookie values, automatic OPTIONS/CORS.
 - Route placeholders occupy whole segments; overlapping dynamic routes use registration order.
 - CLI serves repository examples, not arbitrary applications or generated projects.

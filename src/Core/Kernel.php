@@ -15,21 +15,34 @@ final class Kernel
     private readonly ?\Closure $report;
     /** @var null|\Closure(\Throwable, Response): Response */
     private readonly ?\Closure $renderError;
+    /** @var null|\Closure(Request): Response */
+    private readonly ?\Closure $pipeline;
 
     /**
      * @param null|callable(\Throwable): void $report
      * @param null|callable(\Throwable, Response): Response $renderError
+     * @param list<mixed> $middleware Callables accepting Request and next, returning Response.
      */
-    public function __construct(private readonly Router $router, private readonly bool $debug = false, ?callable $report = null, ?callable $renderError = null)
+    public function __construct(private readonly Router $router, private readonly bool $debug = false, ?callable $report = null, ?callable $renderError = null, array $middleware = [])
     {
         $this->report = $report === null ? null : \Closure::fromCallable($report);
         $this->renderError = $renderError === null ? null : \Closure::fromCallable($renderError);
+        $next = fn (Request $request): Response => $this->router->dispatch($request);
+        foreach (array_reverse($middleware) as $layer) {
+            if (!is_callable($layer)) {
+                throw new \InvalidArgumentException('Middleware must be callable.');
+            }
+            /** @var callable(Request, callable(Request): Response): Response $layer */
+            $downstream = $next;
+            $next = fn (Request $request): Response => $layer($request, $downstream);
+        }
+        $this->pipeline = $middleware === [] ? null : $next;
     }
 
     public function handle(Request $request): Response
     {
         try {
-            return $this->router->dispatch($request);
+            return $this->pipeline === null ? $this->router->dispatch($request) : ($this->pipeline)($request);
         } catch (\Throwable $error) {
             return $this->error($error);
         }

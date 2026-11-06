@@ -7,7 +7,7 @@ error, serta rendering HTML di server menggunakan template PHP. Tidak membutuhka
 Node.js, database, atau paket pihak ketiga sebagai dependensi runtime.
 
 **Status: v0.2-dev.** Masih dalam pengembangan, belum rilis stabil atau siap
-produksi. Autentikasi, database, middleware, autowiring, route group,
+produksi. Autentikasi, database, autowiring, route group,
 dan named route belum tersedia.
 
 ## Mulai cepat
@@ -231,6 +231,9 @@ are not implemented. Always close request scopes in `finally`.
 
 ## Status
 
+Optional ordered [HTTP middleware](docs/middleware.md) is supported through the
+last `Kernel` constructor argument, with short-circuit responses and safe errors.
+
 The [canonical implementation-status table](docs/roadmap.md) separates shipped
 features from proposals. [ORK.md](ORK.md) records the staged modernization plan,
 including optional Loom `.ork` templates and ThinkCore. Neither is implemented yet.
@@ -244,7 +247,8 @@ including optional Loom `.ork` templates and ThinkCore. Neither is implemented y
 | SSR layouts/components, explicit escaping, static assets | Implemented v0.2 |
 | URL-encoded forms, typed validation, lazy session-backed CSRF | Implemented v0.2 |
 | Explicit-factory scoped DI and deterministic cleanup | Implemented, optional |
-| Autowiring, middleware, groups, named routes, Doctor, generators | Planned v0.3 |
+| Ordered callable middleware, short-circuit responses | Implemented, optional |
+| Autowiring, groups, named routes, Doctor, generators | Planned v0.3 |
 | Database package, worker adapter, compiled routing | Planned later |
 | Framework comparisons and performance guarantees | Not available |
 | Running full PHP framework on ESP32/ESP8266 | Unsupported |
