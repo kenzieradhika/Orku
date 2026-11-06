@@ -18,6 +18,7 @@ jobs:
           coverage: none
           tools: composer:v2
       - run: composer validate --strict
+      - run: python3 -m unittest discover -s benchmarks -p 'test_http_latency.py'
       - run: composer install --no-interaction --prefer-dist
       - run: composer check
       - run: php benchmarks/kernel.php 100
