@@ -1,0 +1,8 @@
+/.github export-ignore
+/tests export-ignore
+/benchmarks export-ignore
+/composer.lock export-ignore
+/phpunit.xml export-ignore
+/phpstan.neon export-ignore
+/.php-cs-fixer.dist.php export-ignore
+/.gitignore export-ignore

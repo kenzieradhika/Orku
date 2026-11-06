@@ -4,6 +4,7 @@
     "type": "library",
     "license": "MIT",
     "require": {
+        "composer-runtime-api": "^2.2",
         "php": "^8.4",
         "ext-json": "*"
     },

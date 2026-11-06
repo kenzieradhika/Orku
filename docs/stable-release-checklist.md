@@ -14,7 +14,7 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [ ] TLS/proxy deployment and rollback runbook, verified on claimed runtime.
 - [ ] Public API compatibility policy and migration guide.
 - [ ] Security/API review with all release-blocking findings resolved.
-- [ ] Clean Composer consumer installation and packaged distribution check.
+- [x] Clean Composer consumer installation and Git distribution check (API dispatch and CLI help, PHP 8.4).
 - [ ] Reconcile README, architecture, roadmap, examples and changelog.
 - [ ] Release candidate soak period and explicit readiness decision.
 - [ ] Publish stable tag/release only after the gates above pass.
