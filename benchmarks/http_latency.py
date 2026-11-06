@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Sequential loopback HTTP baseline, not a production capacity estimate."""
+"""Bounded loopback HTTP baseline, not a production capacity estimate."""
 import argparse
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 import http.client
 import json
 import math
@@ -24,11 +25,29 @@ def process_sample(pid):
     }
 
 
+def request_sample(host, port, target):
+    connection = http.client.HTTPConnection(host, port, timeout=10)
+    tick = time.perf_counter_ns()
+    status = None
+    try:
+        connection.request('GET', target)
+        response = connection.getresponse()
+        while response.read(65536):
+            pass
+        status = response.status
+    except (OSError, http.client.HTTPException):
+        pass
+    finally:
+        connection.close()
+    return status, (time.perf_counter_ns() - tick) / 1e6
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('url', help='Explicit authorized loopback HTTP endpoint')
     parser.add_argument('--requests', type=int, default=500)
     parser.add_argument('--warmup', type=int, default=50)
+    parser.add_argument('--concurrency', type=int, default=1)
     parser.add_argument('--runtime-label', required=True,
                         help='Operator-supplied server/runtime configuration label')
     parser.add_argument('--server-pid', type=int)
@@ -46,6 +65,8 @@ def main():
         parser.error('Use loopback HTTP without credentials/fragments, valid port, 1..100000 requests and 0..100000 warmup')
     if args.server_pid is not None and args.server_pid <= 0:
         parser.error('--server-pid must be positive')
+    if not 1 <= args.concurrency <= 128:
+        parser.error('--concurrency must be 1..128')
 
     resources = {'pid': args.server_pid, 'rss_start_bytes': None,
                  'rss_end_bytes': None, 'cpu_seconds': None,
@@ -56,38 +77,30 @@ def main():
     warmup_errors = 0
     before = None
     target = urllib.parse.urlunsplit(('', '', url.path or '/', url.query, ''))
-    for i in range(args.warmup + args.requests):
-        if i == args.warmup:
-            if args.server_pid is not None:
-                try:
-                    before = process_sample(args.server_pid)
-                    resources['rss_start_bytes'] = before['rss']
-                    resources['unavailable_reason'] = None
-                except (OSError, ValueError, IndexError):
-                    resources['unavailable_reason'] = 'Process unavailable or Linux /proc unsupported'
-            started = time.perf_counter()
-        connection = http.client.HTTPConnection(url.hostname, port, timeout=10)
-        tick = time.perf_counter_ns()
-        status = None
+    def worker(offset):
+        return [request_sample(url.hostname, port, target)
+                for _ in range(offset, args.requests, args.concurrency)]
+
+    for _ in range(args.warmup):
+        warmup_errors += request_sample(url.hostname, port, target)[0] != 200
+    if args.server_pid is not None:
         try:
-            connection.request('GET', target)
-            response = connection.getresponse()
-            while response.read(65536):
-                pass
-            status = response.status
-        except (OSError, http.client.HTTPException):
-            pass
-        finally:
-            connection.close()
-        if i >= args.warmup:
-            samples.append((time.perf_counter_ns() - tick) / 1e6)
+            before = process_sample(args.server_pid)
+            resources['rss_start_bytes'] = before['rss']
+            resources['unavailable_reason'] = None
+        except (OSError, ValueError, IndexError):
+            resources['unavailable_reason'] = 'Process unavailable or Linux /proc unsupported'
+    started = time.perf_counter()
+    with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
+        results = list(pool.map(worker, range(min(args.concurrency, args.requests))))
+    wall_seconds = time.perf_counter() - started
+    for batch in results:
+        for status, latency in batch:
+            samples.append(latency)
             if status is None:
                 transport_errors += 1
             else:
                 statuses[str(status)] += 1
-        else:
-            warmup_errors += status != 200
-    wall_seconds = time.perf_counter() - started
     if before is not None:
         try:
             after = process_sample(args.server_pid)
@@ -102,7 +115,8 @@ def main():
     print(json.dumps({
         'url': args.url, 'runtime_label': args.runtime_label,
         'client_python': platform.python_version(), 'client_platform': platform.platform(),
-        'kind': 'sequential loopback HTTP; fresh TCP per request; no redirects; 10s timeout',
+        'kind': 'closed-loop loopback HTTP; fresh TCP per request; no redirects; 10s timeout',
+        'concurrency': args.concurrency,
         'requests': args.requests, 'warmup': args.warmup, 'warmup_errors': warmup_errors,
         'wall_seconds': wall_seconds, 'requests_per_second': args.requests / wall_seconds,
         'mean_ms': statistics.mean(samples),

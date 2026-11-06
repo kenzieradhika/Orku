@@ -10,6 +10,15 @@ import unittest
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
+        if self.path == '/concurrent':
+            try:
+                self.server.overlap.wait(timeout=3)
+                self.send_response(200)
+            except threading.BrokenBarrierError:
+                self.send_response(503)
+            self.end_headers()
+            self.wfile.write(b'ok')
+            return
         if self.path == '/disconnect':
             self.connection.close()
             return
@@ -56,13 +65,32 @@ class BenchmarkTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertEqual(json.loads(result.stdout)['errors'], 1)
 
+    def test_concurrent_requests_actually_overlap(self):
+        self.server.overlap = threading.Barrier(2)
+        result = self.run_benchmark('/concurrent', '--requests', '4', '--concurrency', '2')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads(result.stdout)
+        self.assertEqual(data['concurrency'], 2)
+        self.assertEqual(data['statuses'], {'200': 4})
+        self.assertEqual(data['errors'], 0)
+        self.assertLessEqual(data['p50_ms'], data['p99_ms'])
+
+    def test_concurrent_failure_accounting(self):
+        for path, field in [('/unavailable', 'errors'), ('/disconnect', 'transport_errors')]:
+            result = self.run_benchmark(path, '--requests', '5', '--warmup', '2', '--concurrency', '2')
+            self.assertEqual(result.returncode, 1, result.stderr)
+            data = json.loads(result.stdout)
+            self.assertEqual(data[field], 5)
+            self.assertEqual(data['warmup_errors'], 2)
+            self.assertEqual(data['error_rate'], 1)
+
     def test_disconnect_is_transport_error(self):
         result = self.run_benchmark('/disconnect')
         self.assertEqual(result.returncode, 1)
         self.assertEqual(json.loads(result.stdout)['transport_errors'], 1)
 
     def test_invalid_arguments(self):
-        for options in [('--requests', '0'), ('--warmup', '-1'), ('--server-pid', '0')]:
+        for options in [('--requests', '0'), ('--warmup', '-1'), ('--server-pid', '0'), ('--concurrency', '0'), ('--concurrency', '129')]:
             with self.subTest(options=options):
                 self.assertEqual(self.run_benchmark('/?name=Ada', *options).returncode, 2)
         script = str(Path(__file__).with_name('http_latency.py'))
