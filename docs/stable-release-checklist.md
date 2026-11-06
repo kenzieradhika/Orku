@@ -10,7 +10,7 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [x] Isolated Apache/mod_php routing and public-root smoke check.
 - [x] Isolated Nginx/PHP-FPM routing and public-root smoke check.
 - [ ] Sustained workload, memory growth and state-isolation evidence.
-- [ ] Session/form deployment checks under web-server identity.
+- [x] Session/form deployment checks under web-server identity (isolated FPM default file storage).
 - [ ] TLS/proxy deployment and rollback runbook, verified on claimed runtime.
 - [ ] Public API compatibility policy and migration guide.
 - [ ] Security/API review with all release-blocking findings resolved.

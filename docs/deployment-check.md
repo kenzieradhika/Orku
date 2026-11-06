@@ -38,3 +38,13 @@ check, not a sustained-load or capacity claim. SAPI capture omits empty CGI
 `CONTENT_LENGTH`/`CONTENT_TYPE` metadata, as sent by Nginx when absent; nonempty
 malformed lengths remain rejected. TLS, proxy trust, session storage, sustained
 memory behavior and rollback remain separate [stable release gates](stable-release-checklist.md).
+
+The same runner separately boots `fullstack-app` under the FPM worker identity.
+It verifies writable default file-session storage across requests, distinct
+sessions/tokens, Secure/HttpOnly/SameSite=Lax cookie attributes, rejection of
+missing/cross-session CSRF tokens (403), invalid fields (422), and valid form
+redirect (303). Cookies are explicitly replayed by the test client over loopback
+HTTP to exercise server-side state while retaining the production Secure policy.
+This does not verify browser Secure-cookie delivery or TLS. Session files exist
+only inside the disposable container, not on the read-only repository mount;
+shared/persistent production storage still needs deployment-specific validation.
