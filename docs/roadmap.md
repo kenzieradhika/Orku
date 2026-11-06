@@ -13,15 +13,15 @@ not available APIs. Update this table when a feature ships.
 | Routing | Static/dynamic routes, method helpers, HEAD fallback, 404/405, named routes, nested prefix groups, safe URL generator | Constraints API, route middleware, compiled routing |
 | Web | Trusted PHP SSR, explicit escaping, layouts, partials, components, slots, assets | Loom `.ork` parser/compiler, islands, streamed HTML |
 | Forms | URL-encoded parsing, typed validation, lazy session-backed CSRF | Multipart uploads, authentication, session rotation workflow, rate limiting |
-| CLI | `help`, `serve`, `routes`, read-only `doctor`, partial `thinkcore:observe`; three runnable examples | Project generators, `test`, `benchmark`, `optimize`, hardware sensing/tuning |
-| Application services | Explicit handler construction; optional scoped container, ordered callable HTTP middleware, PDO prepared-query/transaction foundation (SQLite tested) | Autowiring, route middleware, standalone data package, migrations |
+| CLI | `help`, `serve`, `routes`, read-only `doctor`, partial `thinkcore:observe` including visible cgroup v2 memory ceilings; three runnable examples | Project generators, `test`, `benchmark`, `optimize`, CPU/affinity sensing, tuning |
+| Application services | Explicit handler construction; optional scoped container, ordered callable HTTP middleware, PDO prepared-query/transaction foundation, experimental SQLite migrations | Autowiring, route middleware, standalone data package, cross-driver migrations |
 | Runtime | SAPI adapter, local CLI-server integration tests | Persistent workers, worker lifecycle/reset contracts, resource auto-tuning |
 | Verification | Unit/security/live HTTP tests, PHPStan, formatting, dependency audit in CI | Production deployment validation, concurrent production-like comparison suite |
 | Optimization proposals | Existing kernel/view microbenchmarks | ThinkCore, ScopeWeave, FluxCore, MemBound, TraceDNA, RouteMorph, FailMesh, QueryPulse, DriftGuard, SafeRuntime, SmartData, NativeBridge |
 
 TurboKernel is proposed branding for the existing small kernel and future
-extensions, not a separate implemented optimization system. Doctor is a proposed
-CLI feature. No comparative performance guarantees are available.
+extensions, not a separate implemented optimization system. Doctor provides
+read-only process diagnostics. No comparative performance guarantees are available.
 
 ## Completed development milestones
 
