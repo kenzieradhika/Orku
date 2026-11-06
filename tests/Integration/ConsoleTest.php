@@ -49,6 +49,15 @@ final class ConsoleTest extends TestCase
         self::assertStringContainsString('GET /api/v1/users/{id}', $out);
     }
 
+    public function testThinkCoreObserveOutputsReadOnlyReport(): void
+    {
+        [$status, $out] = $this->command(['thinkcore:observe']);
+        self::assertSame(0, $status);
+        $report = json_decode($out, true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame('observe', $report['mode']);
+        self::assertNull($report['effective_cpu_quota']);
+    }
+
     public function testUnknownCommandsAndUnsafeArgumentsFail(): void
     {
         foreach ([['doctor', 'extra'], ['routes', '../..'], ['serve', 'hello-world', '127.0.0.1:99999'], ['serve', 'hello-world', '127.0.0.1:8000;id'], ['serve', 'missing'], ['help', 'extra']] as $arguments) {

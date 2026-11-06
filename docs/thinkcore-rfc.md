@@ -1,6 +1,9 @@
 # ThinkCore Sense read-only contract
 
-Status: proposal, not implemented. No auto-tuning or production mutation.
+Status: partial observe-only foundation. `php bin/orku thinkcore:observe` reports
+platform, PHP and parsed PHP memory_limit. CPU/cgroup limits remain null with an
+explicit reason; hierarchy detection below is still proposed. No auto-tuning,
+recommendations, outbound telemetry, persistence or production mutation.
 
 Initial output: JSON with platform, PHP version, configured PHP memory limit,
 effective CPU quota, effective memory ceiling and explicit availability/reason

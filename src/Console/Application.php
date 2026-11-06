@@ -12,6 +12,11 @@ final class Application
     public static function run(array $arguments): int
     {
         $command = $arguments[0] ?? 'help';
+        if ($command === 'thinkcore:observe' && count($arguments) === 1) {
+            echo json_encode(\Orku\ThinkCore\Sense::observe(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT)."\n";
+
+            return 0;
+        }
         if ($command === 'doctor' && count($arguments) === 1) {
             $report = Doctor::report();
             echo json_encode($report, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT)."\n";
@@ -19,7 +24,7 @@ final class Application
             return $report['checks']['supported_php'] && $report['checks']['json'] ? 0 : 1;
         }
         if (in_array($command, ['help', '--help', '-h'], true) && count($arguments) <= 1) {
-            echo "Orku Web v0.2-dev\n\nphp bin/orku serve [hello-world|rest-api|fullstack-app] [127.0.0.1:8000]\nphp bin/orku routes [hello-world|rest-api|fullstack-app]\nphp bin/orku doctor\n\nDevelopment server only. Not for production.\n";
+            echo "Orku Web v0.2-dev\n\nphp bin/orku serve [hello-world|rest-api|fullstack-app] [127.0.0.1:8000]\nphp bin/orku routes [hello-world|rest-api|fullstack-app]\nphp bin/orku doctor\nphp bin/orku thinkcore:observe\n\nDevelopment server only. Not for production.\n";
 
             return 0;
         }
