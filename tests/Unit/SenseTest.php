@@ -28,6 +28,7 @@ final class SenseTest extends TestCase
         self::assertSame($before, ini_get('memory_limit'));
         self::assertNull($report['effective_cpu_quota']);
         self::assertNull($report['effective_memory_bytes']);
+        self::assertArrayHasKey('cgroup_visible_memory_limit_bytes', $report);
         self::assertNotSame('', $report['resource_unavailable_reason']);
     }
 }

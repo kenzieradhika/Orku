@@ -1,8 +1,14 @@
 # ThinkCore Sense read-only contract
 
 Status: partial observe-only foundation. `php bin/orku thinkcore:observe` reports
-platform, PHP and parsed PHP memory_limit. CPU/cgroup limits remain null with an
-explicit reason; hierarchy detection below is still proposed. No auto-tuning,
+platform, PHP and parsed PHP memory_limit. On Linux, the additional
+`cgroup_visible_memory_limit_bytes` reports the minimum finite `memory.max` across
+the visible cgroup v2 ancestry, using process membership and mount mapping.
+Null means unavailable, unsupported, malformed, overflowed or entirely unlimited.
+Missing ancestor files invalidate the whole measurement, not just that ancestor.
+Hidden ancestors outside the mount/namespace cannot be measured. This is not free
+RAM or an effective machine memory guarantee; `effective_memory_bytes` and CPU
+remain null. CPU/affinity detection below is still proposed. No auto-tuning,
 recommendations, outbound telemetry, persistence or production mutation.
 
 Initial output: JSON with platform, PHP version, configured PHP memory limit,
