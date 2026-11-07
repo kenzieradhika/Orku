@@ -124,10 +124,10 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** Baseline at 2 requests/second, bounded 10-second spike at approved peak ≤128 concurrency, then 10-minute recovery observation.
 
-- [ ] Test phase sequence, capped spike, cancellation, and recovery metric calculations.
-- [ ] Record availability, tail latency, CPU/RAM, FPM worker recovery, and time-to-baseline.
-- [ ] Fail recovery if HTTP errors persist >60 seconds after spike or P95 remains >2× baseline for >2 minutes.
-- [ ] Run only in disposable containers, maximum 15-minute execution.
+- [x] Test phase sequence, capped spike, and response-derived recovery calculation.
+- [ ] Record availability, tail latency, CPU/RAM, FPM worker recovery, and time-to-baseline. Only status and P95 currently collected.
+- [ ] Fail recovery if HTTP errors persist >60 seconds after spike or P95 remains >2× baseline for >2 minutes. Response-window threshold implemented; server/continuous-window monitoring incomplete.
+- [ ] Run only in disposable containers, maximum 15-minute execution; not run because no matching disposable deploy fixture is available.
 
 **Acceptance:** Recovery thresholds pass; no OOM or leaked worker/session state; limits documented.
 

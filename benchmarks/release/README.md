@@ -60,3 +60,12 @@ through the fixed levels 4/16/32/64/128, and preserves raw responses. It does
 not inspect server resource caps or calibrate client capacity; its apparent
 breaking point is therefore provisional. Do not interpret or run it against
 anything except a disposable local service. No stress run occurs in CI.
+
+## Spike/recovery runner status
+
+`spike_check.py` encodes baseline, bounded spike, and recovery phases. It uses
+response-only observations, caps the spike at 10 seconds, recovery at 10 minutes,
+peak concurrency at 128, and total runtime at 15 minutes. It does not monitor
+server resources or process health, so its result cannot independently satisfy
+the recovery release gate. Run only against a disposable local service; CI runs
+the phase/threshold tests only.

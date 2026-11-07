@@ -12,6 +12,7 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [ ] Soak gate remains open: runner is sequential, without server memory/restart/session instrumentation; no 24-hour evidence (`benchmarks/release/soak_check.py`).
 - [ ] Security fuzz gate remains open: deterministic corpus generation exists, but parser execution awaits an enforced offline/resource-limited sandbox (`tests/release/fuzz_http_inputs.py`).
 - [ ] Bounded stress runner exists but has not established generator headroom or server CPU/RAM/OOM metrics; breaking-point evidence remains open (`benchmarks/release/stress_check.py`).
+- [ ] Spike/recovery phase harness exists, but lacks server/process health metrics and has not run against a disposable deployment (`benchmarks/release/spike_check.py`).
 - [x] Isolated Apache/mod_php routing and public-root smoke check.
 - [x] Isolated Nginx/PHP-FPM routing and public-root smoke check.
 - [ ] Sustained workload, memory growth and state-isolation evidence.
