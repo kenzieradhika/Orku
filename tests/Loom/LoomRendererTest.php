@@ -40,6 +40,112 @@ final class LoomRendererTest extends TestCase
         self::assertSame('<p>&lt;Ada &amp; Co&gt;</p>', (new LoomRenderer($this->root))->render('page', ['user' => ['name' => '<Ada & Co>']]));
     }
 
+    public function testConditionalSelectsBranchesFromBooleanPath(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% if user.isAdmin %}<b>admin</b>{% else %}<i>user</i>{% endif %}');
+        $renderer = new LoomRenderer($this->root);
+
+        self::assertSame('<b>admin</b>', $renderer->render('page', ['user' => ['isAdmin' => true]]));
+        self::assertSame('<i>user</i>', $renderer->render('page', ['user' => ['isAdmin' => false]]));
+    }
+
+    public function testNestedConditionalsRenderSelectedBranchAndEscapeInterpolation(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% if outer %}{% if inner %}{{ value }}{% else %}inner false{% endif %}{% else %}outer false{% endif %}');
+
+        self::assertSame('&lt;x&gt;', (new LoomRenderer($this->root))->render('page', ['outer' => true, 'inner' => true, 'value' => '<x>']));
+        self::assertSame('inner false', (new LoomRenderer($this->root))->render('page', ['outer' => true, 'inner' => false, 'value' => '<x>']));
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidConditionals')]
+    public function testMalformedConditionalsFail(string $template): void
+    {
+        file_put_contents($this->root.'/page.ork', $template);
+        $this->expectException(LoomException::class);
+        (new LoomRenderer($this->root))->render('page', ['flag' => true]);
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function invalidConditionals(): iterable
+    {
+        yield 'missing endif' => ['{% if flag %}yes'];
+        yield 'unexpected else' => ['{% else %}no'];
+        yield 'unexpected endif' => ['{% endif %}'];
+        yield 'duplicate else' => ['{% if flag %}a{% else %}b{% else %}c{% endif %}'];
+        yield 'else after nested else' => ['{% if outer %}{% if inner %}a{% else %}b{% endif %}{% else %}c{% endif %}'];
+        yield 'expression' => ['{% if flag == true %}yes{% endif %}'];
+        yield 'call expression' => ['{% if is_admin() %}yes{% endif %}'];
+        yield 'bad dotted path' => ['{% if user..admin %}yes{% endif %}'];
+    }
+
+    public function testConditionalRequiresPresentBooleanValue(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% if flag %}yes{% else %}no{% endif %}');
+        $renderer = new LoomRenderer($this->root);
+        try {
+            $renderer->render('page');
+            self::fail('Expected missing condition value.');
+        } catch (LoomException $error) {
+            self::assertSame('Missing conditional value.', $error->getMessage());
+        }
+
+        $this->expectException(LoomException::class);
+        $this->expectExceptionMessage('Conditional value must be boolean.');
+        $renderer->render('page', ['flag' => 'yes']);
+    }
+
+    public function testConditionalNestingDepthIsBounded(): void
+    {
+        $template = str_repeat('{% if flag %}', 33).'yes'.str_repeat('{% endif %}', 33);
+        file_put_contents($this->root.'/page.ork', $template);
+        $this->expectException(LoomException::class);
+        $this->expectExceptionMessage('Maximum conditional depth exceeded.');
+        (new LoomRenderer($this->root))->render('page', ['flag' => true]);
+    }
+
+    public function testConditionalWorksInComponentPartialAndLayout(): void
+    {
+        mkdir($this->root.'/components');
+        mkdir($this->root.'/partials');
+        file_put_contents($this->root.'/components/badge.ork', '{% props active %}{% if active %}<b>active</b>{% else %}<i>inactive</i>{% endif %}');
+        file_put_contents($this->root.'/partials/status.ork', '{% if user.enabled %}{% component "badge" active=user.admin %}{% endcomponent %}{% endif %}');
+        file_put_contents($this->root.'/layout.ork', '<main>{% slot content %}{% endslot %}</main>');
+        file_put_contents($this->root.'/page.ork', '{% extends "layout" %}{% block content %}{% include "partials.status" %}{% endblock %}');
+
+        self::assertSame('<main><b>active</b></main>', (new LoomRenderer($this->root))->render('page', ['user' => ['enabled' => true, 'admin' => true]]));
+        self::assertSame('<main></main>', (new LoomRenderer($this->root))->render('page', ['user' => ['enabled' => false]]));
+    }
+
+    public function testConditionalDirectiveIsRejectedOutsideHtmlText(): void
+    {
+        file_put_contents($this->root.'/page.ork', '<a title="{% if flag %}yes{% endif %}">x</a>');
+        $this->expectException(LoomException::class);
+        (new LoomRenderer($this->root))->render('page', ['flag' => true]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('unsafeConditionalContexts')]
+    public function testConditionalDirectiveIsRejectedInUnsafeContexts(string $template): void
+    {
+        file_put_contents($this->root.'/page.ork', $template);
+        $this->expectException(LoomException::class);
+        (new LoomRenderer($this->root))->render('page', ['flag' => true]);
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function unsafeConditionalContexts(): iterable
+    {
+        yield 'comment' => ['<!-- {% if flag %}yes{% endif %} -->'];
+        yield 'script' => ['<script>{% if flag %}yes{% endif %}</script>'];
+        yield 'style' => ['<style>{% if flag %}yes{% endif %}</style>'];
+    }
+
+    public function testThirtyTwoConditionalLevelsAreAllowed(): void
+    {
+        file_put_contents($this->root.'/page.ork', str_repeat('{% if flag %}', 32).'yes'.str_repeat('{% endif %}', 32));
+
+        self::assertSame('yes', (new LoomRenderer($this->root))->render('page', ['flag' => true]));
+    }
+
     public function testBasicAndNestedInterpolation(): void
     {
         file_put_contents($this->root.'/page.ork', '{{ title }} / {{ user.profile.name }}');

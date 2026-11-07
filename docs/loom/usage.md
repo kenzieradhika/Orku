@@ -58,4 +58,18 @@ Define it at `components/card.ork`:
 <article><h2>{{ title }}</h2>{% slot content %}{% endslot %}</article>
 ```
 
-Only declared properties are visible in the component. Values resolve from caller data paths and must be scalar or null. Interpolation and slot markup use Loom's normal escaping; raw HTML is unsupported. Component names cannot escape the template root. Nested calls are supported up to 32 component levels; cycles, invalid bindings, and unsupported contexts fail with `LoomException`. Each component has at most one `content` slot. Conditions, loops, caching, and raw-output syntax are not supported.
+Only declared properties are visible in the component. Values resolve from caller data paths and must be scalar or null. Interpolation and slot markup use Loom's normal escaping; raw HTML is unsupported. Component names cannot escape the template root. Nested calls are supported up to 32 component levels; cycles, invalid bindings, and unsupported contexts fail with `LoomException`. Each component has at most one `content` slot. Loops, caching, and raw-output syntax are not supported.
+
+## Conditionals
+
+Use a boolean value or dotted array path to select a branch:
+
+```html
+{% if user.isAdmin %}
+    <p>Welcome, {{ user.name }}!</p>
+{% else %}
+    <p>Welcome, User!</p>
+{% endif %}
+```
+
+The path must exist and contain `true` or `false`. Missing values, non-boolean values, malformed directives, and nesting beyond 32 levels fail with `LoomException`. Nested blocks are supported. Comparisons, truthiness coercion, calls, and PHP expressions are not supported. The directive works in layouts, partials, and components; selected interpolations remain escaped. Loops and caching remain unsupported.

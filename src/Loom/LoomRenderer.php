@@ -86,6 +86,30 @@ final class LoomRenderer
                 throw new LoomException('Template directive is only allowed in HTML text.');
             }
             if ($state === 'text' && substr($source, $offset, 2) === '{%') {
+                if (preg_match('/^\{% if ([^%]+) %\}/', substr($source, $offset), $condition)) {
+                    [$branches, $end] = $this->conditionalBranches($source, $offset + strlen($condition[0]));
+                    $expression = trim($condition[1]);
+                    if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*$/D', $expression)) {
+                        throw new LoomException('Invalid conditional expression.');
+                    }
+                    $value = $data;
+                    foreach (explode('.', $expression) as $key) {
+                        if (!is_array($value) || !array_key_exists($key, $value)) {
+                            throw new LoomException('Missing conditional value.');
+                        }
+                        $value = $value[$key];
+                    }
+                    if (!is_bool($value)) {
+                        throw new LoomException('Conditional value must be boolean.');
+                    }
+                    if ($value) {
+                        $output .= $this->compile($branches[0], $data, $layouts);
+                    } elseif (isset($branches[1])) {
+                        $output .= $this->compile($branches[1], $data, $layouts);
+                    }
+                    $offset = $end;
+                    continue;
+                }
                 if (preg_match('/^\{% slot content %\}/', substr($source, $offset), $slot)) {
                     if ($slotContent === null) {
                         throw new LoomException('Unexpected content slot.');
@@ -186,6 +210,41 @@ final class LoomRenderer
         }
 
         return $output;
+    }
+
+    /** @return array{list<string>, int} */
+    private function conditionalBranches(string $source, int $offset): array
+    {
+        $branches = [];
+        $start = $offset;
+        $elseSeen = [false];
+        while (preg_match('/\{%\s*(if\b[^%]*|else|endif)\s*%\}/', $source, $match, PREG_OFFSET_CAPTURE, $offset)) {
+            $offset = $match[0][1] + strlen($match[0][0]);
+            $directive = $match[1][0];
+            if (str_starts_with($directive, 'if')) {
+                if (count($elseSeen) >= 32) {
+                    throw new LoomException('Maximum conditional depth exceeded.');
+                }
+                $elseSeen[] = false;
+            } elseif ($directive === 'else') {
+                $depth = array_key_last($elseSeen);
+                if ($elseSeen[$depth]) {
+                    throw new LoomException('Duplicate conditional else.');
+                }
+                $elseSeen[$depth] = true;
+                if ($depth === 0) {
+                    $branches[] = substr($source, $start, $match[0][1] - $start);
+                    $start = $offset;
+                }
+            } elseif ($directive === 'endif') {
+                array_pop($elseSeen);
+                if ($elseSeen === []) {
+                    $branches[] = substr($source, $start, $match[0][1] - $start);
+                    return [$branches, $offset];
+                }
+            }
+        }
+        throw new LoomException('Unclosed conditional block.');
     }
 
     /** @return array{string, int} */
