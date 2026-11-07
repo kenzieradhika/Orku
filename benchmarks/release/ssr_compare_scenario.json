@@ -1,0 +1,8 @@
+{
+  "laravel_version": "12.71.0",
+  "max_renders_per_repeat": 1000,
+  "max_repeats": 5,
+  "modes": ["warm", "first-render-per-process"],
+  "cold_template_cache_comparison": "NOT_IMPLEMENTED",
+  "memory": "UNMEASURED unless isolated external process sampler is attached"
+}

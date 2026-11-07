@@ -17,7 +17,7 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [ ] Cold-start fixture validates only a tiny PHP built-in server; Orku/Laravel FPM/Nginx comparison remains untested (`benchmarks/release/cold_start.py`).
 - [ ] ThinkCore fixture suite passes PHP 8.4/8.5 CI; live Docker ceilings and `memory.current` remain unverified (`tests/thinkcore/CgroupFixtureReleaseTest.php`).
 - [ ] Hardware matrix records local PHP 8.3 as unsupported; ARM64 and 1 CPU/512 MiB profiles unavailable; behavioral checks still open (`docs/release-evidence/hardware-matrix.md`).
-- [ ] SSR output safety has local Orku fixture evidence; Laravel output parity, 5-repeat distribution, and HTTP-path comparison remain open (`benchmarks/release/ssr_check.py`).
+- [ ] SSR safety fixture exists; Laravel 12.71.0 parity and smoke-scale repeat distribution recorded in PHP 8.4.27 Docker; release-grade run, cold template cache, HTTP-path and framework cold-start comparisons remain open (`benchmarks/release/ssr_compare.py`, `docs/release-evidence/realworld-benchmark.md`).
 - [x] Isolated Apache/mod_php routing and public-root smoke check.
 - [x] Isolated Nginx/PHP-FPM routing and public-root smoke check.
 - [ ] Sustained workload, memory growth and state-isolation evidence.
