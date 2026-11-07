@@ -140,7 +140,7 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 - [x] Add bounded fixture with multiple workers on the same counter; assert exact final count, uniqueness, rollback.
 - [x] Cap at 32 workers/10,000 operations; use per-run DB.
 - [x] Assert worker failures and final row integrity separately.
-- [ ] Run repetitions at concurrency 1/4/16/32; classify SQLite lock/busy errors; current smoke checks only 8 workers.
+- [x] Repeat 320 operations at concurrency 1/4/16/32; classify lock failures in raw JSON; vary bounded busy timeout.
 - [ ] Cross-session CSRF remains N/A: no auth/session-enabled concurrent HTTP fixture.
 
 **Acceptance:** Exact expected DB state, no cross-session acceptance, all SQLite lock behavior explicitly reported; no concurrency guarantees beyond tested mode.

@@ -38,3 +38,7 @@ Limits: 10,000 operations, 32 workers, operation count divisible by worker
 count. It removes only its own temporary DB/WAL files. SQLite lock behavior is
 reported as worker failure, not silently retried as success. This does not test
 web-session isolation or cross-session CSRF; authentication is not implemented.
+Set the third argument to vary `busy_timeout_ms` from 0 to 5,000; lock errors
+are returned as `lock_errors`. Test coverage repeats 320 operations at 1/4/16/32
+workers. Results indicate SQLite's behavior under this fixture, not a framework
+concurrency guarantee.

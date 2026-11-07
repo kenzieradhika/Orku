@@ -23,6 +23,17 @@ class ConcurrentIntegrityTest(unittest.TestCase):
                                  '10001', '1'], capture_output=True, text=True, timeout=3)
         self.assertEqual(result.returncode, 2)
 
+    def test_repeats_worker_levels_and_reports_lock_failures(self):
+        script = str(Path(__file__).with_name('concurrent_integrity_check.php'))
+        for workers in (1, 4, 16, 32):
+            with self.subTest(workers=workers):
+                result = subprocess.run(['php', script, '320', str(workers), '5000'],
+                                        capture_output=True, text=True, timeout=30)
+                report = json.loads(result.stdout)
+                self.assertEqual(report['workers'], workers)
+                self.assertIn('lock_errors', report)
+                self.assertEqual(result.returncode, 0, report)
+
 
 if __name__ == '__main__':
     unittest.main()

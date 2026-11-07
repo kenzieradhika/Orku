@@ -13,7 +13,7 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [ ] Security fuzz gate remains open: deterministic corpus generation exists, but parser execution awaits an enforced offline/resource-limited sandbox (`tests/release/fuzz_http_inputs.py`).
 - [ ] Bounded stress runner exists but has not established generator headroom or server CPU/RAM/OOM metrics; breaking-point evidence remains open (`benchmarks/release/stress_check.py`).
 - [ ] Spike/recovery phase harness exists, but lacks server/process health metrics and has not run against a disposable deployment (`benchmarks/release/spike_check.py`).
-- [ ] Parallel SQLite integrity fixture passes one local 8-worker sample; concurrency levels, CSRF/session isolation and broader repeat evidence remain open (`tests/release/concurrent_integrity_check.php`).
+- [ ] Parallel SQLite integrity fixture now tests 1/4/16/32 worker levels; CSRF/session isolation and non-SQLite drivers remain open (`tests/release/concurrent_integrity_check.php`).
 - [ ] Cold-start fixture validates only a tiny PHP built-in server; Orku/Laravel FPM/Nginx comparison remains untested (`benchmarks/release/cold_start.py`).
 - [x] Isolated Apache/mod_php routing and public-root smoke check.
 - [x] Isolated Nginx/PHP-FPM routing and public-root smoke check.

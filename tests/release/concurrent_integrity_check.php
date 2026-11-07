@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 $operations = filter_var($argv[1] ?? 200, FILTER_VALIDATE_INT);
 $workers = filter_var($argv[2] ?? 8, FILTER_VALIDATE_INT);
+$busyTimeoutMs = filter_var($argv[3] ?? 5000, FILTER_VALIDATE_INT);
 if ($operations === false || $workers === false || $operations < 1 || $operations > 10000
-    || $workers < 1 || $workers > 32 || $operations % $workers !== 0) {
-    fwrite(STDERR, "Usage: concurrent_integrity_check.php [operations 1..10000 divisible by workers] [workers 1..32]\n");
+    || $workers < 1 || $workers > 32 || $operations % $workers !== 0
+    || $busyTimeoutMs === false || $busyTimeoutMs < 0 || $busyTimeoutMs > 5000) {
+    fwrite(STDERR, "Usage: concurrent_integrity_check.php [operations 1..10000 divisible by workers] [workers 1..32] [busy timeout 0..5000ms]\n");
     exit(2);
 }
 if (!extension_loaded('pdo_sqlite') || !extension_loaded('pcntl')) {
@@ -35,7 +37,7 @@ try {
         if ($pid === 0) {
             try {
                 $pdo = new PDO('sqlite:'.$path, options: [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-                $pdo->exec('PRAGMA busy_timeout=5000');
+                $pdo->exec('PRAGMA busy_timeout='.$busyTimeoutMs);
                 for ($seq = 0; $seq < intdiv($operations, $workers); ++$seq) {
                     $pdo->beginTransaction();
                     $pdo->exec('UPDATE counter SET value = value + 1 WHERE id = 1');
@@ -44,7 +46,8 @@ try {
                     $pdo->commit();
                 }
                 exit(0);
-            } catch (Throwable) {
+            } catch (Throwable $error) {
+                file_put_contents($path.'.worker-'.$worker.'.error', $error::class.' '.$error->getCode());
                 exit(1);
             }
         }
@@ -52,8 +55,16 @@ try {
     }
     $workerFailures = 0;
     foreach ($workersPids as $pid) {
-        pcntl_waitpid($pid, $status);
+        $waited = pcntl_waitpid($pid, $status);
+        if ($waited !== $pid) {
+            ++$workerFailures;
+            continue;
+        }
         $workerFailures += !pcntl_wifexited($status) || pcntl_wexitstatus($status) !== 0;
+    }
+    $lockFailures = [];
+    foreach (glob($path.'.worker-*.error') ?: [] as $errorFile) {
+        $lockFailures[] = ['file' => basename($errorFile), 'error' => file_get_contents($errorFile)];
     }
     $pdo = new PDO('sqlite:'.$path, options: [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     $count = (int) $pdo->query('SELECT value FROM counter WHERE id = 1')->fetchColumn();
@@ -64,8 +75,10 @@ try {
     $pdo->rollBack();
     $rollback = (int) $pdo->query('SELECT COUNT(*) FROM events WHERE worker = 999')->fetchColumn() === 0;
     $report = ['driver' => 'sqlite', 'workers' => $workers, 'operations_requested' => $operations,
+        'busy_timeout_ms' => $busyTimeoutMs,
         'counter_value' => $count, 'event_count' => $events, 'unique_event_count' => $unique,
-        'worker_failures' => $workerFailures, 'rollback_verified' => $rollback,
+        'worker_failures' => $workerFailures, 'lock_errors' => $lockFailures,
+        'rollback_verified' => $rollback,
         'elapsed_ms' => (hrtime(true) - $start) / 1e6,
         'integrity_passed' => $workerFailures === 0 && $count === $operations
             && $events === $operations && $unique === $operations && $rollback];
@@ -82,6 +95,9 @@ try {
         if (is_file($file)) {
             unlink($file);
         }
+    }
+    foreach (glob($path.'.worker-*.error') ?: [] as $file) {
+        unlink($file);
     }
 }
 echo json_encode($report, JSON_THROW_ON_ERROR)."\n";
