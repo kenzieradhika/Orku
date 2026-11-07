@@ -203,8 +203,9 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** Deterministic cgroup v2 fixture tests for memory.max/current, cpu.max fractional quota, malformed/missing files, unlimited values, process affinity, and unavailable statuses. Separate optional live-container comparison to actual cgroup limits.
 
-- [ ] Test exact units/conversions, quota rounding, unlimited values, malformed values, and each per-measurement status.
-- [ ] Test parent/child cgroup path handling with synthetic hierarchy and inaccessible/missing files.
+- [x] Add fixture tests for exact memory units, fractional CPU quota, unlimited/malformed values, statuses, affinity, and cgroup ancestor minima.
+- [ ] Run the PHPUnit fixture suite in PHP 8.4/8.5 CI; local PHP 8.3 lacks project PHPUnit install. Direct stdlib assertions passed locally.
+- [ ] Expand coverage to cgroup current, affinity malformed overflow details, and complete parent/child missing-file matrix.
 - [ ] Live check compares reported limits to Docker-configured CPU/memory in a disposable container; tolerance zero for hard limits, explicit status if environment hides counters.
 - [ ] Preserve read-only behavior; assert no file writes, tuning, or host setting changes.
 
