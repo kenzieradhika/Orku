@@ -69,3 +69,12 @@ peak concurrency at 128, and total runtime at 15 minutes. It does not monitor
 server resources or process health, so its result cannot independently satisfy
 the recovery release gate. Run only against a disposable local service; CI runs
 the phase/threshold tests only.
+
+## Cold-start runner status
+
+`cold_start.py` accepts at most 20 fresh disposable containers, caps readiness at
+30 seconds, and captures the local image ID. It separates readiness, first HTTP
+request, and a second warm request. Current target is a tiny built-in PHP server
+fixture, not Orku/Laravel over FPM/Nginx; its readiness request also warms the
+process. This is harness validation only, not framework cold-start evidence.
+CI tests metric separation and failure retention; no cold-start run is scheduled.

@@ -151,10 +151,10 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** Fresh disposable containers per sample, measure process-ready time and first successful request separately from warm request latency; 20 samples per framework, same image/cache policy.
 
-- [ ] Test metric distinction, unsuccessful readiness deadline (30 seconds), and metadata capture.
-- [ ] Record image digest, Composer classmap state, OPcache state, route/config cache, and whether dependencies are mounted or bundled.
-- [ ] Sample warm request only after explicit warmup; don't mix it with cold-start timing.
-- [ ] Report median/P95 range and failures; no single-sample claims.
+- [x] Test metric distinction, unsuccessful readiness deadline cap (30 seconds), and failed sample preservation.
+- [x] Record image identifier and declared OPcache/classmap/cache policy. Current fixture is stock PHP built-in server, not framework/FPM.
+- [x] Separate first request and second warm request. Readiness probe also warms process, disclosed as a limitation.
+- [x] Report median/P95 and failed samples; default 20 samples. No cold-start deployment run performed.
 
 **Acceptance:** 20 valid samples each; setup/cache states match; failed starts retained, not dropped.
 

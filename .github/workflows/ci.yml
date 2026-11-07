@@ -26,6 +26,7 @@ jobs:
       - run: python3 -m unittest discover -s tests/release -p 'test_concurrent_integrity.py'
       - run: python3 -m unittest discover -s benchmarks/release -p 'test_stress_check.py'
       - run: python3 -m unittest discover -s benchmarks/release -p 'test_spike_check.py'
+      - run: python3 -m unittest discover -s benchmarks/release -p 'test_cold_start.py'
       - run: python3 -m unittest discover -s tests -p 'test_resource_check.py'
       - run: composer install --no-interaction --prefer-dist
       - run: composer check
