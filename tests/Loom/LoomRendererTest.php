@@ -49,6 +49,115 @@ final class LoomRendererTest extends TestCase
         self::assertSame('<i>user</i>', $renderer->render('page', ['user' => ['isAdmin' => false]]));
     }
 
+    public function testLoopRendersIndexedItemsAndEscapesValues(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% for item in users %}<b>{{ item.name }}</b>{% endfor %}');
+
+        self::assertSame('<b>Ada</b><b>&lt;x&gt;</b>', (new LoomRenderer($this->root))->render('page', ['users' => [['name' => 'Ada'], ['name' => '<x>']]]));
+    }
+
+    public function testEmptyLoopRendersNothing(): void
+    {
+        file_put_contents($this->root.'/page.ork', 'before{% for item in items %}{{ item }}{% endfor %}after');
+
+        self::assertSame('beforeafter', (new LoomRenderer($this->root))->render('page', ['items' => []]));
+    }
+
+    public function testNestedLoopsUseDottedPathsAndIsolatedVariables(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% for group in groups %}{% for item in group.items %}{{ group.name }}={{ item }};{% endfor %}{% endfor %}{{ item }}');
+        self::assertSame('a=1;a=2;outside', (new LoomRenderer($this->root))->render('page', ['groups' => [['name' => 'a', 'items' => [1, 2]]], 'item' => 'outside']));
+    }
+
+    public function testLoopIntegratesWithConditionalComponentPartialAndLayout(): void
+    {
+        mkdir($this->root.'/components');
+        mkdir($this->root.'/partials');
+        file_put_contents($this->root.'/components/label.ork', '{% props text %}<b>{{ text }}</b>');
+        file_put_contents($this->root.'/partials/items.ork', '{% for item in items %}{% if item.show %}{% component "label" text=item.name %}{% endcomponent %}{% endif %}{% endfor %}');
+        file_put_contents($this->root.'/layout.ork', '<main>{% slot content %}{% endslot %}</main>');
+        file_put_contents($this->root.'/page.ork', '{% extends "layout" %}{% block content %}{% include "partials.items" %}{% endblock %}');
+
+        self::assertSame('<main><b>&lt;one&gt;</b></main>', (new LoomRenderer($this->root))->render('page', ['items' => [['show' => true, 'name' => '<one>'], ['show' => false, 'name' => 'two']]]));
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidLoops')]
+    public function testMalformedLoopDirectivesFail(string $template): void
+    {
+        file_put_contents($this->root.'/page.ork', $template);
+        $this->expectException(LoomException::class);
+        (new LoomRenderer($this->root))->render('page', ['items' => []]);
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function invalidLoops(): iterable
+    {
+        yield 'missing endfor' => ['{% for item in items %}{{ item }}'];
+        yield 'unexpected endfor' => ['{% endfor %}'];
+        yield 'call expression' => ['{% for item in get_items() %}x{% endfor %}'];
+        yield 'invalid variable' => ['{% for item.name in items %}x{% endfor %}'];
+        yield 'empty path segment' => ['{% for item in items..value %}x{% endfor %}'];
+    }
+
+    public function testLoopRejectsNonListCollections(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% for item in items %}{{ item }}{% endfor %}');
+        $this->expectException(LoomException::class);
+        $this->expectExceptionMessage('Loop collection must be a list.');
+        (new LoomRenderer($this->root))->render('page', ['items' => ['key' => 'value']]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidLoopCollections')]
+    public function testLoopRejectsInvalidCollectionTypes(mixed $items, string $message): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% for item in items %}{{ item }}{% endfor %}');
+        $this->expectException(LoomException::class);
+        $this->expectExceptionMessage($message);
+        (new LoomRenderer($this->root))->render('page', ['items' => $items]);
+    }
+
+    /** @return iterable<string, array{mixed, string}> */
+    public static function invalidLoopCollections(): iterable
+    {
+        yield 'scalar' => ['value', 'Loop collection must be an array.'];
+        yield 'object' => [new \stdClass(), 'Loop collection must be an array.'];
+    }
+
+    public function testLoopRejectsMissingCollectionPath(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% for item in items %}{{ item }}{% endfor %}');
+        $this->expectException(LoomException::class);
+        $this->expectExceptionMessage('Missing loop collection.');
+        (new LoomRenderer($this->root))->render('page');
+    }
+
+    public function testLoopIterationBudgetIsSharedAcrossLoopNesting(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% for outer in groups %}{% for inner in items %}x{% endfor %}{% endfor %}');
+        $this->expectException(LoomException::class);
+        $this->expectExceptionMessage('Maximum loop iteration budget exceeded.');
+        (new LoomRenderer($this->root))->render('page', ['groups' => array_fill(0, 2, 1), 'items' => array_fill(0, 500, 1)]);
+    }
+
+    public function testLoopNestingDepthIsBounded(): void
+    {
+        $template = str_repeat('{% for item in items %}', 9).'x'.str_repeat('{% endfor %}', 9);
+        file_put_contents($this->root.'/page.ork', $template);
+        $this->expectException(LoomException::class);
+        $this->expectExceptionMessage('Maximum loop nesting depth exceeded.');
+        (new LoomRenderer($this->root))->render('page', ['items' => [1]]);
+    }
+
+    public function testLoopNestingDepthIsPreservedAcrossPartials(): void
+    {
+        mkdir($this->root.'/partials');
+        file_put_contents($this->root.'/partials/deep.ork', '{% for inner in items %}x{% endfor %}');
+        file_put_contents($this->root.'/page.ork', str_repeat('{% for item in items %}', 8).'{% include "partials.deep" %}'.str_repeat('{% endfor %}', 8));
+        $this->expectException(LoomException::class);
+        $this->expectExceptionMessage('Maximum loop nesting depth exceeded.');
+        (new LoomRenderer($this->root))->render('page', ['items' => [1]]);
+    }
+
     public function testNestedConditionalsRenderSelectedBranchAndEscapeInterpolation(): void
     {
         file_put_contents($this->root.'/page.ork', '{% if outer %}{% if inner %}{{ value }}{% else %}inner false{% endif %}{% else %}outer false{% endif %}');

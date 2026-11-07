@@ -72,4 +72,12 @@ Use a boolean value or dotted array path to select a branch:
 {% endif %}
 ```
 
-The path must exist and contain `true` or `false`. Missing values, non-boolean values, malformed directives, and nesting beyond 32 levels fail with `LoomException`. Nested blocks are supported. Comparisons, truthiness coercion, calls, and PHP expressions are not supported. The directive works in layouts, partials, and components; selected interpolations remain escaped. Loops and caching remain unsupported.
+The path must exist and contain `true` or `false`. Missing values, non-boolean values, malformed directives, and nesting beyond 32 levels fail with `LoomException`. Nested blocks are supported. Comparisons, truthiness coercion, calls, and PHP expressions are not supported. The directive works in layouts, partials, and components; selected interpolations remain escaped.
+
+## Loops
+
+```html
+{% for product in products %}<li>{{ product.name }}</li>{% endfor %}
+```
+
+Iterate indexed lists only. Empty lists render nothing; missing paths, associative arrays, and other values fail. The loop variable is scoped to the body. Nested loops are limited to 8 levels, with 1000 total iterations per render, shared across nested templates and components. Interpolated values remain escaped. Loops work inside conditionals, components, partials, and layout content. Caching and raw-output syntax remain unsupported.

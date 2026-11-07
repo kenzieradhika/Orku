@@ -1,6 +1,6 @@
 # Orku Loom RFC: initial renderer and layouts
 
-Status: renderer, one-slot layouts, partial includes, components, and boolean conditionals. Existing `Orku\Web\ViewRenderer` and its PHP templates are unchanged.
+Status: renderer, one-slot layouts, partial includes, components, boolean conditionals, and bounded loops. Existing `Orku\Web\ViewRenderer` and its PHP templates are unchanged.
 
 ## Grammar
 
@@ -54,6 +54,16 @@ Conditions accept one boolean data path. `else` is optional; blocks may nest to 
 ```
 
 The path must exist and resolve to a PHP boolean; missing and non-boolean values throw `LoomException`. Comparisons, literals, calls, and arbitrary PHP expressions are unsupported. Interpolation in the selected branch still uses automatic HTML escaping. Directives remain restricted to HTML text, including inside components, layouts, and partials. No `eval()` is used.
+
+## Loops
+
+Loops iterate indexed PHP lists with a local variable and a dotted array path:
+
+```html
+{% for item in products %}<li>{{ item.name }}</li>{% endfor %}
+```
+
+Missing paths, associative arrays, and non-array values fail with `LoomException`; empty lists render nothing. The loop variable exists only inside its body and shadows any same-named caller value without changing caller scope. Loops nest up to 8 levels and share a 1000-iteration budget across the full render, including partials, layouts, and components. Components, conditionals, includes, and layouts may be used inside loops. Interpolations remain escaped; there is no raw HTML interpolation or `eval()`.
 
 ## Compatibility
 

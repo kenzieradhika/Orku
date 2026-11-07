@@ -6,6 +6,9 @@ namespace Orku\Loom;
 
 final class LoomRenderer
 {
+    private const MAX_LOOP_DEPTH = 8;
+    private const MAX_LOOP_ITERATIONS = 1000;
+
     private string $root;
 
     public function __construct(string $directory)
@@ -20,14 +23,15 @@ final class LoomRenderer
     /** @param array<string, mixed> $data */
     public function render(string $name, array $data = []): string
     {
-        return $this->renderTemplate($name, $data, []);
+        $budget = self::MAX_LOOP_ITERATIONS;
+        return $this->renderTemplate($name, $data, [], null, $budget, 0);
     }
 
     /**
      * @param array<string, mixed> $data
      * @param list<string> $layouts
      */
-    private function renderTemplate(string $name, array $data, array $layouts, ?string $content = null): string
+    private function renderTemplate(string $name, array $data, array $layouts, ?string $content, int &$iterBudget, int $loopDepth): string
     {
         if (in_array($name, $layouts, true)) {
             throw new LoomException('Cyclic template reference.');
@@ -53,8 +57,8 @@ final class LoomRenderer
             if ($content !== null) {
                 throw new LoomException('Nested layout inheritance is unsupported.');
             }
-            $child = $this->compile($block[1], $data, [...$layouts, $name]);
-            return $this->renderTemplate($extends[1], $data, [...$layouts, $name], $child);
+            $child = $this->compile($block[1], $data, [...$layouts, $name], null, $iterBudget, $loopDepth);
+            return $this->renderTemplate($extends[1], $data, [...$layouts, $name], $child, $iterBudget, $loopDepth);
         }
         if ($content !== null) {
             if (substr_count($source, '{% slot content %}') !== 1 || substr_count($source, '{% endslot %}') !== 1) {
@@ -63,7 +67,7 @@ final class LoomRenderer
             $marker = "\0ORKU_LAYOUT_CONTENT\0";
             $source = preg_replace('/\{% slot content %\}.*?\{% endslot %\}/s', $marker, $source, 1) ?? $source;
         }
-        $html = $this->compile($source, $data, [...$layouts, $name]);
+        $html = $this->compile($source, $data, [...$layouts, $name], null, $iterBudget, $loopDepth);
         return $content === null ? $html : str_replace("\0ORKU_LAYOUT_CONTENT\0", $content, $html);
     }
 
@@ -71,8 +75,14 @@ final class LoomRenderer
      * @param array<string, mixed> $data
      * @param list<string> $layouts
      */
-    private function compile(string $source, array $data, array $layouts = [], ?string $slotContent = null): string
-    {
+    private function compile(
+        string $source,
+        array $data,
+        array $layouts = [],
+        ?string $slotContent = null,
+        int &$iterBudget = self::MAX_LOOP_ITERATIONS,
+        int $loopDepth = 0,
+    ): string {
         $output = '';
         $offset = 0;
         $state = 'text';
@@ -86,6 +96,36 @@ final class LoomRenderer
                 throw new LoomException('Template directive is only allowed in HTML text.');
             }
             if ($state === 'text' && substr($source, $offset, 2) === '{%') {
+                if (preg_match('/^\{% for ([a-zA-Z_][a-zA-Z0-9_]*) in ([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*) %\}/', substr($source, $offset), $loop)) {
+                    $iterVar = $loop[1];
+                    $collectionPath = $loop[2];
+                    [$body, $end] = $this->loopBody($source, $offset + strlen($loop[0]));
+                    if ($loopDepth >= self::MAX_LOOP_DEPTH) {
+                        throw new LoomException('Maximum loop nesting depth exceeded.');
+                    }
+                    $collection = $data;
+                    foreach (explode('.', $collectionPath) as $key) {
+                        if (!is_array($collection) || !array_key_exists($key, $collection)) {
+                            throw new LoomException('Missing loop collection.');
+                        }
+                        $collection = $collection[$key];
+                    }
+                    if (!is_array($collection)) {
+                        throw new LoomException('Loop collection must be an array.');
+                    }
+                    if (!array_is_list($collection)) {
+                        throw new LoomException('Loop collection must be a list.');
+                    }
+                    foreach ($collection as $item) {
+                        if (--$iterBudget < 0) {
+                            throw new LoomException('Maximum loop iteration budget exceeded.');
+                        }
+                        $iterData = array_merge($data, [$iterVar => $item]);
+                        $output .= $this->compile($body, $iterData, $layouts, null, $iterBudget, $loopDepth + 1);
+                    }
+                    $offset = $end;
+                    continue;
+                }
                 if (preg_match('/^\{% if ([^%]+) %\}/', substr($source, $offset), $condition)) {
                     [$branches, $end] = $this->conditionalBranches($source, $offset + strlen($condition[0]));
                     $expression = trim($condition[1]);
@@ -103,9 +143,9 @@ final class LoomRenderer
                         throw new LoomException('Conditional value must be boolean.');
                     }
                     if ($value) {
-                        $output .= $this->compile($branches[0], $data, $layouts);
+                        $output .= $this->compile($branches[0], $data, $layouts, null, $iterBudget, $loopDepth);
                     } elseif (isset($branches[1])) {
-                        $output .= $this->compile($branches[1], $data, $layouts);
+                        $output .= $this->compile($branches[1], $data, $layouts, null, $iterBudget, $loopDepth);
                     }
                     $offset = $end;
                     continue;
@@ -120,14 +160,14 @@ final class LoomRenderer
                 }
                 if (preg_match('/^\{% component "([^"]+)"([^}]*) %\}/', substr($source, $offset), $component)) {
                     [$body, $end] = $this->componentBody($source, $offset + strlen($component[0]));
-                    $output .= $this->renderComponent($component[1], trim($component[2]), $body, $data, $layouts);
+                    $output .= $this->renderComponent($component[1], trim($component[2]), $body, $data, $layouts, $iterBudget, $loopDepth);
                     $offset = $end;
                     continue;
                 }
                 if (!preg_match('/^\{% include "([a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z][a-zA-Z0-9_-]*)*)" %\}/', substr($source, $offset), $include)) {
                     throw new LoomException('Unsupported template directive.');
                 }
-                $output .= $this->renderTemplate($include[1], $data, $layouts);
+                $output .= $this->renderTemplate($include[1], $data, $layouts, null, $iterBudget, $loopDepth);
                 $offset += strlen($include[0]);
                 continue;
             }
@@ -197,7 +237,7 @@ final class LoomRenderer
                         $state = 'text';
                     }
                 }
-            } elseif ($state === 'raw' && $char === '<' && preg_match('/^<\/\s*'.preg_quote($raw, '/').'\s*>/i', substr($source, $offset), $match)) {
+            } elseif ($state === 'raw' && $char === '<' && preg_match('/^<\/\s*'.preg_quote($raw, '/').'\\s*>/i', substr($source, $offset), $match)) {
                 $output .= substr($source, $offset + 1, strlen($match[0]) - 1);
                 $offset += strlen($match[0]) - 1;
                 $state = 'text';
@@ -248,6 +288,22 @@ final class LoomRenderer
     }
 
     /** @return array{string, int} */
+    private function loopBody(string $source, int $offset): array
+    {
+        $start = $offset;
+        $depth = 1;
+        while (preg_match('/\{%\s*(for\s+[a-zA-Z_][a-zA-Z0-9_]*\s+in\s+[a-zA-Z_][a-zA-Z0-9_.]*|endfor)\s*%\}/', $source, $match, PREG_OFFSET_CAPTURE, $offset)) {
+            $offset = $match[0][1] + strlen($match[0][0]);
+            if (str_starts_with(trim($match[1][0]), 'for ')) {
+                ++$depth;
+            } elseif (--$depth === 0) {
+                return [substr($source, $start, $match[0][1] - $start), $offset];
+            }
+        }
+        throw new LoomException('Unclosed loop block.');
+    }
+
+    /** @return array{string, int} */
     private function componentBody(string $source, int $offset): array
     {
         $start = $offset;
@@ -267,7 +323,7 @@ final class LoomRenderer
      * @param array<string, mixed> $data
      * @param list<string> $layouts
      */
-    private function renderComponent(string $name, string $bindings, string $slot, array $data, array $layouts): string
+    private function renderComponent(string $name, string $bindings, string $slot, array $data, array $layouts, int &$iterBudget, int $loopDepth): string
     {
         if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z][a-zA-Z0-9_-]*)*$/D', $name)) {
             throw new LoomException('Invalid component name.');
@@ -332,10 +388,10 @@ final class LoomRenderer
             $source = preg_replace('/\{% slot content %\}.*?\{% endslot %\}/s', '{% slot content %}', $source, 1) ?? $source;
         }
         $componentStack = [...$layouts, $reference];
-        $renderedSlot = $this->compile($slot, $data, $componentStack);
+        $renderedSlot = $this->compile($slot, $data, $componentStack, null, $iterBudget, $loopDepth);
         if ($slots === 0 && trim($slot) !== '') {
             throw new LoomException('Component does not accept content.');
         }
-        return $this->compile($source, $bound, $componentStack, $renderedSlot);
+        return $this->compile($source, $bound, $componentStack, $renderedSlot, $iterBudget, $loopDepth);
     }
 }
