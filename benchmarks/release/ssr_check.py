@@ -18,10 +18,26 @@ def percentiles(values):
         return ordered[max(0, math.ceil(p * len(ordered)) - 1)]
     return {'p50': rank(.50), 'p95': rank(.95), 'p99': rank(.99)}
 
+def summarize_render_samples(samples):
+    values = [latency for batch in samples for latency in batch]
+    return {'sample_count': len(values), **percentiles(values)}
+
 
 def validate_repeats(repeats):
     if not isinstance(repeats, int) or not 1 <= repeats <= REPEATS:
         raise ValueError(f'repeats must be between 1 and {REPEATS}')
+
+
+def build_report(samples, batch_means, timer_overheads, outputs):
+    return {'mode': 'rendering_only', 'http_timing': 'not_measured', 'framework': 'Orku',
+            'per_render_latency_ns': summarize_render_samples(samples),
+            'batch_mean_latency_ns': percentiles(batch_means),
+            'timing_method': 'hrtime around each render; separately measured empty-timer cost subtracted, floored at zero',
+            'timer_overhead_ns_by_repeat': timer_overheads,
+            'renderer_memory_bytes': 'UNMEASURED', 'php_allocator_peak_bytes': 'UNMEASURED',
+            'process_rss_bytes': 'UNMEASURED', 'memory_note':
+            'PHP allocator counters include runtime and fixture allocations; per-render sample arrays add instrumentation. RSS requires an external process sampler.',
+            'outputs': validate_outputs(outputs), 'laravel': 'not_available'}
 
 
 def validate_outputs(outputs):
@@ -58,18 +74,19 @@ def run(output, repeats=REPEATS, include_laravel=False):
                'raw_unsafe': cases['raw_unsafe'], 'raw_unsafe_expected': cases['raw_unsafe_expected']}
     if include_laravel:
         raise ValueError('Laravel baseline unavailable; run requires a separately pinned fixture')
-    latencies = []
+    latency_batches = []
+    batch_means = []
     peaks = []
+    timer_overheads = []
     for _ in range(repeats):
         sample = _run(['php', str(orku_script), '--render', str(RENDERS)], timeout=30)
-        latencies.append(sample['elapsed_ns'] / RENDERS)
-        peaks.append(sample['peak_memory_bytes'])
-    report = {'mode': 'rendering_only', 'http_timing': 'not_measured', 'framework': 'Orku',
-              'iterations_per_repeat': RENDERS, 'repeats': repeats,
-              'warmup_renders': 100, 'cache_policy': 'ViewRenderer path cache; PHP OPcache unchanged',
-              'latency_ns_per_render': percentiles(latencies),
-              'php_peak_memory_delta_bytes': max(peaks),
-              'outputs': validate_outputs(outputs), 'laravel': 'not_available'}
+        latency_batches.append(sample['render_latencies_ns'])
+        batch_means.append(sample['total_elapsed_ns'] / RENDERS)
+        timer_overheads.append(sample['timer_overhead_ns'])
+    report = build_report(latency_batches, batch_means, timer_overheads, outputs)
+    report.update({'iterations_per_repeat': RENDERS, 'repeats': repeats,
+                   'warmup_renders': 100,
+                   'cache_policy': 'ViewRenderer path cache; PHP OPcache unchanged'})
     output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + '\n')
     return report
 

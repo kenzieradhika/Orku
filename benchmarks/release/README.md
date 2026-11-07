@@ -78,3 +78,13 @@ request, and a second warm request. Current target is a tiny built-in PHP server
 fixture, not Orku/Laravel over FPM/Nginx; its readiness request also warms the
 process. This is harness validation only, not framework cold-start evidence.
 CI tests metric separation and failure retention; no cold-start run is scheduled.
+## SSR fixture methodology
+
+`ssr_check.py` reports nearest-rank percentiles across individual measured render
+samples and, separately, percentiles of repeat-level batch means. The PHP fixture
+measures empty timer-pair cost per repeat and subtracts that mean from each
+per-render sample; `total_elapsed_ns` preserves unadjusted aggregate elapsed time.
+Timing samples allocate memory, so renderer memory and PHP allocator peak are
+`UNMEASURED`. PHP allocator counters include runtime/fixture allocations and are
+not RSS; process RSS needs an external sampler and is also `UNMEASURED` here.
+No new result is valid until the benchmark is explicitly run and recorded.

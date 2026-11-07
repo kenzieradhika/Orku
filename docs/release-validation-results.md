@@ -14,11 +14,13 @@ not proof that every P0/P1 workload gate passed. The live checklist is
 | Spike/recovery | `7b55517` | Phase/threshold tests; CI passed. | No disposable deployment run or process/resource metrics. |
 | SQLite concurrency | `cb45f93` | 320 operations at 1/4/16/32 workers; exact state and lock reporting passed. | No concurrent HTTP/session/CSRF validation. |
 | Cold start | `06ce1e2` | Bounded micro-app runner/tests; CI passed. | No Orku/Laravel FPM/Nginx comparison; no run evidence. |
-| SSR/template safety | Current branch changes | Real Orku view output validated for static, UTF-8, null/empty, nested layout, escaped marker; raw `TrustedHtml` marked unsafe. Five repeats × 1,000 renders completed; P50 7.81 µs, P95/P99 8.80 µs per render on this host; PHP peak-memory delta 0 bytes at allocator granularity. | Laravel fixture unavailable; no HTTP comparison. Not comparative evidence; host-specific microbenchmark only. |
+| SSR/template safety | `42bd18c` | Real Orku view output validated for static, UTF-8, null/empty, nested layout, escaped marker; raw `TrustedHtml` marked unsafe. A prior five-batch run reported means as P50/P95/P99 (7.81/8.80/8.80 µs); those are batch-mean percentiles, **not individual-render percentiles**. | Per-render methodology is being corrected; no new measurement yet. Laravel fixture unavailable; no HTTP comparison. Prior figures are not comparative evidence. |
 | ThinkCore fixtures | `4d03ffa` | PHPUnit and `composer check` green on PHP 8.4/8.5 by `4d03ffa`. | Live cgroup/Docker and `memory.current` not verified. |
 | Hardware matrix | `4d03ffa` + current branch changes | Local Linux x86_64/PHP 8.3.6 metadata captured; classified unsupported. | ARM64 and constrained native runtime unavailable; behavioral checks pending. |
 
 Branch `release-validation-native`; PR #1 remains open and unmerged. CI for
-`cb45f93` passed. CI failure for `4e3d39e`/`cb27023` was formatter-only; latest
-run on `4d03ffa` passed PHP 8.4 and 8.5. Follow-up documentation and Task 11
-metadata tests require CI after commit.
+`42bd18c` passed PHP 8.4 and 8.5; that CI predates the local SSR corrections and
+does not verify them. No corrected SSR benchmark result has been executed or
+published. The local correction distinguishes individual render samples from
+batch means, reports timing overhead, and marks renderer memory, PHP allocator
+peak, and RSS `UNMEASURED`; PHP allocator counters are not process RSS.

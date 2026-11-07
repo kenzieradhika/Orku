@@ -10,7 +10,10 @@ use Orku\Web\TrustedHtml;
 use Orku\Web\ViewRenderer;
 
 $root = sys_get_temp_dir().'/orku-ssr-'.bin2hex(random_bytes(8));
-mkdir($root, 0700);
+if (!mkdir($root, 0700)) {
+    throw new RuntimeException('Could not create SSR fixture directory.');
+}
+$status = 0;
 try {
     file_put_contents($root.'/static.php', '<p>Release validation</p>');
     file_put_contents($root.'/value.php', '<p><?= $view->escape($view->get("value")) ?></p>');
@@ -26,34 +29,54 @@ try {
         'raw_unsafe' => $views->render('nested', slots: ['content' => TrustedHtml::fromTrustedString('<script>marker</script>')]),
         'raw_unsafe_expected' => '<main><script>marker</script></main>',
     ];
+
     if (($argv[1] ?? '') === '--cases') {
         echo json_encode($cases, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
-        exit(0);
+    } else {
+        $count = filter_var($argv[2] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000]]);
+        if (($argv[1] ?? '') !== '--render' || $count === false) {
+            fwrite(STDERR, "usage: ssr_check.php --cases | --render 1..1000\n");
+            $status = 2;
+        } else {
+            for ($i = 0; $i < 100; ++$i) {
+                $views->render('value', ['value' => 'warm']);
+            }
+
+            $timerStart = hrtime(true);
+            for ($i = 0; $i < 1000; ++$i) {
+                $emptyStart = hrtime(true);
+                hrtime(true) - $emptyStart;
+            }
+            $timerOverheadNs = (hrtime(true) - $timerStart) / 1000;
+            $latencies = [];
+            $hash = null;
+            $elapsed = 0;
+            for ($i = 0; $i < $count; ++$i) {
+                $start = hrtime(true);
+                $html = $views->render('value', ['value' => 'benchmark']);
+                $duration = hrtime(true) - $start;
+                $elapsed += $duration;
+                $latencies[] = max(0, $duration - $timerOverheadNs);
+                $hash = hash('sha256', $html, false);
+            }
+            echo json_encode([
+                'renders' => $count,
+                'output_sha256' => $hash,
+                'render_latencies_ns' => $latencies,
+                'timer_overhead_ns' => $timerOverheadNs,
+                'total_elapsed_ns' => $elapsed,
+            ], JSON_THROW_ON_ERROR);
+        }
     }
-    $count = filter_var($argv[2] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000]]);
-    if (($argv[1] ?? '') !== '--render' || $count === false) {
-        fwrite(STDERR, "usage: ssr_check.php --cases | --render 1..1000\n");
-        exit(2);
-    }
-    for ($i = 0; $i < 100; ++$i) {
-        $views->render('value', ['value' => 'warm']);
-    }
-    $memoryBefore = memory_get_usage(true);
-    if (function_exists('memory_reset_peak_usage')) {
-        memory_reset_peak_usage();
-    }
-    $start = hrtime(true);
-    $hash = null;
-    for ($i = 0; $i < $count; ++$i) {
-        $html = $views->render('value', ['value' => 'benchmark']);
-        $hash = hash('sha256', $html, false);
-    }
-    echo json_encode(['renders' => $count, 'output_sha256' => $hash,
-        'elapsed_ns' => hrtime(true) - $start,
-        'peak_memory_bytes' => max(0, memory_get_peak_usage(true) - $memoryBefore)], JSON_THROW_ON_ERROR);
 } finally {
-    foreach (glob($root.'/*') ?: [] as $file) {
-        unlink($file);
+    foreach (new FilesystemIterator($root, FilesystemIterator::SKIP_DOTS) as $entry) {
+        if ($entry->isFile() || $entry->isLink()) {
+            unlink($entry->getPathname());
+        }
     }
     rmdir($root);
+}
+
+if ($status !== 0) {
+    exit($status);
 }
