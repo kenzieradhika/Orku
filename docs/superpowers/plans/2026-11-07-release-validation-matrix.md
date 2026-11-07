@@ -110,11 +110,11 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** Increasing load levels against only disposable containers: concurrency 4/16/32/64/128, fixed 60-second max each; stop once error threshold or memory/CPU ceiling reached. Never target host services or public endpoints.
 
-- [ ] Unit-test ramp ordering, hard request/time ceilings, abort logic, and partial-result preservation.
+- [x] Unit-test ramp ordering, hard request/time ceilings, and two-consecutive-window calculation; abort and partial-result retention need follow-up.
 - [ ] Add a client-only loopback calibration to establish that the generator can exceed tested service throughput.
-- [ ] Record offered/completed rate, timeout/status breakdown, P50/P95/P99, queue/saturation evidence, CPU/RAM/OOM.
-- [ ] Define breaking point as first two consecutive windows with >1% failed/timed-out requests or resource cap/OOM; report last stable level separately.
-- [ ] Run a small rehearsal; then execute on dedicated local resources only.
+- [x] Record offered/completed count, timeout/status breakdown, P50/P95/P99. Queue/saturation and CPU/RAM/OOM metrics are not sampled.
+- [x] Define provisional breaking point as first two consecutive windows with >1% errors or an explicit resource cap; report last stable level.
+- [ ] Run a small disposable rehearsal only after client calibration and server metrics are implemented.
 
 **Acceptance:** Breaking point is evidenced without host resource exhaustion; harness saturation is ruled out or explicitly marks result invalid.
 

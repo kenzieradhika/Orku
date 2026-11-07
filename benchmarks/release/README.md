@@ -51,3 +51,12 @@ does not increase offered load in this sequential prototype.
 Never use `--stop-file` as an output path: stopping is by creating that file
 while the process runs. Its parent must already exist, and the file must not
 exist at start.
+
+## Stress runner status
+
+`stress_check.py` is an opt-in bounded loopback ramp, not a measured breaking
+point. It caps each level at 60 seconds and 10,000 total requests, ramps only
+through the fixed levels 4/16/32/64/128, and preserves raw responses. It does
+not inspect server resource caps or calibrate client capacity; its apparent
+breaking point is therefore provisional. Do not interpret or run it against
+anything except a disposable local service. No stress run occurs in CI.
