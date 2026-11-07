@@ -63,9 +63,6 @@ final class LoomRenderer
             $marker = "\0ORKU_LAYOUT_CONTENT\0";
             $source = preg_replace('/\{% slot content %\}.*?\{% endslot %\}/s', $marker, $source, 1) ?? $source;
         }
-        if (str_contains($source, '{%') && !preg_match('/\{% include "[^"]+" %\}/', $source)) {
-            throw new LoomException('Unsupported template directive.');
-        }
         $html = $this->compile($source, $data, [...$layouts, $name]);
         return $content === null ? $html : str_replace("\0ORKU_LAYOUT_CONTENT\0", $content, $html);
     }
@@ -74,7 +71,7 @@ final class LoomRenderer
      * @param array<string, mixed> $data
      * @param list<string> $layouts
      */
-    private function compile(string $source, array $data, array $layouts = []): string
+    private function compile(string $source, array $data, array $layouts = [], ?string $slotContent = null): string
     {
         $output = '';
         $offset = 0;
@@ -89,6 +86,20 @@ final class LoomRenderer
                 throw new LoomException('Template directive is only allowed in HTML text.');
             }
             if ($state === 'text' && substr($source, $offset, 2) === '{%') {
+                if (preg_match('/^\{% slot content %\}/', substr($source, $offset), $slot)) {
+                    if ($slotContent === null) {
+                        throw new LoomException('Unexpected content slot.');
+                    }
+                    $output .= $slotContent;
+                    $offset += strlen($slot[0]);
+                    continue;
+                }
+                if (preg_match('/^\{% component "([^"]+)"([^}]*) %\}/', substr($source, $offset), $component)) {
+                    [$body, $end] = $this->componentBody($source, $offset + strlen($component[0]));
+                    $output .= $this->renderComponent($component[1], trim($component[2]), $body, $data, $layouts);
+                    $offset = $end;
+                    continue;
+                }
                 if (!preg_match('/^\{% include "([a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z][a-zA-Z0-9_-]*)*)" %\}/', substr($source, $offset), $include)) {
                     throw new LoomException('Unsupported template directive.');
                 }
@@ -175,5 +186,97 @@ final class LoomRenderer
         }
 
         return $output;
+    }
+
+    /** @return array{string, int} */
+    private function componentBody(string $source, int $offset): array
+    {
+        $start = $offset;
+        $depth = 1;
+        while (preg_match('/\{%\s*(component\b[^%]*|endcomponent)\s*%\}/', $source, $match, PREG_OFFSET_CAPTURE, $offset)) {
+            $offset = $match[0][1] + strlen($match[0][0]);
+            if (str_starts_with($match[1][0], 'component')) {
+                ++$depth;
+            } elseif (--$depth === 0) {
+                return [substr($source, $start, $match[0][1] - $start), $offset];
+            }
+        }
+        throw new LoomException('Unclosed component block.');
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param list<string> $layouts
+     */
+    private function renderComponent(string $name, string $bindings, string $slot, array $data, array $layouts): string
+    {
+        if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z][a-zA-Z0-9_-]*)*$/D', $name)) {
+            throw new LoomException('Invalid component name.');
+        }
+        $reference = 'component:'.$name;
+        if (in_array($reference, $layouts, true)) {
+            throw new LoomException('Cyclic component reference.');
+        }
+        if (count(array_filter($layouts, static fn (string $item): bool => str_starts_with($item, 'component:'))) >= 32) {
+            throw new LoomException('Maximum component depth exceeded.');
+        }
+        if ($bindings !== '' && !preg_match('/^(?:[a-zA-Z_][a-zA-Z0-9_]*=[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*(?: [a-zA-Z_][a-zA-Z0-9_]*=[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)*)$/D', $bindings)) {
+            throw new LoomException('Invalid component property expression.');
+        }
+        $path = realpath($this->root.'components'.DIRECTORY_SEPARATOR.str_replace('.', DIRECTORY_SEPARATOR, $name).'.ork');
+        if ($path === false || !str_starts_with($path, $this->root) || !is_file($path) || !is_readable($path)) {
+            throw new LoomException('Component not found.');
+        }
+        $source = file_get_contents($path);
+        if ($source === false || str_contains($source, '<?')) {
+            throw new LoomException('Invalid template source.');
+        }
+        if (!preg_match('/^\{% props(?: ([a-zA-Z_][a-zA-Z0-9_]*(?: [a-zA-Z_][a-zA-Z0-9_]*)*))? %\}/', $source, $props)) {
+            throw new LoomException('Component properties declaration required.');
+        }
+        $declared = !empty($props[1]) ? explode(' ', $props[1]) : [];
+        if (count($declared) !== count(array_unique($declared))) {
+            throw new LoomException('Duplicate component property declaration.');
+        }
+        $bound = [];
+        if ($bindings) {
+            foreach (explode(' ', $bindings) as $binding) {
+                [$key, $expression] = explode('=', $binding, 2);
+                if (array_key_exists($key, $bound)) {
+                    throw new LoomException('Duplicate component property.');
+                }
+                if (!in_array($key, $declared, true)) {
+                    throw new LoomException('Unknown component property.');
+                }
+                $value = $data;
+                foreach (explode('.', $expression) as $part) {
+                    if (!is_array($value) || !array_key_exists($part, $value)) {
+                        throw new LoomException('Missing component property value.');
+                    }
+                    $value = $value[$part];
+                }
+                if (!is_string($value) && !is_int($value) && !is_float($value) && !is_bool($value) && $value !== null) {
+                    throw new LoomException('Component property must be scalar or null.');
+                }
+                $bound[$key] = $value;
+            }
+        }
+        if (array_diff($declared, array_keys($bound)) !== []) {
+            throw new LoomException('Missing component property.');
+        }
+        $source = substr($source, strlen($props[0]));
+        $slots = substr_count($source, '{% slot content %}') + substr_count($source, '{% endslot %}');
+        if ($slots !== 0 && ($slots !== 2 || !preg_match('/\{% slot content %\}.*?\{% endslot %\}/s', $source))) {
+            throw new LoomException('Invalid component content slot.');
+        }
+        if ($slots === 2) {
+            $source = preg_replace('/\{% slot content %\}.*?\{% endslot %\}/s', '{% slot content %}', $source, 1) ?? $source;
+        }
+        $componentStack = [...$layouts, $reference];
+        $renderedSlot = $this->compile($slot, $data, $componentStack);
+        if ($slots === 0 && trim($slot) !== '') {
+            throw new LoomException('Component does not accept content.');
+        }
+        return $this->compile($source, $bound, $componentStack, $renderedSlot);
     }
 }
