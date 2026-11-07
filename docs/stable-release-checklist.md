@@ -7,6 +7,7 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [x] Dependency audit and Composer validation.
 - [x] Bounded Linux cgroup v2 read-only observation, explicit unknowns.
 - [x] Concurrent loopback benchmark tool and overlap regression.
+- [ ] Representative API benchmark with matched endpoint contracts and raw errors; current benchmark is stateless and has not validated this gate (`benchmarks/release/api_check.py`).
 - [x] Isolated Apache/mod_php routing and public-root smoke check.
 - [x] Isolated Nginx/PHP-FPM routing and public-root smoke check.
 - [ ] Sustained workload, memory growth and state-isolation evidence.

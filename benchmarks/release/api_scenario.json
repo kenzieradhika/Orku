@@ -1,0 +1,16 @@
+{
+  "base_url": "http://127.0.0.1:8080",
+  "requests": 250,
+  "concurrency": 4,
+  "duration_seconds": 120,
+  "mode": "benchmark",
+  "endpoints": [
+    {
+      "name": "health",
+      "method": "GET",
+      "path": "/api/status",
+      "expected_status": 200,
+      "expected_body": {"framework": "benchmark", "status": "running"}
+    }
+  ]
+}
