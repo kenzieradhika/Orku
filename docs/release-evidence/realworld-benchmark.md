@@ -2,52 +2,47 @@
 
 ## Status
 
-**SSR parity verified; bounded rendering-only run completed.** Laravel 12.71.0
-fixture and PHP 8.4.27 Docker image built. A short run (3 × 100 renders per
-framework) passed byte equality. Raw JSON: `/tmp/opencode/ssr-render-report.json`
-(ephemeral; rerun to reproduce). These are smoke-scale local results, not a
-release-grade performance claim.
+SSR parity verified: **11/11 fixture outputs byte-identical**. Bounded smoke run:
+3 repeats × 100 renders per framework, 100 warmups per subprocess. Committed raw
+JSON: [`ssr-smoke-2026-11-07.json`](ssr-smoke-2026-11-07.json).
 
-Host PHP 8.3.6 is unsupported; comparison used PHP 8.4.27 in Docker for both
-frameworks. Laravel `composer.lock` pins 12.71.0.
+The current smoke means modestly favor the measured Blade file execution path;
+latency distributions overlap and batch throughput varies. This is not a
+release-grade performance claim: render abstractions differ, and results cover
+one escaped-variable template only.
 
 ## Smoke results
 
 | Renderer | Mean | P50 | P95 | P99 | Throughput per batch |
 |---|---:|---:|---:|---:|---:|
-| Orku | 11.17 µs | 11.06 µs | 11.43 µs | 13.61 µs | 87,567–89,966 renders/s |
-| Laravel Blade | 1.81 µs | 1.81 µs | 1.88 µs | 2.24 µs | 510,053–533,584 renders/s |
+| Orku | 13.39 µs | 12.00 µs | 21.06 µs | 24.59 µs | 69,213–81,702 renders/s |
+| Laravel Blade (file) | 11.46 µs | 11.23 µs | 11.94 µs | 20.13 µs | 84,611–87,193 renders/s |
 
-3 repeats × 100 renders, 100 warmups per subprocess. First render per process:
-Orku 13.06–25.09 µs; Blade 17.24–21.14 µs. Timer overhead and CPU are retained in the raw JSON. CPU
-recorded separately per process; memory `UNMEASURED`. Warm numbers measure one
-escaped variable template only; case parity covers all 11 scenarios.
+First render per process, timer overhead, and CPU retained in raw JSON. Memory
+remains **UNMEASURED**.
 
-## Method
+## Method and limitations
 
-- SSR fixture cases: byte equality required before rendering measurements.
-- Rendering-only latency: repeated CLI renders; per-render raw nanoseconds,
-  nearest-rank P50/P95/P99, arithmetic mean, per-batch throughput, timer cost,
-  user/system CPU, and output SHA-256.
-- Laravel version: read from disposable dependency root's `composer.lock`, must
-  be exactly `12.71.0`.
-- Memory: `UNMEASURED`; sampled arrays and CLI process allocations would confound
-  renderer attribution. External process/cgroup metrics require separate work.
-- Cold template-cache comparison, Orku/Laravel HTTP, API/SQLite CRUD and
-  application bootstrap cold-start are separate remaining phases; none are
-  inferred from first-render observations.
+- PHP 8.4.27 Docker, Linux; Laravel 12.71.0 pinned in fixture lockfile.
+- Orku commit: `100b3e85e9047d89591b4304c98d1bfb3f286fe6`; Laravel framework:
+  `v12.71.0`; PHP patch: `8.4.27`.
+- Equivalent high-level mode: Orku `ViewRenderer` path resolution/include versus
+  Blade `BladeCompiler::compile()` to a file followed by include. This aligns
+  file-based execution, not the full framework APIs: Blade uses no view factory
+  or container, and Orku has no matching service-container cost.
+- Optional low-level `blade_string` microbenchmark uses `compileString` + `eval`;
+  report separately. Never combine it with high-level file-mode measurements.
+- Strict byte comparison precedes timing; parity covers static, escaping, UTF-8,
+  null/empty, layout/partial, collection, and conditional cases.
+- Memory **UNMEASURED**; cold template-cache comparison **NOT_IMPLEMENTED**.
+- HTTP, CRUD/API, application cold-start, and PHP 8.5 benchmark measurements
+  remain pending. First-render observations do not substitute for cold-cache
+  benchmarking.
+- Legacy `src/Web/ViewRenderer`, not Loom; synthetic workload, not a production
+  application. Do not generalize smoke timings to production performance.
 
-## Configuration and reproduction
+## Reproduction
 
 See `benchmarks/release/ssr_compare_scenario.json` and
-`benchmarks/release/laravel-ssr/README.md`. Preserve Orku commit, PHP patch,
-OS/architecture, Composer lockfile, cache state, and raw JSON for every run.
-Use only local disposable fixtures. No CI load benchmark runs.
-
-## Limitations
-
-The Orku side uses the legacy `src/Web/ViewRenderer`; it is not Loom. The fixture
-measures a small synthetic template workload, not a production application.
-PHP 8.5 not tested. HTTP, cold template cache, app bootstrap cold start, CRUD,
-and memory remain unmeasured. Smoke output should not be generalized to
-production performance.
+`benchmarks/release/laravel-ssr/README.md`. Preserve exact commit, PHP patch,
+OS/architecture, Composer lock, cache state, and raw JSON per run.

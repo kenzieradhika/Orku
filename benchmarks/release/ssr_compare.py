@@ -61,19 +61,19 @@ def build_report(samples, case_hashes, timer_overheads, runs, environment, outpu
             'frameworks': frameworks}
 
 
-def run_fixture(framework, mode, renders=1, dependency_root=None, docker=False):
+def run_fixture(framework, mode, renders=1, dependency_root=None, docker=False, blade_mode='file'):
     if not 1 <= renders <= MAX_RENDERS:
         raise ValueError(f'renders must be between 1 and {MAX_RENDERS}')
     script = Path(__file__).with_name('ssr_compare.php')
     if docker:
         command = ['docker', 'run', '--rm', '-v', f'{ROOT}:/orku:ro',
                    'orku-laravel-ssr:12.71.0', '--framework', framework,
-                   '--mode', mode, '--renders', str(renders)]
+                   '--mode', mode, '--renders', str(renders), '--blade-mode', blade_mode]
         if framework == 'laravel':
             command.extend(['--dependency-root', '/fixture'])
     else:
         command = ['php', str(script), '--framework', framework, '--mode', mode,
-                   '--renders', str(renders)]
+                   '--renders', str(renders), '--blade-mode', blade_mode]
         if dependency_root:
             command.extend(['--dependency-root', str(dependency_root)])
     result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True,
@@ -81,22 +81,26 @@ def run_fixture(framework, mode, renders=1, dependency_root=None, docker=False):
     return json.loads(result.stdout)
 
 
-def compare(laravel_root, renders=1000, repeats=5, output=None, docker=False):
+def compare(laravel_root, renders=1000, repeats=5, output=None, docker=False, blade_mode='file'):
     if not 1 <= renders <= MAX_RENDERS:
         raise ValueError(f'renders must be between 1 and {MAX_RENDERS}')
     if not 1 <= repeats <= 5:
         raise ValueError('repeats must be between 1 and 5')
     if not docker and not (Path(laravel_root) / 'composer.lock').is_file():
         raise ValueError('Laravel dependency root must contain composer.lock')
+    if blade_mode not in {'file', 'string'}:
+        raise ValueError('blade_mode must be file or string')
     orku = run_fixture('orku', 'cases')
-    laravel = run_fixture('laravel', 'cases', dependency_root=laravel_root, docker=docker)
+    laravel = run_fixture('laravel', 'cases', dependency_root=laravel_root, docker=docker,
+                          blade_mode=blade_mode)
     validate_laravel_version(laravel['version'])
     hashes = require_equal(orku['outputs'], laravel['outputs'])
     measured = {}
     for framework, root in (('orku', None), ('laravel', laravel_root)):
         use_docker = docker
-        warmup = run_fixture(framework, 'render', min(100, renders), root, use_docker)
-        batches = [run_fixture(framework, 'render', renders, root, use_docker) for _ in range(repeats)]
+        warmup = run_fixture(framework, 'render', min(100, renders), root, use_docker, blade_mode)
+        batches = [run_fixture(framework, 'render', renders, root, use_docker, blade_mode)
+                   for _ in range(repeats)]
         if len({batch['output_sha256'] for batch in batches}) != 1:
             raise ValueError(f'{framework} render output hash changed between repeats')
         raw = [value for batch in batches for value in batch['render_latencies_ns']]
@@ -134,7 +138,8 @@ def compare(laravel_root, renders=1000, repeats=5, output=None, docker=False):
         composer = 'UNRECORDED'
         image_id = 'NOT_APPLICABLE'
         lock_hash = hashlib.sha256((Path(laravel_root) / 'composer.lock').read_bytes()).hexdigest()
-    report = {'mode': 'rendering_only', 'http_timing': 'NOT_MEASURED',
+    report = {'mode': 'rendering_only', 'blade_mode': blade_mode,
+              'http_timing': 'NOT_MEASURED',
               'verified_case_hashes': hashes,
               'environment': {'python': platform.python_version(), 'platform': platform.platform(),
                               'machine': platform.machine(), 'php_cli': php_cli,
@@ -158,8 +163,10 @@ def main():
     parser.add_argument('--repeats', type=int, default=5)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--docker-laravel', action='store_true')
+    parser.add_argument('--blade-mode', choices=('file', 'string'), default='file')
     args = parser.parse_args()
-    report = compare(args.laravel_root, args.renders, args.repeats, args.output, args.docker_laravel)
+    report = compare(args.laravel_root, args.renders, args.repeats, args.output,
+                     args.docker_laravel, args.blade_mode)
     print(json.dumps(report, indent=2, ensure_ascii=False))
 
 

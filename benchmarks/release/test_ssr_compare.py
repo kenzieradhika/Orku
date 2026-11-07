@@ -31,6 +31,7 @@ class SsrCompareTest(unittest.TestCase):
             self.assertEqual(cases.returncode, 0, cases.stderr)
             output = json.loads(cases.stdout)
             self.assertEqual(output['framework'], 'orku')
+            self.assertEqual(output['blade_mode'], 'n/a')
             self.assertEqual(output['outputs']['utf8'], '<p>café 東京</p>')
             self.assertEqual(output['outputs']['escaped'], '<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>')
             self.assertEqual(output['outputs']['collection_large'].count('<li>'), 500)
@@ -44,9 +45,22 @@ class SsrCompareTest(unittest.TestCase):
             self.assertGreaterEqual(render_report['cold_first_render_ns'], 0)
             self.assertEqual(render_report['warmup_renders'], 100)
             self.assertEqual(render_report['cache_state'], 'ViewRenderer_path_cache_per_process')
+            self.assertEqual(render_report['blade_mode'], 'n/a')
             self.assertIn('cpu_user_us', render_report)
             self.assertIn('cpu_system_us', render_report)
             self.assertEqual(list(Path(tmp).iterdir()), [])
+
+    def test_blade_modes_are_explicitly_separate(self):
+        script = Path(__file__).with_name('ssr_compare.php')
+        for mode, label in (('file', 'file'), ('string', 'string')):
+            result = subprocess.run(['php', str(script), '--framework', 'laravel', '--mode', 'cases',
+                                     '--blade-mode', mode, '--dependency-root', '/missing'],
+                                    capture_output=True, text=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('Laravel 12.71.0', result.stderr)
+        invalid = subprocess.run(['php', str(script), '--framework', 'orku', '--mode', 'cases',
+                                  '--blade-mode', 'other'], capture_output=True, text=True, timeout=10)
+        self.assertEqual(invalid.returncode, 2)
 
     def test_rejects_missing_or_wrong_laravel_version(self):
         script = Path(__file__).with_name('ssr_compare.php')
