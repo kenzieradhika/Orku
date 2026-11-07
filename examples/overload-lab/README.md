@@ -4,7 +4,7 @@ Local-only, finite-work comparison of baseline and protected Orku. Synthetic CPU
 
 ## Run
 
-Requirements: Docker Compose, PHP 8.4+ for native tests, Python 3.10+, Grafana k6 for load tests.
+Requirements: Docker Compose, PHP 8.4+ for native tests, Python 3.10+. The pinned `grafana/k6:1.8.2` image runs on the isolated Compose network.
 
 ```sh
 cd examples/overload-lab
@@ -21,13 +21,17 @@ LAB_VARIANT=protected docker compose up --build -d --force-recreate
 Run bounded cases (loopback target only; opt-in required):
 
 ```sh
-python3 run.py --scenario baseline --yes-really-local-load
-python3 run.py --scenario ramp --yes-really-local-load
-python3 run.py --scenario spike --yes-really-local-load
-python3 run.py --scenario recovery --yes-really-local-load
+LAB_VARIANT=baseline python3 run.py --scenario baseline --yes-really-local-load
+LAB_VARIANT=protected python3 run.py --scenario baseline --yes-really-local-load
+LAB_VARIANT=baseline python3 run.py --scenario ramp --yes-really-local-load
+LAB_VARIANT=baseline python3 run.py --scenario spike --yes-really-local-load
+LAB_VARIANT=baseline python3 run.py --scenario recovery --yes-really-local-load
+LAB_VARIANT=protected python3 run.py --scenario ramp --yes-really-local-load
+LAB_VARIANT=protected python3 run.py --scenario spike --yes-really-local-load
+LAB_VARIANT=protected python3 run.py --scenario recovery --yes-really-local-load
 ```
 
-The launcher rejects public/non-loopback URLs, enforces 1–15 seconds and at most 60 requests via fixed 4-VU/1-iteration-per-second settings, and has a hard timeout. Each run writes a raw k6 summary JSON to `results/`. k6's bounded arrival rate, 4-VU ceiling and max-duration cap remain fixed; no load escalation. For baseline/protected comparison, run same scenario once per variant, save results under distinct filenames, compare the k6 JSON metrics manually. Never run both variants simultaneously on the same port.
+The launcher rejects public/non-loopback URLs, enforces 1–15 seconds; staged duration stays fixed at 6–9 seconds. Stages top out at 4 iterations/s and 4 VUs. The runner has a 25-second hard timeout. k6 uses 0.25 CPU, 128 MiB, 32 PIDs, dropped capabilities, read-only root and Compose-internal DNS. Each run writes raw summary JSON to `results/`. Recreate Compose services between variants; never run both simultaneously on the same port.
 
 ## Stop and cleanup
 
@@ -45,6 +49,6 @@ Nginx limiting is per source IP and enforced before Orku. Track response status,
 
 ## Verification and evidence
 
-`python3 -m unittest discover -s tests -v` exercises target/configuration guardrails and fixtures. PHP integration needs PHP 8.4 plus Composer dependencies. Docker and k6 experiments must be run manually; no load test runs in CI. Do not treat unexecuted scenarios as passed.
+`python3 -m unittest discover -s tests -v` exercises target/configuration guardrails and fixtures. PHP integration needs PHP 8.4 plus Composer dependencies. Docker and k6 experiments are opt-in; no load test runs in CI. Do not treat unexecuted scenarios as passed.
 
-Schema: `results/schema.json`. Blank comparison: `results/comparison-template.md`. No measured results are committed.
+Schema: `results/schema.json`. Measured comparison and limitations: `results/comparison-template.md`. Raw JSON filenames are listed there.

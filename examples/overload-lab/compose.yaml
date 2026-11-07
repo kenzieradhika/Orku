@@ -5,12 +5,13 @@ services:
       dockerfile: examples/overload-lab/Dockerfile
     environment:
       LAB_VARIANT: ${LAB_VARIANT:-baseline}
-    expose: ["9000"]
     mem_limit: 128m
     cpus: 0.50
     pids_limit: 32
     restart: "no"
     networks: [lab]
+    ports: []
+    expose: ["9000"]
   nginx:
     image: nginx:1.27-alpine
     ports:
@@ -22,6 +23,34 @@ services:
     cpus: 0.25
     pids_limit: 32
     restart: "no"
+    networks: [lab]
+  k6:
+    image: grafana/k6:1.8.2
+    profiles: [load]
+    entrypoint: ["k6"]
+    user: "${LAB_UID:-1000}:${LAB_GID:-1000}"
+    cpus: 0.25
+    mem_limit: 128m
+    pids_limit: 32
+    restart: "no"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m"]
+    volumes:
+      - type: bind
+        source: ./k6
+        target: /scripts
+        read_only: true
+      - type: bind
+        source: ./results
+        target: /results
+        bind:
+          create_host_path: true
+    environment:
+      LAB_TARGET: http://nginx:8080
+      SCENARIO: ${SCENARIO:-baseline}
+      RESULT_FILE: ${RESULT_FILE:-/results/result.json}
     networks: [lab]
 networks:
   lab:

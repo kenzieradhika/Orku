@@ -5,6 +5,8 @@ from urllib.parse import urlsplit
 
 def validate_target(target: str) -> str:
     """Accept only local HTTP services; return normalized URL without trailing slash."""
+    if target == 'http://nginx:8080':
+        return target
     parsed = urlsplit(target)
     if parsed.scheme != 'http' or parsed.username or parsed.password or parsed.path not in ('', '/') or parsed.query or parsed.fragment:
         raise ValueError('Target must be a local HTTP URL.')

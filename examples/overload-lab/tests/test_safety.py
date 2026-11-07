@@ -12,6 +12,18 @@ class SafetyTest(unittest.TestCase):
         self.assertEqual(validate_target('http://localhost:18080'), 'http://localhost:18080')
         self.assertEqual(validate_target('http://[::1]:18080'), 'http://[::1]:18080')
 
+    def test_allows_only_internal_compose_service_target(self):
+        self.assertEqual(validate_target('http://nginx:8080'), 'http://nginx:8080')
+
+    def test_load_launcher_uses_internal_target_and_explicit_opt_in(self):
+        launcher = (Path(__file__).resolve().parents[1] / 'run.py').read_text()
+        self.assertIn("parser.add_argument('--target', default='http://nginx:8080')", launcher)
+        self.assertIn("--yes-really-local-load", launcher)
+
+    def test_rejects_arbitrary_compose_service(self):
+        with self.assertRaises(ValueError):
+            validate_target('http://unrelated:8080')
+
     def test_rejects_external_targets(self):
         for target in ('https://example.com', 'http://192.0.2.1:18080', 'http://127.0.0.1:70000', 'http://localhost:8080'):
             with self.assertRaises(ValueError):
@@ -47,9 +59,7 @@ class SafetyTest(unittest.TestCase):
     def test_load_scenario_bound_is_capped_at_60_requests(self):
         script = (Path(__file__).resolve().parents[1] / 'k6/scenarios.js').read_text()
         self.assertIn('preAllocatedVUs: 4, maxVUs: 4', script)
-        self.assertIn("maxDuration = __ENV.MAX_DURATION || '12s'", script)
-        self.assertNotIn('MAX_REQUESTS', script)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        self.assertIn("baseline: [{ duration: '6s', target: 1 }]", script)
+        self.assertIn('handleSummary(data)', script)
+        self.assertIn('http_status_${status}', script)
+        self.assertNotIn('maxDuration =', script)
