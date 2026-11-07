@@ -67,11 +67,11 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** SQLite/PDO integration validation using a temporary database and synthetic rows. Measure prepared point lookup, bounded list query, transaction commit/rollback, and repeated acquire/release; compare identical SQL/data for Orku and Laravel. No claim about MySQL/PostgreSQL.
 
-- [ ] Test temporary DB creation, fixed seed count, rollback leaves no row, commit persists expected row, and teardown removes DB.
-- [ ] Add bounded query/transaction loops and assert expected result hashes after each case.
-- [ ] Capture latency percentiles, connection count/driver, and error counts.
-- [ ] Run under resource limits; prove repeatable cleanup when interrupted by timeout.
-- [ ] Mark feature/status experimental and ensure no migration is implicitly run.
+- [x] Test temporary DB creation, fixed seed count, rollback leaves no row, commit persists expected row, and teardown removes DB.
+- [x] Add bounded query/transaction loops and assert expected result hashes after each case.
+- [x] Capture latency percentiles, connection count/driver, and error counts.
+- [x] Verify timeout cleanup of the unique temp directory. Not yet run in a resource-limited container; keep that portion gated.
+- [x] Mark feature/status experimental and ensure no migration is implicitly run.
 
 **Acceptance:** Identical schema/seed/query semantics; no persistent DB artifact; all writes confined to temp DB; transactions and teardown verified.
 
