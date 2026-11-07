@@ -9,6 +9,7 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [x] Concurrent loopback benchmark tool and overlap regression.
 - [ ] Representative API benchmark with matched endpoint contracts and raw errors; current benchmark is stateless and has not validated this gate (`benchmarks/release/api_check.py`).
 - [ ] Database query/transaction/connection evidence is SQLite-only and disposable; framework parity and alternate drivers unverified (`tests/release/database_check.py`).
+- [ ] Soak gate remains open: runner is sequential, without server memory/restart/session instrumentation; no 24-hour evidence (`benchmarks/release/soak_check.py`).
 - [x] Isolated Apache/mod_php routing and public-root smoke check.
 - [x] Isolated Nginx/PHP-FPM routing and public-root smoke check.
 - [ ] Sustained workload, memory growth and state-isolation evidence.

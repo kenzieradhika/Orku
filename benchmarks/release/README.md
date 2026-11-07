@@ -29,3 +29,25 @@ Output includes every status/body/latency, percentiles, client CPU, and a clear
 separately by the disposable deployment harness before any comparison claim.
 Run in alternating framework order and record host contention. Never supply a
 non-loopback URL. No load test runs in CI; only deterministic unit tests do.
+
+## Soak runner status
+
+`soak_check.py` is a bounded rehearsal harness, not the release soak gate. It
+supports a maximum of 24 hours and 2 sequential requests/second. Use only with a
+disposable local endpoint and an operator-created stop file:
+
+```sh
+python3 benchmarks/release/soak_check.py --url http://127.0.0.1:8080/api/status \
+  --duration-hours 1 --rate 2 --concurrency 1 \
+  --stop-file /tmp/opencode/stop-soak --output /tmp/opencode/soak.json
+```
+
+Current scope cannot observe server cgroup memory, restarts, per-session state,
+or actual concurrency. Its memory slope is therefore `null`; it cannot close
+the 24-hour soak gate. A 5-minute disposable rehearsal and instrumentation are
+required before any 24-hour run. `concurrency` is bounded for planned use but
+does not increase offered load in this sequential prototype.
+
+Never use `--stop-file` as an output path: stopping is by creating that file
+while the process runs. Its parent must already exist, and the file must not
+exist at start.

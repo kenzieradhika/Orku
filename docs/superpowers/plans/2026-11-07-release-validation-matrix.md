@@ -81,10 +81,10 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** Opt-in sustained API test. Initial supported run: 24 hours maximum; 72-hour run is a separate explicit duration after review. Default low rate: 2 requests/second, concurrency 4; user may lower but not raise ceilings without a reviewed config change. Exercise stateless route plus disposable session/CSRF flow with synthetic sessions.
 
-- [ ] Unit-test duration/rate limits, stop-file handling, heartbeat timeout, and result serialization.
-- [ ] Run a 5-minute rehearsal; check cleanup and output before scheduling 24 hours.
-- [ ] Capture interval health, HTTP errors, latency percentiles, cgroup current/peak memory, CPU, process restarts, session count, and session-isolation assertions.
-- [ ] Fail if error rate >0.1% in any 5-minute window, any cross-session token acceptance, OOM/restart, or monotonic memory slope >1 MiB/hour after warmup; report exact reason.
+- [x] Unit-test duration/rate limits, stop-file handling, and metric/result serialization; heartbeat/session checks remain unimplemented.
+- [ ] Run a 5-minute disposable rehearsal; server instrumentation missing.
+- [ ] Capture interval health, HTTP errors, latency percentiles, cgroup current/peak memory, CPU, process restarts, session count, and session-isolation assertions. Current runner lacks these server metrics.
+- [ ] Fail if error rate >0.1% in any 5-minute window, any cross-session token acceptance, OOM/restart, or monotonic memory slope >1 MiB/hour after warmup; only HTTP error-window threshold implemented.
 - [ ] Run 24-hour test only on a dedicated local machine/isolated runner; no default CI scheduling.
 - [ ] If 24-hour passes, record decision before a separate opt-in 72-hour run.
 
