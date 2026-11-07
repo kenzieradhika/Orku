@@ -19,6 +19,7 @@ jobs:
           tools: composer:v2
       - run: composer validate --strict
       - run: python3 -m unittest discover -s benchmarks -p 'test_http_latency.py'
+      - run: python3 -m unittest discover -s benchmarks -p 'test_compare_optimized.py'
       - run: python3 -m unittest discover -s tests -p 'test_resource_check.py'
       - run: composer install --no-interaction --prefer-dist
       - run: composer check

@@ -1,0 +1,4711 @@
+{
+  "title": "Ronde 2: Orku vs Laravel Production-Optimized \u2014 combined clean sessions",
+  "configs": [
+    {
+      "framework": "orku",
+      "php": "8.4.26-fpm",
+      "nginx": "1.28-alpine",
+      "fpm_workers": 4,
+      "fpm_pm": "static",
+      "opcache": {
+        "enabled": true,
+        "validate_timestamps": false,
+        "memory_mb": 128,
+        "max_files": 20000,
+        "jit": "disabled"
+      },
+      "container_limits": {
+        "cpus": 1,
+        "memory_mb": 256,
+        "pids": 128
+      },
+      "client": {
+        "mode": "keep-alive TCP per worker",
+        "requests_per_round": 1000
+      },
+      "warmup_requests": 200,
+      "rounds_per_concurrency": 5,
+      "requests_per_round": 1000,
+      "orku": {
+        "opcache_warm": true
+      }
+    },
+    {
+      "framework": "laravel",
+      "php": "8.4.26-fpm",
+      "nginx": "1.28-alpine",
+      "fpm_workers": 4,
+      "fpm_pm": "static",
+      "opcache": {
+        "enabled": true,
+        "validate_timestamps": false,
+        "memory_mb": 128,
+        "max_files": 20000,
+        "jit": "disabled"
+      },
+      "container_limits": {
+        "cpus": 1,
+        "memory_mb": 256,
+        "pids": 128
+      },
+      "client": {
+        "mode": "keep-alive TCP per worker",
+        "requests_per_round": 1000
+      },
+      "warmup_requests": 200,
+      "rounds_per_concurrency": 5,
+      "requests_per_round": 1000,
+      "laravel": {
+        "route_cached": true,
+        "config_cached": true,
+        "services_cached": true,
+        "autoloader_optimized": true,
+        "opcache_warm": true
+      }
+    }
+  ],
+  "results": [
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 1,
+      "elapsed_seconds": 0.2718,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.20457455799987656,
+        "requests_per_second": 4888.193379357581,
+        "mean_ms": 0.807380064,
+        "p50_ms": 0.584537,
+        "p95_ms": 0.785402,
+        "p99_ms": 0.99477,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.306298,
+          "cpu_one_core_percent": 112.67420896500163,
+          "memory_growth_bytes": -159744,
+          "cpu_usec": 483059,
+          "memory_bytes": 22839296,
+          "memory_peak_bytes": 23007232,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.224151,
+          "cpu_one_core_percent": 82.45576730410932,
+          "memory_growth_bytes": 671744,
+          "cpu_usec": 351374,
+          "memory_bytes": 20025344,
+          "memory_peak_bytes": 20025344,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 2,
+      "elapsed_seconds": 0.2757,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.20508375499957765,
+        "requests_per_second": 4876.056614050486,
+        "mean_ms": 0.809192823,
+        "p50_ms": 0.574779,
+        "p95_ms": 0.73108,
+        "p99_ms": 3.019428,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.302155,
+          "cpu_one_core_percent": 109.59294816745219,
+          "memory_growth_bytes": 495616,
+          "cpu_usec": 810170,
+          "memory_bytes": 24039424,
+          "memory_peak_bytes": 24039424,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.227472,
+          "cpu_one_core_percent": 82.50509541641438,
+          "memory_growth_bytes": 102400,
+          "cpu_usec": 603238,
+          "memory_bytes": 20574208,
+          "memory_peak_bytes": 20779008,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 3,
+      "elapsed_seconds": 0.2759,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.20991022499947576,
+        "requests_per_second": 4763.94134684243,
+        "mean_ms": 0.820559816,
+        "p50_ms": 0.543121,
+        "p95_ms": 0.703148,
+        "p99_ms": 3.366433,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.279636,
+          "cpu_one_core_percent": 101.36413706561451,
+          "memory_growth_bytes": 364544,
+          "cpu_usec": 1115311,
+          "memory_bytes": 24178688,
+          "memory_peak_bytes": 24199168,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.206415,
+          "cpu_one_core_percent": 74.82254914388282,
+          "memory_growth_bytes": 774144,
+          "cpu_usec": 831365,
+          "memory_bytes": 20361216,
+          "memory_peak_bytes": 20779008,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 4,
+      "elapsed_seconds": 0.2883,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2243489779993979,
+        "requests_per_second": 4457.34145489481,
+        "mean_ms": 0.888647239,
+        "p50_ms": 0.551686,
+        "p95_ms": 0.718888,
+        "p99_ms": 2.868226,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.28436,
+          "cpu_one_core_percent": 98.6489527062778,
+          "memory_growth_bytes": 81920,
+          "cpu_usec": 1423315,
+          "memory_bytes": 23982080,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.20043,
+          "cpu_one_core_percent": 69.53231674961056,
+          "memory_growth_bytes": -217088,
+          "cpu_usec": 1056353,
+          "memory_bytes": 20107264,
+          "memory_peak_bytes": 20779008,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 5,
+      "elapsed_seconds": 0.2798,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.21320313199976226,
+        "requests_per_second": 4690.362616254226,
+        "mean_ms": 0.845682173,
+        "p50_ms": 0.533724,
+        "p95_ms": 0.648998,
+        "p99_ms": 3.28272,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.276272,
+          "cpu_one_core_percent": 98.74472618278783,
+          "memory_growth_bytes": 696320,
+          "cpu_usec": 1725096,
+          "memory_bytes": 24162304,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.202457,
+          "cpu_one_core_percent": 72.36187897719883,
+          "memory_growth_bytes": 253952,
+          "cpu_usec": 1282218,
+          "memory_bytes": 20549632,
+          "memory_peak_bytes": 20897792,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 1,
+      "elapsed_seconds": 0.295,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23414883999976155,
+        "requests_per_second": 4270.7877604732885,
+        "mean_ms": 3.471379359,
+        "p50_ms": 1.677913,
+        "p95_ms": 5.144726,
+        "p99_ms": 53.785142,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.283624,
+          "cpu_one_core_percent": 96.15209991309547,
+          "memory_growth_bytes": -577536,
+          "cpu_usec": 2030795,
+          "memory_bytes": 23072768,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.198479,
+          "cpu_one_core_percent": 67.28687501287365,
+          "memory_growth_bytes": -335872,
+          "cpu_usec": 1503230,
+          "memory_bytes": 20086784,
+          "memory_peak_bytes": 20897792,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 2,
+      "elapsed_seconds": 0.2961,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23523368099995423,
+        "requests_per_second": 4251.091917403591,
+        "mean_ms": 3.525069713,
+        "p50_ms": 1.634361,
+        "p95_ms": 5.244238,
+        "p99_ms": 53.432624,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.283774,
+          "cpu_one_core_percent": 95.84427907687247,
+          "memory_growth_bytes": 299008,
+          "cpu_usec": 2337577,
+          "memory_bytes": 23474176,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.207565,
+          "cpu_one_core_percent": 70.10479390850124,
+          "memory_growth_bytes": -69632,
+          "cpu_usec": 1734644,
+          "memory_bytes": 20119552,
+          "memory_peak_bytes": 20897792,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 3,
+      "elapsed_seconds": 0.2913,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23252084799969452,
+        "requests_per_second": 4300.689631070474,
+        "mean_ms": 3.17241415,
+        "p50_ms": 1.583476,
+        "p95_ms": 4.884376,
+        "p99_ms": 52.797049,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.280666,
+          "cpu_one_core_percent": 96.34122019421179,
+          "memory_growth_bytes": 290816,
+          "cpu_usec": 2641112,
+          "memory_bytes": 23752704,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.204774,
+          "cpu_one_core_percent": 70.29058391130214,
+          "memory_growth_bytes": 303104,
+          "cpu_usec": 1962814,
+          "memory_bytes": 20811776,
+          "memory_peak_bytes": 20897792,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 4,
+      "elapsed_seconds": 0.3123,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2498521219995382,
+        "requests_per_second": 4002.36744838152,
+        "mean_ms": 3.790540839,
+        "p50_ms": 1.814256,
+        "p95_ms": 5.881727,
+        "p99_ms": 55.005049,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.317438,
+          "cpu_one_core_percent": 101.64441683556169,
+          "memory_growth_bytes": -4771840,
+          "cpu_usec": 2981564,
+          "memory_bytes": 19587072,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.227832,
+          "cpu_one_core_percent": 72.95235849671334,
+          "memory_growth_bytes": -397312,
+          "cpu_usec": 2216432,
+          "memory_bytes": 20885504,
+          "memory_peak_bytes": 21286912,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 5,
+      "elapsed_seconds": 0.3054,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.24328454399983457,
+        "requests_per_second": 4110.413195836559,
+        "mean_ms": 3.645401403,
+        "p50_ms": 1.792305,
+        "p95_ms": 5.284552,
+        "p99_ms": 54.665845,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.303855,
+          "cpu_one_core_percent": 99.50869678929648,
+          "memory_growth_bytes": 4616192,
+          "cpu_usec": 3312710,
+          "memory_bytes": 24031232,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.221022,
+          "cpu_one_core_percent": 72.38192947874442,
+          "memory_growth_bytes": 647168,
+          "cpu_usec": 2460593,
+          "memory_bytes": 20561920,
+          "memory_peak_bytes": 21286912,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 1,
+      "elapsed_seconds": 0.2914,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.22585959200023353,
+        "requests_per_second": 4427.529471491147,
+        "mean_ms": 7.869670018,
+        "p50_ms": 3.719622,
+        "p95_ms": 33.599769,
+        "p99_ms": 58.471558,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.294403,
+          "cpu_one_core_percent": 101.02072232997423,
+          "memory_growth_bytes": -540672,
+          "cpu_usec": 3630403,
+          "memory_bytes": 23556096,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.224905,
+          "cpu_one_core_percent": 77.17334930562137,
+          "memory_growth_bytes": 81920,
+          "cpu_usec": 2709166,
+          "memory_bytes": 20439040,
+          "memory_peak_bytes": 21286912,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 2,
+      "elapsed_seconds": 0.2945,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23360013799992885,
+        "requests_per_second": 4280.819388900809,
+        "mean_ms": 7.93859736,
+        "p50_ms": 3.008345,
+        "p95_ms": 47.514589,
+        "p99_ms": 59.580067,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.286093,
+          "cpu_one_core_percent": 97.14586380521762,
+          "memory_growth_bytes": 942080,
+          "cpu_usec": 3941395,
+          "memory_bytes": 24379392,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.212874,
+          "cpu_one_core_percent": 72.28358824463338,
+          "memory_growth_bytes": 151552,
+          "cpu_usec": 2943885,
+          "memory_bytes": 21016576,
+          "memory_peak_bytes": 21286912,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 3,
+      "elapsed_seconds": 0.2921,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23250424099933298,
+        "requests_per_second": 4300.996814947856,
+        "mean_ms": 7.650404452,
+        "p50_ms": 3.110805,
+        "p95_ms": 48.692507,
+        "p99_ms": 56.82779,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.283152,
+          "cpu_one_core_percent": 96.92954530222111,
+          "memory_growth_bytes": 159744,
+          "cpu_usec": 4246936,
+          "memory_bytes": 23994368,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.207932,
+          "cpu_one_core_percent": 71.17998182524381,
+          "memory_growth_bytes": 294912,
+          "cpu_usec": 3174249,
+          "memory_bytes": 21020672,
+          "memory_peak_bytes": 21286912,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 4,
+      "elapsed_seconds": 0.3264,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.24962660699929984,
+        "requests_per_second": 4005.9832243876344,
+        "mean_ms": 9.653461923,
+        "p50_ms": 4.456688,
+        "p95_ms": 49.08041,
+        "p99_ms": 54.79758,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.317298,
+          "cpu_one_core_percent": 97.19941508679352,
+          "memory_growth_bytes": -294912,
+          "cpu_usec": 4588082,
+          "memory_bytes": 23384064,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.240717,
+          "cpu_one_core_percent": 73.73999080185716,
+          "memory_growth_bytes": -368640,
+          "cpu_usec": 3438403,
+          "memory_bytes": 19968000,
+          "memory_peak_bytes": 21286912,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 5,
+      "elapsed_seconds": 0.2668,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.20722739400025603,
+        "requests_per_second": 4825.616829398359,
+        "mean_ms": 6.59483683,
+        "p50_ms": 3.223226,
+        "p95_ms": 21.779698,
+        "p99_ms": 56.392557,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.286035,
+          "cpu_one_core_percent": 107.22478610773891,
+          "memory_growth_bytes": 1077248,
+          "cpu_usec": 4900123,
+          "memory_bytes": 24170496,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.214277,
+          "cpu_one_core_percent": 80.3251542391944,
+          "memory_growth_bytes": 888832,
+          "cpu_usec": 3674017,
+          "memory_bytes": 20873216,
+          "memory_peak_bytes": 21286912,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 1,
+      "elapsed_seconds": 0.2997,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2380098840003484,
+        "requests_per_second": 4201.50618618232,
+        "mean_ms": 12.543183924,
+        "p50_ms": 4.863257,
+        "p95_ms": 58.188549,
+        "p99_ms": 64.251634,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.289287,
+          "cpu_one_core_percent": 96.53650176127798,
+          "memory_growth_bytes": -139264,
+          "cpu_usec": 5211298,
+          "memory_bytes": 23904256,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.222609,
+          "cpu_one_core_percent": 74.28572359136888,
+          "memory_growth_bytes": 356352,
+          "cpu_usec": 3918972,
+          "memory_bytes": 21065728,
+          "memory_peak_bytes": 21348352,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 2,
+      "elapsed_seconds": 0.2982,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23638730400034547,
+        "requests_per_second": 4230.345636492129,
+        "mean_ms": 11.696151361,
+        "p50_ms": 4.444545,
+        "p95_ms": 56.234722,
+        "p99_ms": 60.646386,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.284039,
+          "cpu_one_core_percent": 95.23934863548396,
+          "memory_growth_bytes": 106496,
+          "cpu_usec": 5518110,
+          "memory_bytes": 23900160,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.222346,
+          "cpu_one_core_percent": 74.55345291211883,
+          "memory_growth_bytes": -118784,
+          "cpu_usec": 4163963,
+          "memory_bytes": 20905984,
+          "memory_peak_bytes": 21348352,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 3,
+      "elapsed_seconds": 0.3203,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.25195719199928135,
+        "requests_per_second": 3968.9281820653578,
+        "mean_ms": 15.016814473,
+        "p50_ms": 6.273879,
+        "p95_ms": 61.668903,
+        "p99_ms": 66.680577,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.319282,
+          "cpu_one_core_percent": 99.69648281644716,
+          "memory_growth_bytes": 548864,
+          "cpu_usec": 5861881,
+          "memory_bytes": 24379392,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.243953,
+          "cpu_one_core_percent": 76.17484252955298,
+          "memory_growth_bytes": 532480,
+          "cpu_usec": 4432214,
+          "memory_bytes": 20807680,
+          "memory_peak_bytes": 21348352,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 4,
+      "elapsed_seconds": 0.2702,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2053519500004768,
+        "requests_per_second": 4869.688356977756,
+        "mean_ms": 7.147074729,
+        "p50_ms": 3.58991,
+        "p95_ms": 32.258735,
+        "p99_ms": 54.33737,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.300903,
+          "cpu_one_core_percent": 111.38231927508303,
+          "memory_growth_bytes": -106496,
+          "cpu_usec": 6189656,
+          "memory_bytes": 24227840,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.231709,
+          "cpu_one_core_percent": 85.7694533351619,
+          "memory_growth_bytes": -131072,
+          "cpu_usec": 4689318,
+          "memory_bytes": 20594688,
+          "memory_peak_bytes": 21348352,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 5,
+      "elapsed_seconds": 0.2917,
+      "benchmark": {
+        "url": "http://127.0.0.1:32812/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.22721897100018396,
+        "requests_per_second": 4401.0409676540185,
+        "mean_ms": 12.728249289,
+        "p50_ms": 5.47041,
+        "p95_ms": 57.103823,
+        "p99_ms": 63.501223,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.286069,
+          "cpu_one_core_percent": 98.08442071616965,
+          "memory_growth_bytes": 40960,
+          "cpu_usec": 6500189,
+          "memory_bytes": 23703552,
+          "memory_peak_bytes": 24440832,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.220118,
+          "cpu_one_core_percent": 75.47181455943087,
+          "memory_growth_bytes": -319488,
+          "cpu_usec": 4932424,
+          "memory_bytes": 20697088,
+          "memory_peak_bytes": 21348352,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 1,
+      "elapsed_seconds": 1.7605,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7002589639996586,
+        "requests_per_second": 588.1457008452512,
+        "mean_ms": 6.730628971,
+        "p50_ms": 1.900336,
+        "p95_ms": 71.760394,
+        "p99_ms": 76.493276,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.767981,
+          "cpu_one_core_percent": 100.42444797958406,
+          "memory_growth_bytes": -225280,
+          "cpu_usec": 2576153,
+          "memory_bytes": 38506496,
+          "memory_peak_bytes": 38744064,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.226711,
+          "cpu_one_core_percent": 12.87758580318424,
+          "memory_growth_bytes": 139264,
+          "cpu_usec": 382263,
+          "memory_bytes": 20443136,
+          "memory_peak_bytes": 20459520,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 2,
+      "elapsed_seconds": 1.7758,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.714472802000273,
+        "requests_per_second": 583.2696784885134,
+        "mean_ms": 6.824173708,
+        "p50_ms": 1.914232,
+        "p95_ms": 71.670796,
+        "p99_ms": 76.226849,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.795749,
+          "cpu_one_core_percent": 101.1212083119543,
+          "memory_growth_bytes": -12288,
+          "cpu_usec": 4394978,
+          "memory_bytes": 38756352,
+          "memory_peak_bytes": 38768640,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.24733,
+          "cpu_one_core_percent": 13.92750793779958,
+          "memory_growth_bytes": 1208320,
+          "cpu_usec": 652696,
+          "memory_bytes": 20942848,
+          "memory_peak_bytes": 20983808,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 3,
+      "elapsed_seconds": 1.7968,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7316195309995237,
+        "requests_per_second": 577.4940638506087,
+        "mean_ms": 6.887642432,
+        "p50_ms": 1.904925,
+        "p95_ms": 72.714081,
+        "p99_ms": 75.403761,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.807492,
+          "cpu_one_core_percent": 100.59369811903966,
+          "memory_growth_bytes": 1216512,
+          "cpu_usec": 6225640,
+          "memory_bytes": 39739392,
+          "memory_peak_bytes": 39739392,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.245507,
+          "cpu_one_core_percent": 13.663383873406396,
+          "memory_growth_bytes": 638976,
+          "cpu_usec": 920524,
+          "memory_bytes": 21299200,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 4,
+      "elapsed_seconds": 1.8135,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7513721940003961,
+        "requests_per_second": 570.9808591375717,
+        "mean_ms": 6.949811179,
+        "p50_ms": 2.075063,
+        "p95_ms": 72.205149,
+        "p99_ms": 76.228248,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.869951,
+          "cpu_one_core_percent": 103.11045656273592,
+          "memory_growth_bytes": -258048,
+          "cpu_usec": 8118881,
+          "memory_bytes": 38633472,
+          "memory_peak_bytes": 39739392,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.258737,
+          "cpu_one_core_percent": 14.266946139055307,
+          "memory_growth_bytes": -413696,
+          "cpu_usec": 1200523,
+          "memory_bytes": 20471808,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 5,
+      "elapsed_seconds": 1.7821,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7184831670001586,
+        "requests_per_second": 581.9085221216529,
+        "mean_ms": 6.77594867,
+        "p50_ms": 1.92901,
+        "p95_ms": 72.955529,
+        "p99_ms": 76.173575,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.794399,
+          "cpu_one_core_percent": 100.68918367350214,
+          "memory_growth_bytes": 466944,
+          "cpu_usec": 9937226,
+          "memory_bytes": 39219200,
+          "memory_peak_bytes": 39739392,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.25129,
+          "cpu_one_core_percent": 14.100645935109391,
+          "memory_growth_bytes": -8192,
+          "cpu_usec": 1478555,
+          "memory_bytes": 20848640,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 1,
+      "elapsed_seconds": 1.7749,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7123606129998734,
+        "requests_per_second": 583.9891389747085,
+        "mean_ms": 27.160782282,
+        "p50_ms": 7.262533,
+        "p95_ms": 82.831478,
+        "p99_ms": 84.978766,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.794417,
+          "cpu_one_core_percent": 101.09712246453446,
+          "memory_growth_bytes": -32768,
+          "cpu_usec": 11756269,
+          "memory_bytes": 39051264,
+          "memory_peak_bytes": 39739392,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.232114,
+          "cpu_one_core_percent": 13.077259903206976,
+          "memory_growth_bytes": 258048,
+          "cpu_usec": 1732465,
+          "memory_bytes": 20824064,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 2,
+      "elapsed_seconds": 1.8789,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.8128631480003605,
+        "requests_per_second": 551.6136179959466,
+        "mean_ms": 28.624876935,
+        "p50_ms": 7.594032,
+        "p95_ms": 83.734042,
+        "p99_ms": 85.279455,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.865688,
+          "cpu_one_core_percent": 99.29929988578886,
+          "memory_growth_bytes": 802816,
+          "cpu_usec": 13647453,
+          "memory_bytes": 39956480,
+          "memory_peak_bytes": 39964672,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.244592,
+          "cpu_one_core_percent": 13.018154352531006,
+          "memory_growth_bytes": 307200,
+          "cpu_usec": 2000830,
+          "memory_bytes": 20709376,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 3,
+      "elapsed_seconds": 1.7038,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.6455561769998894,
+        "requests_per_second": 607.697272191071,
+        "mean_ms": 26.183106018,
+        "p50_ms": 7.215776,
+        "p95_ms": 82.964203,
+        "p99_ms": 83.959391,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.777521,
+          "cpu_one_core_percent": 104.3290692318942,
+          "memory_growth_bytes": 704512,
+          "cpu_usec": 15448430,
+          "memory_bytes": 39452672,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.234719,
+          "cpu_one_core_percent": 13.776498168539767,
+          "memory_growth_bytes": 229376,
+          "cpu_usec": 2258452,
+          "memory_bytes": 20512768,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 4,
+      "elapsed_seconds": 1.8851,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.8221259110005121,
+        "requests_per_second": 548.809494427808,
+        "mean_ms": 27.991612269,
+        "p50_ms": 7.981234,
+        "p95_ms": 83.296231,
+        "p99_ms": 85.41231,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.884504,
+          "cpu_one_core_percent": 99.9705821868465,
+          "memory_growth_bytes": 1527808,
+          "cpu_usec": 17356456,
+          "memory_bytes": 39657472,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.241874,
+          "cpu_one_core_percent": 12.831113436671565,
+          "memory_growth_bytes": 720896,
+          "cpu_usec": 2525614,
+          "memory_bytes": 20738048,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 5,
+      "elapsed_seconds": 1.7171,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.6564468149999811,
+        "requests_per_second": 603.7018459901542,
+        "mean_ms": 26.304293775,
+        "p50_ms": 7.252484,
+        "p95_ms": 82.913836,
+        "p99_ms": 84.060435,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.769829,
+          "cpu_one_core_percent": 103.07287379063521,
+          "memory_growth_bytes": 163840,
+          "cpu_usec": 19149798,
+          "memory_bytes": 39784448,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.232805,
+          "cpu_one_core_percent": 13.558304436659604,
+          "memory_growth_bytes": 139264,
+          "cpu_usec": 2780015,
+          "memory_bytes": 20918272,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 1,
+      "elapsed_seconds": 1.8977,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.8368379739995362,
+        "requests_per_second": 544.4138318975392,
+        "mean_ms": 112.016251443,
+        "p50_ms": 105.6965,
+        "p95_ms": 182.717849,
+        "p99_ms": 185.72895,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.944018,
+          "cpu_one_core_percent": 102.4429274419896,
+          "memory_growth_bytes": -462848,
+          "cpu_usec": 21117475,
+          "memory_bytes": 38625280,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.257502,
+          "cpu_one_core_percent": 13.569451878618,
+          "memory_growth_bytes": 102400,
+          "cpu_usec": 3060584,
+          "memory_bytes": 20766720,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 2,
+      "elapsed_seconds": 1.8015,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7417292430000089,
+        "requests_per_second": 574.1420510788283,
+        "mean_ms": 105.267673218,
+        "p50_ms": 103.567373,
+        "p95_ms": 179.990065,
+        "p99_ms": 184.826572,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.864098,
+          "cpu_one_core_percent": 103.47503690588893,
+          "memory_growth_bytes": -811008,
+          "cpu_usec": 23004878,
+          "memory_bytes": 38244352,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.249673,
+          "cpu_one_core_percent": 13.859208523051905,
+          "memory_growth_bytes": -770048,
+          "cpu_usec": 3332824,
+          "memory_bytes": 20623360,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 3,
+      "elapsed_seconds": 1.9943,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.9299121929998364,
+        "requests_per_second": 518.1582890802974,
+        "mean_ms": 118.026045511,
+        "p50_ms": 106.310522,
+        "p95_ms": 188.20311,
+        "p99_ms": 190.45993,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 2.015918,
+          "cpu_one_core_percent": 101.0837103415233,
+          "memory_growth_bytes": 1548288,
+          "cpu_usec": 25042759,
+          "memory_bytes": 39911424,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.261424,
+          "cpu_one_core_percent": 13.108523209933331,
+          "memory_growth_bytes": -552960,
+          "cpu_usec": 3617889,
+          "memory_bytes": 20496384,
+          "memory_peak_bytes": 21393408,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 4,
+      "elapsed_seconds": 1.8074,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7473746460000257,
+        "requests_per_second": 572.2871178708778,
+        "mean_ms": 107.356472601,
+        "p50_ms": 104.6707,
+        "p95_ms": 180.790503,
+        "p99_ms": 183.074445,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.880375,
+          "cpu_one_core_percent": 104.0383568428631,
+          "memory_growth_bytes": -176128,
+          "cpu_usec": 26947301,
+          "memory_bytes": 39079936,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.241454,
+          "cpu_one_core_percent": 13.359291318559684,
+          "memory_growth_bytes": 1327104,
+          "cpu_usec": 3880884,
+          "memory_bytes": 21405696,
+          "memory_peak_bytes": 21471232,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 5,
+      "elapsed_seconds": 1.9014,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.841317997999795,
+        "requests_per_second": 543.0892442730099,
+        "mean_ms": 112.718055724,
+        "p50_ms": 105.270297,
+        "p95_ms": 185.455406,
+        "p99_ms": 190.117755,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.95394,
+          "cpu_one_core_percent": 102.76314305422329,
+          "memory_growth_bytes": 581632,
+          "cpu_usec": 28923440,
+          "memory_bytes": 39505920,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.251146,
+          "cpu_one_core_percent": 13.208467161476792,
+          "memory_growth_bytes": -430080,
+          "cpu_usec": 4155540,
+          "memory_bytes": 20684800,
+          "memory_peak_bytes": 21471232,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 1,
+      "elapsed_seconds": 1.7065,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.64551579900035,
+        "requests_per_second": 607.7121839896643,
+        "mean_ms": 187.149890599,
+        "p50_ms": 202.905564,
+        "p95_ms": 279.938418,
+        "p99_ms": 284.033931,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.781451,
+          "cpu_one_core_percent": 104.39058777978636,
+          "memory_growth_bytes": -131072,
+          "cpu_usec": 30727535,
+          "memory_bytes": 39223296,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.248802,
+          "cpu_one_core_percent": 14.579456308810293,
+          "memory_growth_bytes": 151552,
+          "cpu_usec": 4426190,
+          "memory_bytes": 20643840,
+          "memory_peak_bytes": 21471232,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 2,
+      "elapsed_seconds": 1.8844,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.8220636189998913,
+        "requests_per_second": 548.8282569128338,
+        "mean_ms": 204.007822412,
+        "p50_ms": 207.907683,
+        "p95_ms": 286.969544,
+        "p99_ms": 287.933673,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.877763,
+          "cpu_one_core_percent": 99.64862633140676,
+          "memory_growth_bytes": 450560,
+          "cpu_usec": 32628286,
+          "memory_bytes": 39141376,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.251324,
+          "cpu_one_core_percent": 13.337195036921312,
+          "memory_growth_bytes": 3129344,
+          "cpu_usec": 4701028,
+          "memory_bytes": 20213760,
+          "memory_peak_bytes": 21471232,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 3,
+      "elapsed_seconds": 1.8025,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.740852318999714,
+        "requests_per_second": 574.4312651256918,
+        "mean_ms": 195.756172152,
+        "p50_ms": 207.203788,
+        "p95_ms": 283.702182,
+        "p99_ms": 285.218752,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.828567,
+          "cpu_one_core_percent": 101.44778752555564,
+          "memory_growth_bytes": 118784,
+          "cpu_usec": 34479411,
+          "memory_bytes": 38768640,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.254043,
+          "cpu_one_core_percent": 14.094151478373353,
+          "memory_growth_bytes": 258048,
+          "cpu_usec": 4979211,
+          "memory_bytes": 20185088,
+          "memory_peak_bytes": 21471232,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 4,
+      "elapsed_seconds": 1.8985,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.8371539780000603,
+        "requests_per_second": 544.3201887130917,
+        "mean_ms": 206.346593525,
+        "p50_ms": 209.083792,
+        "p95_ms": 290.336204,
+        "p99_ms": 292.009918,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.919305,
+          "cpu_one_core_percent": 101.09737354976929,
+          "memory_growth_bytes": 851968,
+          "cpu_usec": 36420619,
+          "memory_bytes": 39673856,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.25342,
+          "cpu_one_core_percent": 13.348632137665732,
+          "memory_growth_bytes": 20480,
+          "cpu_usec": 5254409,
+          "memory_bytes": 20430848,
+          "memory_peak_bytes": 21471232,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 5,
+      "elapsed_seconds": 1.7166,
+      "benchmark": {
+        "url": "http://127.0.0.1:32813/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.6551825679998728,
+        "requests_per_second": 604.162960227646,
+        "mean_ms": 191.15839111,
+        "p50_ms": 203.956151,
+        "p95_ms": 281.71182,
+        "p99_ms": 284.435091,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.788366,
+          "cpu_one_core_percent": 104.17809340152951,
+          "memory_growth_bytes": 192512,
+          "cpu_usec": 38233076,
+          "memory_bytes": 38940672,
+          "memory_peak_bytes": 39989248,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.244671,
+          "cpu_one_core_percent": 14.252875692473255,
+          "memory_growth_bytes": 917504,
+          "cpu_usec": 5522356,
+          "memory_bytes": 21319680,
+          "memory_peak_bytes": 21471232,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 1,
+      "elapsed_seconds": 0.2402,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.1819657810001445,
+        "requests_per_second": 5495.538746371253,
+        "mean_ms": 0.719470505,
+        "p50_ms": 0.517866,
+        "p95_ms": 0.633683,
+        "p99_ms": 0.777702,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.268677,
+          "cpu_one_core_percent": 111.84968333754526,
+          "memory_growth_bytes": 1245184,
+          "cpu_usec": 446231,
+          "memory_bytes": 24457216,
+          "memory_peak_bytes": 24465408,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.189851,
+          "cpu_one_core_percent": 79.03458141678038,
+          "memory_growth_bytes": 724992,
+          "cpu_usec": 318236,
+          "memory_bytes": 21057536,
+          "memory_peak_bytes": 21127168,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 2,
+      "elapsed_seconds": 0.2632,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.20521310599997378,
+        "requests_per_second": 4872.983112492473,
+        "mean_ms": 0.810543179,
+        "p50_ms": 0.518948,
+        "p95_ms": 0.682964,
+        "p99_ms": 3.995315,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.267674,
+          "cpu_one_core_percent": 101.69604640029539,
+          "memory_growth_bytes": -847872,
+          "cpu_usec": 737656,
+          "memory_bytes": 23445504,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.192743,
+          "cpu_one_core_percent": 73.22788567934178,
+          "memory_growth_bytes": 368640,
+          "cpu_usec": 533603,
+          "memory_bytes": 20774912,
+          "memory_peak_bytes": 21127168,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 3,
+      "elapsed_seconds": 0.2942,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23302653200062196,
+        "requests_per_second": 4291.356831407211,
+        "mean_ms": 0.918741691,
+        "p50_ms": 0.550397,
+        "p95_ms": 0.69689,
+        "p99_ms": 1.410081,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.278534,
+          "cpu_one_core_percent": 94.69088322407357,
+          "memory_growth_bytes": -208896,
+          "cpu_usec": 1039288,
+          "memory_bytes": 23470080,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.185648,
+          "cpu_one_core_percent": 63.11320373377329,
+          "memory_growth_bytes": 458752,
+          "cpu_usec": 743300,
+          "memory_bytes": 20770816,
+          "memory_peak_bytes": 21127168,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 4,
+      "elapsed_seconds": 0.2906,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23121486899981392,
+        "requests_per_second": 4324.981366145638,
+        "mean_ms": 0.918263484,
+        "p50_ms": 0.524398,
+        "p95_ms": 0.648691,
+        "p99_ms": 3.303944,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.275706,
+          "cpu_one_core_percent": 94.85922626016993,
+          "memory_growth_bytes": 749568,
+          "cpu_usec": 1339789,
+          "memory_bytes": 23851008,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.199552,
+          "cpu_one_core_percent": 68.65773076635774,
+          "memory_growth_bytes": 151552,
+          "cpu_usec": 965306,
+          "memory_bytes": 20566016,
+          "memory_peak_bytes": 21127168,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "round": 5,
+      "elapsed_seconds": 0.2477,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.186521859000095,
+        "requests_per_second": 5361.301915822589,
+        "mean_ms": 0.738803817,
+        "p50_ms": 0.588609,
+        "p95_ms": 0.733138,
+        "p99_ms": 0.865555,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.265047,
+          "cpu_one_core_percent": 107.00413084619815,
+          "memory_growth_bytes": 32768,
+          "cpu_usec": 1629774,
+          "memory_bytes": 23744512,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.168941,
+          "cpu_one_core_percent": 68.20445003824818,
+          "memory_growth_bytes": -139264,
+          "cpu_usec": 1157524,
+          "memory_bytes": 20881408,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 1,
+      "elapsed_seconds": 0.3637,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2971255359998395,
+        "requests_per_second": 3365.580802858157,
+        "mean_ms": 4.453900509,
+        "p50_ms": 2.4545,
+        "p95_ms": 12.01072,
+        "p99_ms": 52.634207,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.355631,
+          "cpu_one_core_percent": 97.78181653202415,
+          "memory_growth_bytes": 589824,
+          "cpu_usec": 2009487,
+          "memory_bytes": 23801856,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.245988,
+          "cpu_one_core_percent": 67.63514284491386,
+          "memory_growth_bytes": -4370432,
+          "cpu_usec": 1425033,
+          "memory_bytes": 16375808,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 2,
+      "elapsed_seconds": 0.3092,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.24249976299961418,
+        "requests_per_second": 4123.715370400551,
+        "mean_ms": 3.679752142,
+        "p50_ms": 1.797204,
+        "p95_ms": 5.740231,
+        "p99_ms": 56.486514,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.307073,
+          "cpu_one_core_percent": 99.30052715503918,
+          "memory_growth_bytes": 659456,
+          "cpu_usec": 2341933,
+          "memory_bytes": 23695360,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.223876,
+          "cpu_one_core_percent": 72.39648167491623,
+          "memory_growth_bytes": 413696,
+          "cpu_usec": 1671284,
+          "memory_bytes": 20512768,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 3,
+      "elapsed_seconds": 0.2879,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.22717232200011495,
+        "requests_per_second": 4401.944705215867,
+        "mean_ms": 3.421628013,
+        "p50_ms": 1.72088,
+        "p95_ms": 5.279661,
+        "p99_ms": 54.041832,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.289965,
+          "cpu_one_core_percent": 100.73360529528577,
+          "memory_growth_bytes": -909312,
+          "cpu_usec": 2654902,
+          "memory_bytes": 23552000,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.206828,
+          "cpu_one_core_percent": 71.85187907510688,
+          "memory_growth_bytes": 331776,
+          "cpu_usec": 1900609,
+          "memory_bytes": 20467712,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 4,
+      "elapsed_seconds": 0.2997,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2400119089998043,
+        "requests_per_second": 4166.459923456612,
+        "mean_ms": 3.553693495,
+        "p50_ms": 1.677971,
+        "p95_ms": 5.41277,
+        "p99_ms": 54.508703,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.290564,
+          "cpu_one_core_percent": 96.93816791199616,
+          "memory_growth_bytes": 688128,
+          "cpu_usec": 2968000,
+          "memory_bytes": 24174592,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.21574,
+          "cpu_one_core_percent": 71.97533192458134,
+          "memory_growth_bytes": 151552,
+          "cpu_usec": 2137862,
+          "memory_bytes": 20582400,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "round": 5,
+      "elapsed_seconds": 0.2982,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23658855999929074,
+        "requests_per_second": 4226.747058281254,
+        "mean_ms": 3.497959499,
+        "p50_ms": 1.630793,
+        "p95_ms": 5.19386,
+        "p99_ms": 54.892359,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.283575,
+          "cpu_one_core_percent": 95.10070607250543,
+          "memory_growth_bytes": -458752,
+          "cpu_usec": 3274617,
+          "memory_bytes": 23916544,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.205707,
+          "cpu_one_core_percent": 68.98662062613725,
+          "memory_growth_bytes": 299008,
+          "cpu_usec": 2367025,
+          "memory_bytes": 20713472,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 1,
+      "elapsed_seconds": 0.2965,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23526200500054983,
+        "requests_per_second": 4250.58011385078,
+        "mean_ms": 7.185749734,
+        "p50_ms": 3.100856,
+        "p95_ms": 47.140796,
+        "p99_ms": 54.306937,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.284655,
+          "cpu_one_core_percent": 96.0102419560667,
+          "memory_growth_bytes": -290816,
+          "cpu_usec": 3583410,
+          "memory_bytes": 24006656,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.212175,
+          "cpu_one_core_percent": 71.56372832737331,
+          "memory_growth_bytes": 294912,
+          "cpu_usec": 2601009,
+          "memory_bytes": 20815872,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 2,
+      "elapsed_seconds": 0.3098,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.24304410300010204,
+        "requests_per_second": 4114.479584800213,
+        "mean_ms": 7.201416014,
+        "p50_ms": 3.069807,
+        "p95_ms": 46.607621,
+        "p99_ms": 55.341637,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.310187,
+          "cpu_one_core_percent": 100.12622857129901,
+          "memory_growth_bytes": 901120,
+          "cpu_usec": 3916423,
+          "memory_bytes": 24272896,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.227887,
+          "cpu_one_core_percent": 73.56035504527145,
+          "memory_growth_bytes": -16384,
+          "cpu_usec": 2850546,
+          "memory_bytes": 20692992,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 3,
+      "elapsed_seconds": 0.2779,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2160489249999955,
+        "requests_per_second": 4628.581234551483,
+        "mean_ms": 7.051369002,
+        "p50_ms": 3.132545,
+        "p95_ms": 34.278918,
+        "p99_ms": 55.235609,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.281916,
+          "cpu_one_core_percent": 101.42925169039079,
+          "memory_growth_bytes": 1671168,
+          "cpu_usec": 4221926,
+          "memory_bytes": 24555520,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.203409,
+          "cpu_one_core_percent": 73.18358183675528,
+          "memory_growth_bytes": -69632,
+          "cpu_usec": 3077767,
+          "memory_bytes": 20688896,
+          "memory_peak_bytes": 21151744,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 4,
+      "elapsed_seconds": 0.2996,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23697318399990763,
+        "requests_per_second": 4219.886753095193,
+        "mean_ms": 7.983105631,
+        "p50_ms": 3.210249,
+        "p95_ms": 47.874585,
+        "p99_ms": 57.415406,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.28877,
+          "cpu_one_core_percent": 96.37509784805243,
+          "memory_growth_bytes": 503808,
+          "cpu_usec": 4533124,
+          "memory_bytes": 23879680,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.218992,
+          "cpu_one_core_percent": 73.08714696104407,
+          "memory_growth_bytes": 1327104,
+          "cpu_usec": 3319610,
+          "memory_bytes": 21123072,
+          "memory_peak_bytes": 21172224,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "round": 5,
+      "elapsed_seconds": 0.3144,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2474399029997585,
+        "requests_per_second": 4041.385354087275,
+        "mean_ms": 8.822239007,
+        "p50_ms": 3.914273,
+        "p95_ms": 46.80566,
+        "p99_ms": 57.402211,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.314445,
+          "cpu_one_core_percent": 100.0212941070064,
+          "memory_growth_bytes": 1069056,
+          "cpu_usec": 4870607,
+          "memory_bytes": 24096768,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.234766,
+          "cpu_one_core_percent": 74.67633173472457,
+          "memory_growth_bytes": -393216,
+          "cpu_usec": 3579680,
+          "memory_bytes": 20840448,
+          "memory_peak_bytes": 21233664,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 1,
+      "elapsed_seconds": 0.2865,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.22238898199975665,
+        "requests_per_second": 4496.625646683765,
+        "mean_ms": 12.540617577,
+        "p50_ms": 5.911649,
+        "p95_ms": 54.082847,
+        "p99_ms": 60.154767,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.299219,
+          "cpu_one_core_percent": 104.44152708536684,
+          "memory_growth_bytes": -618496,
+          "cpu_usec": 5192872,
+          "memory_bytes": 23396352,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.232511,
+          "cpu_one_core_percent": 81.15729249862385,
+          "memory_growth_bytes": 610304,
+          "cpu_usec": 3835663,
+          "memory_bytes": 21356544,
+          "memory_peak_bytes": 21356544,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 2,
+      "elapsed_seconds": 0.2885,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.2250821059997179,
+        "requests_per_second": 4442.823189157708,
+        "mean_ms": 12.266484226,
+        "p50_ms": 5.207015,
+        "p95_ms": 60.90719,
+        "p99_ms": 65.109291,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.287273,
+          "cpu_one_core_percent": 99.58992067498454,
+          "memory_growth_bytes": -200704,
+          "cpu_usec": 5504681,
+          "memory_bytes": 23429120,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.225013,
+          "cpu_one_core_percent": 78.00603196555296,
+          "memory_growth_bytes": 114688,
+          "cpu_usec": 4084809,
+          "memory_bytes": 20795392,
+          "memory_peak_bytes": 21356544,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 3,
+      "elapsed_seconds": 0.2956,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23525127799985057,
+        "requests_per_second": 4250.773932036344,
+        "mean_ms": 13.48852402,
+        "p50_ms": 5.421696,
+        "p95_ms": 59.56206,
+        "p99_ms": 65.251636,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.287367,
+          "cpu_one_core_percent": 97.21988979140116,
+          "memory_growth_bytes": 348160,
+          "cpu_usec": 5816837,
+          "memory_bytes": 24387584,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.223992,
+          "cpu_one_core_percent": 75.77932592870972,
+          "memory_growth_bytes": 573440,
+          "cpu_usec": 4330999,
+          "memory_bytes": 21278720,
+          "memory_peak_bytes": 21356544,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 4,
+      "elapsed_seconds": 0.2778,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.21553269699961675,
+        "requests_per_second": 4639.667270538438,
+        "mean_ms": 11.350350895,
+        "p50_ms": 5.076051,
+        "p95_ms": 56.411181,
+        "p99_ms": 62.913513,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.287104,
+          "cpu_one_core_percent": 103.3380384900146,
+          "memory_growth_bytes": -610304,
+          "cpu_usec": 6127144,
+          "memory_bytes": 23752704,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.223338,
+          "cpu_one_core_percent": 80.38658757900579,
+          "memory_growth_bytes": -118784,
+          "cpu_usec": 4576574,
+          "memory_bytes": 20840448,
+          "memory_peak_bytes": 21356544,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "round": 5,
+      "elapsed_seconds": 0.2929,
+      "benchmark": {
+        "url": "http://127.0.0.1:32814/api/status",
+        "runtime_label": "orku-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 0.23276232100033667,
+        "requests_per_second": 4296.22799644859,
+        "mean_ms": 13.050077075,
+        "p50_ms": 5.150941,
+        "p95_ms": 58.591068,
+        "p99_ms": 65.102556,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 0.286014,
+          "cpu_one_core_percent": 97.6358702964755,
+          "memory_growth_bytes": -139264,
+          "cpu_usec": 6436402,
+          "memory_bytes": 24080384,
+          "memory_peak_bytes": 24559616,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.22012,
+          "cpu_one_core_percent": 75.141803442,
+          "memory_growth_bytes": 802816,
+          "cpu_usec": 4819685,
+          "memory_bytes": 21372928,
+          "memory_peak_bytes": 21446656,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 1,
+      "elapsed_seconds": 1.7805,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.719694432000324,
+        "requests_per_second": 581.4986554540473,
+        "mean_ms": 6.833694525,
+        "p50_ms": 1.887532,
+        "p95_ms": 72.398737,
+        "p99_ms": 76.663624,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.791965,
+          "cpu_one_core_percent": 100.6445964680479,
+          "memory_growth_bytes": -856064,
+          "cpu_usec": 2620692,
+          "memory_bytes": 38100992,
+          "memory_peak_bytes": 39419904,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.23074,
+          "cpu_one_core_percent": 12.959368173506386,
+          "memory_growth_bytes": -733184,
+          "cpu_usec": 389645,
+          "memory_bytes": 19931136,
+          "memory_peak_bytes": 21200896,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 2,
+      "elapsed_seconds": 1.8006,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7380073240001366,
+        "requests_per_second": 575.3715684571657,
+        "mean_ms": 6.862921596,
+        "p50_ms": 1.952673,
+        "p95_ms": 71.530607,
+        "p99_ms": 76.283754,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.824058,
+          "cpu_one_core_percent": 101.30275054628628,
+          "memory_growth_bytes": -299008,
+          "cpu_usec": 4468301,
+          "memory_bytes": 38445056,
+          "memory_peak_bytes": 39419904,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.237747,
+          "cpu_one_core_percent": 13.203760535096979,
+          "memory_growth_bytes": 724992,
+          "cpu_usec": 652745,
+          "memory_bytes": 20926464,
+          "memory_peak_bytes": 21200896,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 3,
+      "elapsed_seconds": 1.7539,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.6908099409993156,
+        "requests_per_second": 591.4325293172645,
+        "mean_ms": 6.5701689309999995,
+        "p50_ms": 1.856995,
+        "p95_ms": 72.429341,
+        "p99_ms": 75.876474,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.745789,
+          "cpu_one_core_percent": 99.53487047130996,
+          "memory_growth_bytes": 1593344,
+          "cpu_usec": 6237293,
+          "memory_bytes": 40005632,
+          "memory_peak_bytes": 40005632,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.239213,
+          "cpu_one_core_percent": 13.638552522700891,
+          "memory_growth_bytes": 557056,
+          "cpu_usec": 914386,
+          "memory_bytes": 20824064,
+          "memory_peak_bytes": 21200896,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 4,
+      "elapsed_seconds": 1.8286,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.765987022000445,
+        "requests_per_second": 566.2555769335365,
+        "mean_ms": 7.006469637,
+        "p50_ms": 2.080612,
+        "p95_ms": 72.153887,
+        "p99_ms": 76.257693,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.894881,
+          "cpu_one_core_percent": 103.62435630671902,
+          "memory_growth_bytes": 389120,
+          "cpu_usec": 8155553,
+          "memory_bytes": 38834176,
+          "memory_peak_bytes": 40005632,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.266855,
+          "cpu_one_core_percent": 14.593358423156655,
+          "memory_growth_bytes": -102400,
+          "cpu_usec": 1204631,
+          "memory_bytes": 20869120,
+          "memory_peak_bytes": 21200896,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "round": 5,
+      "elapsed_seconds": 1.7654,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 4,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7047488850002992,
+        "requests_per_second": 586.5966587799378,
+        "mean_ms": 6.5349818520000005,
+        "p50_ms": 1.816689,
+        "p95_ms": 72.070511,
+        "p99_ms": 75.81698,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.739658,
+          "cpu_one_core_percent": 98.539423117564,
+          "memory_growth_bytes": 606208,
+          "cpu_usec": 9919494,
+          "memory_bytes": 39329792,
+          "memory_peak_bytes": 40005632,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.228521,
+          "cpu_one_core_percent": 12.944111722102186,
+          "memory_growth_bytes": 188416,
+          "cpu_usec": 1455825,
+          "memory_bytes": 20529152,
+          "memory_peak_bytes": 21200896,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 1,
+      "elapsed_seconds": 1.8885,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.8297925280003255,
+        "requests_per_second": 546.5100467389285,
+        "mean_ms": 27.936338267,
+        "p50_ms": 7.792007,
+        "p95_ms": 83.934353,
+        "p99_ms": 85.21848,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.900113,
+          "cpu_one_core_percent": 100.61236360763515,
+          "memory_growth_bytes": -159744,
+          "cpu_usec": 11842467,
+          "memory_bytes": 39116800,
+          "memory_peak_bytes": 40005632,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.245861,
+          "cpu_one_core_percent": 13.018518545442712,
+          "memory_growth_bytes": -8192,
+          "cpu_usec": 1723103,
+          "memory_bytes": 20697088,
+          "memory_peak_bytes": 21200896,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 2,
+      "elapsed_seconds": 1.7155,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.657046887999968,
+        "requests_per_second": 603.4832250323259,
+        "mean_ms": 26.234928403,
+        "p50_ms": 7.174966,
+        "p95_ms": 82.90373,
+        "p99_ms": 84.681717,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.773669,
+          "cpu_one_core_percent": 103.39081450707522,
+          "memory_growth_bytes": -139264,
+          "cpu_usec": 13640433,
+          "memory_bytes": 38916096,
+          "memory_peak_bytes": 40005632,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.226013,
+          "cpu_one_core_percent": 13.174762686379246,
+          "memory_growth_bytes": 221184,
+          "cpu_usec": 1970970,
+          "memory_bytes": 20549632,
+          "memory_peak_bytes": 21200896,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 3,
+      "elapsed_seconds": 1.8003,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.737727344000632,
+        "requests_per_second": 575.4642714534141,
+        "mean_ms": 27.654161512,
+        "p50_ms": 7.526743,
+        "p95_ms": 83.796674,
+        "p99_ms": 85.459135,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.84977,
+          "cpu_one_core_percent": 102.74905197716731,
+          "memory_growth_bytes": -233472,
+          "cpu_usec": 15516035,
+          "memory_bytes": 39161856,
+          "memory_peak_bytes": 40005632,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.241965,
+          "cpu_one_core_percent": 13.440413868564896,
+          "memory_growth_bytes": -204800,
+          "cpu_usec": 2236026,
+          "memory_bytes": 20324352,
+          "memory_peak_bytes": 21200896,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 4,
+      "elapsed_seconds": 1.7911,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7290144929993403,
+        "requests_per_second": 578.3641513989215,
+        "mean_ms": 26.914383071,
+        "p50_ms": 7.415424,
+        "p95_ms": 83.490492,
+        "p99_ms": 85.393752,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.828422,
+          "cpu_one_core_percent": 102.08229184319902,
+          "memory_growth_bytes": 905216,
+          "cpu_usec": 17367206,
+          "memory_bytes": 39972864,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.232625,
+          "cpu_one_core_percent": 12.987643519944614,
+          "memory_growth_bytes": 704512,
+          "cpu_usec": 2490307,
+          "memory_bytes": 21155840,
+          "memory_peak_bytes": 21217280,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "round": 5,
+      "elapsed_seconds": 1.8119,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 16,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7472508499995456,
+        "requests_per_second": 572.3276654867617,
+        "mean_ms": 27.642216556,
+        "p50_ms": 7.837091,
+        "p95_ms": 83.572704,
+        "p99_ms": 85.294866,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.885236,
+          "cpu_one_core_percent": 104.04864516615181,
+          "memory_growth_bytes": 483328,
+          "cpu_usec": 19275674,
+          "memory_bytes": 39395328,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.237224,
+          "cpu_one_core_percent": 13.092703407369264,
+          "memory_growth_bytes": -835584,
+          "cpu_usec": 2752225,
+          "memory_bytes": 20357120,
+          "memory_peak_bytes": 21221376,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 1,
+      "elapsed_seconds": 1.8016,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7384291360003772,
+        "requests_per_second": 575.2319604471833,
+        "mean_ms": 105.79174319,
+        "p50_ms": 102.921169,
+        "p95_ms": 180.46359,
+        "p99_ms": 185.65737,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.846604,
+          "cpu_one_core_percent": 102.50017080179089,
+          "memory_growth_bytes": 397312,
+          "cpu_usec": 21144913,
+          "memory_bytes": 39178240,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.238213,
+          "cpu_one_core_percent": 13.222582203443192,
+          "memory_growth_bytes": 45056,
+          "cpu_usec": 3013435,
+          "memory_bytes": 19787776,
+          "memory_peak_bytes": 21221376,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 2,
+      "elapsed_seconds": 2.0956,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 2.0296400759998505,
+        "requests_per_second": 492.6981940418059,
+        "mean_ms": 123.377065951,
+        "p50_ms": 108.479857,
+        "p95_ms": 187.703053,
+        "p99_ms": 190.411597,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 2.110078,
+          "cpu_one_core_percent": 100.6911212184872,
+          "memory_growth_bytes": 1212416,
+          "cpu_usec": 23279229,
+          "memory_bytes": 39878656,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.265175,
+          "cpu_one_core_percent": 12.65392467440177,
+          "memory_growth_bytes": 880640,
+          "cpu_usec": 3301784,
+          "memory_bytes": 21245952,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 3,
+      "elapsed_seconds": 1.8844,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.817324335000194,
+        "requests_per_second": 550.2595110519406,
+        "mean_ms": 111.149930052,
+        "p50_ms": 103.698687,
+        "p95_ms": 181.142063,
+        "p99_ms": 186.982096,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.873852,
+          "cpu_one_core_percent": 99.44099863605722,
+          "memory_growth_bytes": -331776,
+          "cpu_usec": 25177098,
+          "memory_bytes": 38612992,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.25146,
+          "cpu_one_core_percent": 13.344401541329276,
+          "memory_growth_bytes": -32768,
+          "cpu_usec": 3579970,
+          "memory_bytes": 20205568,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 4,
+      "elapsed_seconds": 1.9025,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.8371464370002286,
+        "requests_per_second": 544.322423003385,
+        "mean_ms": 112.748541304,
+        "p50_ms": 105.590765,
+        "p95_ms": 184.104485,
+        "p99_ms": 186.056806,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.945646,
+          "cpu_one_core_percent": 102.26550428162278,
+          "memory_growth_bytes": -167936,
+          "cpu_usec": 27146051,
+          "memory_bytes": 38776832,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.25479,
+          "cpu_one_core_percent": 13.392070210056026,
+          "memory_growth_bytes": 77824,
+          "cpu_usec": 3858069,
+          "memory_bytes": 20459520,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "round": 5,
+      "elapsed_seconds": 1.7763,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 64,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.717291816999932,
+        "requests_per_second": 582.3122139759428,
+        "mean_ms": 102.312487128,
+        "p50_ms": 102.217962,
+        "p95_ms": 177.417879,
+        "p99_ms": 180.925121,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.758497,
+          "cpu_one_core_percent": 98.99528191228414,
+          "memory_growth_bytes": 36864,
+          "cpu_usec": 28927920,
+          "memory_bytes": 38469632,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.237441,
+          "cpu_one_core_percent": 13.36683470744315,
+          "memory_growth_bytes": 225280,
+          "cpu_usec": 4118566,
+          "memory_bytes": 20733952,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 1,
+      "elapsed_seconds": 1.8244,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.760877521999646,
+        "requests_per_second": 567.8986684232324,
+        "mean_ms": 201.307715979,
+        "p50_ms": 205.922401,
+        "p95_ms": 290.218898,
+        "p99_ms": 292.215622,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.910208,
+          "cpu_one_core_percent": 104.70614125816095,
+          "memory_growth_bytes": -4829184,
+          "cpu_usec": 30862530,
+          "memory_bytes": 34287616,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.259938,
+          "cpu_one_core_percent": 14.248241524673672,
+          "memory_growth_bytes": 73728,
+          "cpu_usec": 4401976,
+          "memory_bytes": 20189184,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 2,
+      "elapsed_seconds": 1.7692,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7019238479997512,
+        "requests_per_second": 587.5703552631259,
+        "mean_ms": 198.573417045,
+        "p50_ms": 204.430435,
+        "p95_ms": 281.417995,
+        "p99_ms": 284.114226,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.791411,
+          "cpu_one_core_percent": 101.25390485453588,
+          "memory_growth_bytes": 53248,
+          "cpu_usec": 32676950,
+          "memory_bytes": 38662144,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.243184,
+          "cpu_one_core_percent": 13.745215139432243,
+          "memory_growth_bytes": -184320,
+          "cpu_usec": 4668255,
+          "memory_bytes": 20201472,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 3,
+      "elapsed_seconds": 1.7867,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7247985679996418,
+        "requests_per_second": 579.7778468472196,
+        "mean_ms": 192.218121568,
+        "p50_ms": 203.545481,
+        "p95_ms": 279.360312,
+        "p99_ms": 281.878251,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.79027,
+          "cpu_one_core_percent": 100.19976063424991,
+          "memory_growth_bytes": 90112,
+          "cpu_usec": 34491155,
+          "memory_bytes": 39075840,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.248729,
+          "cpu_one_core_percent": 13.92113271338756,
+          "memory_growth_bytes": 458752,
+          "cpu_usec": 4939763,
+          "memory_bytes": 20660224,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 4,
+      "elapsed_seconds": 1.813,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.74984560699977,
+        "requests_per_second": 571.4789899176125,
+        "mean_ms": 202.90489376,
+        "p50_ms": 206.785203,
+        "p95_ms": 286.013992,
+        "p99_ms": 289.168936,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.896051,
+          "cpu_one_core_percent": 104.57946775140393,
+          "memory_growth_bytes": -3158016,
+          "cpu_usec": 36412132,
+          "memory_bytes": 35524608,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.251286,
+          "cpu_one_core_percent": 13.860047083849164,
+          "memory_growth_bytes": 303104,
+          "cpu_usec": 5214357,
+          "memory_bytes": 20299776,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "round": 5,
+      "elapsed_seconds": 1.7685,
+      "benchmark": {
+        "url": "http://127.0.0.1:32815/api/status",
+        "runtime_label": "laravel-optimized",
+        "client_python": "3.12.3",
+        "client_platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+        "kind": "closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout",
+        "concurrency": 128,
+        "requests": 1000,
+        "warmup": 0,
+        "warmup_errors": 0,
+        "wall_seconds": 1.7058021299999382,
+        "requests_per_second": 586.2344655414613,
+        "mean_ms": 197.394476295,
+        "p50_ms": 204.219673,
+        "p95_ms": 281.465021,
+        "p99_ms": 283.310404,
+        "statuses": {
+          "200": 1000
+        },
+        "transport_errors": 0,
+        "errors": 0,
+        "error_rate": 0.0,
+        "server_process": {
+          "pid": null,
+          "rss_start_bytes": null,
+          "rss_end_bytes": null,
+          "cpu_seconds": null,
+          "unavailable_reason": "No --server-pid supplied"
+        }
+      },
+      "containers": {
+        "fpm": {
+          "cpu_seconds": 1.80626,
+          "cpu_one_core_percent": 102.13352209609184,
+          "memory_growth_bytes": 233472,
+          "cpu_usec": 38241537,
+          "memory_bytes": 39321600,
+          "memory_peak_bytes": 40009728,
+          "oom_kill": 0
+        },
+        "nginx": {
+          "cpu_seconds": 0.246597,
+          "cpu_one_core_percent": 13.943629459950374,
+          "memory_growth_bytes": 12288,
+          "cpu_usec": 5483081,
+          "memory_bytes": 20541440,
+          "memory_peak_bytes": 21245952,
+          "oom_kill": 0
+        }
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "session": 1,
+      "generated_at_utc": null,
+      "host": null
+    },
+    {
+      "session": 2,
+      "generated_at_utc": null,
+      "host": null
+    }
+  ],
+  "summary": [
+    {
+      "framework": "orku",
+      "concurrency": 4,
+      "batches": 10,
+      "median_requests_per_second": 4818.4622296674515,
+      "min_requests_per_second": 4291.356831407211,
+      "max_requests_per_second": 5495.538746371253,
+      "median_p50_ms": 0.546759,
+      "median_p95_ms": 0.700019,
+      "median_p99_ms": 2.9438269999999997,
+      "max_p99_ms": 3.995315,
+      "errors": 0,
+      "max_fpm_memory_bytes": 24457216,
+      "median_fpm_cpu_seconds": 0.277403
+    },
+    {
+      "framework": "orku",
+      "concurrency": 16,
+      "batches": 10,
+      "median_requests_per_second": 4196.603490868933,
+      "min_requests_per_second": 3365.580802858157,
+      "max_requests_per_second": 4401.944705215867,
+      "median_p50_ms": 1.6994255,
+      "median_p95_ms": 5.282106499999999,
+      "median_p99_ms": 54.2752675,
+      "max_p99_ms": 56.486514,
+      "errors": 0,
+      "max_fpm_memory_bytes": 24174592,
+      "median_fpm_cpu_seconds": 0.2902645
+    },
+    {
+      "framework": "orku",
+      "concurrency": 64,
+      "batches": 10,
+      "median_requests_per_second": 4265.699751375794,
+      "min_requests_per_second": 4005.9832243876344,
+      "max_requests_per_second": 4825.616829398359,
+      "median_p50_ms": 3.171397,
+      "median_p95_ms": 46.973228000000006,
+      "median_p99_ms": 56.6101735,
+      "max_p99_ms": 59.580067,
+      "errors": 0,
+      "max_fpm_memory_bytes": 24555520,
+      "median_fpm_cpu_seconds": 0.2874315
+    },
+    {
+      "framework": "orku",
+      "concurrency": 128,
+      "batches": 10,
+      "median_requests_per_second": 4348.634482051304,
+      "min_requests_per_second": 3968.9281820653578,
+      "max_requests_per_second": 4869.688356977756,
+      "median_p50_ms": 5.178978000000001,
+      "median_p95_ms": 57.646186,
+      "median_p99_ms": 63.8764285,
+      "max_p99_ms": 66.680577,
+      "errors": 0,
+      "max_fpm_memory_bytes": 24387584,
+      "median_fpm_cpu_seconds": 0.28732
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 4,
+      "batches": 10,
+      "median_requests_per_second": 581.7035887878501,
+      "min_requests_per_second": 566.2555769335365,
+      "max_requests_per_second": 591.4325293172645,
+      "median_p50_ms": 1.9095784999999998,
+      "median_p95_ms": 72.179518,
+      "median_p99_ms": 76.2275485,
+      "max_p99_ms": 76.663624,
+      "errors": 0,
+      "max_fpm_memory_bytes": 40005632,
+      "median_fpm_cpu_seconds": 1.795074
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 16,
+      "batches": 10,
+      "median_requests_per_second": 576.9142114261679,
+      "min_requests_per_second": 546.5100467389285,
+      "max_requests_per_second": 607.697272191071,
+      "median_p50_ms": 7.4710835,
+      "median_p95_ms": 83.3933615,
+      "median_p99_ms": 85.24896749999999,
+      "max_p99_ms": 85.459135,
+      "errors": 0,
+      "max_fpm_memory_bytes": 39972864,
+      "median_fpm_cpu_seconds": 1.839096
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 64,
+      "batches": 10,
+      "median_requests_per_second": 547.3366714747399,
+      "min_requests_per_second": 492.6981940418059,
+      "max_requests_per_second": 582.3122139759428,
+      "median_p50_ms": 104.97049849999999,
+      "median_p95_ms": 181.929956,
+      "median_p99_ms": 185.892878,
+      "max_p99_ms": 190.45993,
+      "errors": 0,
+      "max_fpm_memory_bytes": 39911424,
+      "median_fpm_cpu_seconds": 1.9121964999999999
+    },
+    {
+      "framework": "laravel",
+      "concurrency": 128,
+      "batches": 10,
+      "median_requests_per_second": 577.1045559864557,
+      "min_requests_per_second": 544.3201887130917,
+      "max_requests_per_second": 607.7121839896643,
+      "median_p50_ms": 205.176418,
+      "median_p95_ms": 282.707001,
+      "median_p99_ms": 284.8269215,
+      "max_p99_ms": 292.215622,
+      "errors": 0,
+      "max_fpm_memory_bytes": 39673856,
+      "median_fpm_cpu_seconds": 1.8174135
+    }
+  ],
+  "environment": {
+    "php_image": "php:8.4.26-fpm",
+    "php_image_id": "sha256:f5431b57bda75455d5271967cc6b67df8f0d0b943832756e0c78eccdc98767dd",
+    "nginx_image": "nginx:1.28-alpine",
+    "nginx_image_id": "sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236",
+    "laravel": "12.71.0",
+    "laravel_composer_lock_sha256": "479eec2f71b5859088ae6f575b2eaf199b2d9d71474d22659c1c14b78609b2d6",
+    "container_policy": {
+      "cpus": 1,
+      "memory_bytes": 268435456,
+      "memory_swap_bytes": 268435456,
+      "pids": 128
+    },
+    "fpm_workers": 4,
+    "rounds_per_concurrency_per_session": 5,
+    "sessions": 2,
+    "requests_per_batch": 1000,
+    "opcache_warmup_requests": 200,
+    "http": "keep-alive per client worker",
+    "laravel_app_scope": "minimal API app; default global middleware; no database/auth/providers beyond framework auto-discovery"
+  },
+  "limitations": [
+    "closed-loop client; host-shared CPU; frameworks tested sequentially, Orku first per session",
+    "each session measures 5 batches per concurrency; combined summary has 10 per cell",
+    "raw batches include every measured observation; P95/P99 summary is median of batch percentiles, not pooled percentile",
+    "container CPU/RAM include app process and probes; batch CPU counter spans request batch plus probe overhead",
+    "image tags pinned by local image IDs in this report; timing and results are machine-specific"
+  ]
+}

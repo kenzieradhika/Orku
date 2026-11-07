@@ -25,21 +25,36 @@ def process_sample(pid):
     }
 
 
-def request_sample(host, port, target):
-    connection = http.client.HTTPConnection(host, port, timeout=10)
-    tick = time.perf_counter_ns()
-    status = None
-    try:
-        connection.request('GET', target)
-        response = connection.getresponse()
-        while response.read(65536):
-            pass
-        status = response.status
-    except (OSError, http.client.HTTPException):
-        pass
-    finally:
-        connection.close()
-    return status, (time.perf_counter_ns() - tick) / 1e6
+class Session:
+    """Per-worker HTTP session; optionally reuses one TCP connection."""
+
+    def __init__(self, host, port, keep_alive):
+        self.host = host
+        self.port = port
+        self.keep_alive = keep_alive
+        self.connection = http.client.HTTPConnection(host, port, timeout=10) if keep_alive else None
+
+    def get(self, target):
+        tick = time.perf_counter_ns()
+        status = None
+        connection = self.connection or http.client.HTTPConnection(self.host, self.port, timeout=10)
+        try:
+            connection.request('GET', target)
+            response = connection.getresponse()
+            while response.read(65536):
+                pass
+            status = response.status
+            if self.keep_alive and response.will_close:
+                connection.close()
+                self.connection = http.client.HTTPConnection(self.host, self.port, timeout=10)
+        except (OSError, http.client.HTTPException):
+            connection.close()
+            if self.keep_alive:
+                self.connection = http.client.HTTPConnection(self.host, self.port, timeout=10)
+        finally:
+            if not self.keep_alive:
+                connection.close()
+        return status, (time.perf_counter_ns() - tick) / 1e6
 
 
 def main():
@@ -51,6 +66,8 @@ def main():
     parser.add_argument('--runtime-label', required=True,
                         help='Operator-supplied server/runtime configuration label')
     parser.add_argument('--server-pid', type=int)
+    parser.add_argument('--keep-alive', action='store_true',
+                        help='Reuse one TCP connection per worker instead of one connection per request')
     args = parser.parse_args()
     try:
         url = urllib.parse.urlsplit(args.url)
@@ -78,11 +95,19 @@ def main():
     before = None
     target = urllib.parse.urlunsplit(('', '', url.path or '/', url.query, ''))
     def worker(offset):
-        return [request_sample(url.hostname, port, target)
-                for _ in range(offset, args.requests, args.concurrency)]
+        session = Session(url.hostname, port, args.keep_alive)
+        try:
+            return [session.get(target)
+                    for _ in range(offset, args.requests, args.concurrency)]
+        finally:
+            if session.connection is not None:
+                session.connection.close()
 
+    warmup_session = Session(url.hostname, port, args.keep_alive)
     for _ in range(args.warmup):
-        warmup_errors += request_sample(url.hostname, port, target)[0] != 200
+        warmup_errors += warmup_session.get(target)[0] != 200
+    if warmup_session.connection is not None:
+        warmup_session.connection.close()
     if args.server_pid is not None:
         try:
             before = process_sample(args.server_pid)
@@ -115,7 +140,9 @@ def main():
     print(json.dumps({
         'url': args.url, 'runtime_label': args.runtime_label,
         'client_python': platform.python_version(), 'client_platform': platform.platform(),
-        'kind': 'closed-loop loopback HTTP; fresh TCP per request; no redirects; 10s timeout',
+        'kind': ('closed-loop loopback HTTP; keep-alive TCP per worker; no redirects; 10s timeout'
+                 if args.keep_alive else
+                 'closed-loop loopback HTTP; fresh TCP per request; no redirects; 10s timeout'),
         'concurrency': args.concurrency,
         'requests': args.requests, 'warmup': args.warmup, 'warmup_errors': warmup_errors,
         'wall_seconds': wall_seconds, 'requests_per_second': args.requests / wall_seconds,

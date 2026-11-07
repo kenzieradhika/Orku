@@ -2,6 +2,7 @@ import http.server
 import json
 import os
 from pathlib import Path
+import socket
 import subprocess
 import sys
 import threading
@@ -9,6 +10,12 @@ import unittest
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
+    protocol_version = 'HTTP/1.1'
+
+    def setup(self):
+        super().setup()
+        self.server.connections = getattr(self.server, 'connections', 0) + 1
+
     def do_GET(self):
         if self.path == '/concurrent':
             try:
@@ -16,15 +23,23 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.send_response(200)
             except threading.BrokenBarrierError:
                 self.send_response(503)
+            self.send_header('Content-Length', '2')
             self.end_headers()
             self.wfile.write(b'ok')
             return
         if self.path == '/disconnect':
+            try:
+                self.connection.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
             self.connection.close()
+            self.close_connection = True
             return
+        body = b'ok'
         self.send_response(200 if self.path == '/?name=Ada' else 503)
+        self.send_header('Content-Length', str(len(body)))
         self.end_headers()
-        self.wfile.write(b'ok')
+        self.wfile.write(body)
 
     def log_message(self, *args):
         pass
@@ -88,6 +103,20 @@ class BenchmarkTest(unittest.TestCase):
         result = self.run_benchmark('/disconnect')
         self.assertEqual(result.returncode, 1)
         self.assertEqual(json.loads(result.stdout)['transport_errors'], 1)
+
+    def test_keep_alive_reuses_connections(self):
+        self.server.connections = 0
+        result = self.run_benchmark('/?name=Ada', '--requests', '5',
+                                    '--concurrency', '1', '--keep-alive')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)['statuses'], {'200': 5})
+        self.assertEqual(self.server.connections, 1)
+
+    def test_default_mode_opens_fresh_connection_per_request(self):
+        self.server.connections = 0
+        result = self.run_benchmark('/?name=Ada', '--requests', '3', '--concurrency', '1')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.server.connections, 3)
 
     def test_invalid_arguments(self):
         for options in [('--requests', '0'), ('--warmup', '-1'), ('--server-pid', '0'), ('--concurrency', '0'), ('--concurrency', '129')]:

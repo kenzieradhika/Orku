@@ -4,5 +4,9 @@
 /.phpstan-cache/
 /.env
 /benchmarks/results/
+!/benchmarks/results/
+/benchmarks/results/*
+!/benchmarks/results/README.md
+!/benchmarks/results/optimized-comparison.json
 __pycache__/
 *.pyc
