@@ -88,6 +88,8 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 - [ ] Run 24-hour test only on a dedicated local machine/isolated runner; no default CI scheduling.
 - [ ] If 24-hour passes, record decision before a separate opt-in 72-hour run.
 
+**Ruling:** Do not add a 72-hour extension to this branch — user authorization and resource budget absent; existing 24-hour gate already remains blocked — cost if wrong: soak extension delayed.
+
 **Acceptance:** Full duration completed, no state leakage/OOM/restarts, limits respected, memory trend within threshold, raw interval data retained. A short rehearsal does not close the soak gate.
 
 ### Task 4: Security regression and bounded fuzz testing (P0)
@@ -171,16 +173,20 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Acceptance:** Successful deploy and forced rollback both preserve expected synthetic state; no existing services or volumes touched.
 
+**Ruling:** Deployment and rollback fixture not executed here — any Docker/volume/network changes are outside offline-only authorization; gate stays open — cost if wrong: deployment evidence delayed.
+
 ### Task 10: SSR/template benchmark and output safety (P1)
 
 **Files:** Create `benchmarks/release/ssr_check.php`, `benchmarks/release/ssr_check.py`, `benchmarks/release/test_ssr_check.py`.
 
 **Deliverable:** Compare identical HTML template output through Orku PHP views and Laravel Blade with matching static/layout/escaped-variable cases. Benchmark rendering only and HTTP path separately.
 
-- [ ] Test output equality for static content, UTF-8, null/empty values, nested layout, and escaped `<script>` marker.
-- [ ] Test raw/unescaped output only as an explicit expected unsafe capability; ensure default escaping never renders marker as executable markup.
-- [ ] Measure P50/P95/P99 and memory after warmup; fixed 1,000 renders per repeat, 5 repeats.
-- [ ] Keep compilation/cache settings explicit and equivalent where available.
+- [x] Test Orku output contracts for static content, UTF-8, null/empty values, nested layout, and escaped `<script>` marker. Laravel equality remains unavailable without its pinned fixture.
+- [x] Record raw `TrustedHtml` as explicitly unsafe; default escaping rejects executable marker output.
+- [x] Measure P50/P95/P99 and PHP peak-memory delta after warmup; fixed 1,000 renders, configurable 1–5 repeats. Full five-repeat sample pending.
+- [x] Report ViewRenderer path caching and unchanged PHP OPcache. Matching Laravel compilation/cache settings pending.
+
+**Ruling:** No Laravel baseline or HTTP integration benchmark added — no pinned Laravel fixture/dependency or disposable HTTP topology exists in branch — cost if wrong: comparative performance and equivalence remain unproven.
 
 **Acceptance:** Output semantics match; escaping assertions pass; rendering and HTTP timings labeled separately.
 
@@ -190,9 +196,9 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** Matrix for Linux x86_64 PHP 8.4/8.5, ARM64 PHP 8.4, and one small-resource profile (1 CPU/512 MiB). Windows/macOS/shared hosting remain unsupported unless separately volunteered and tested.
 
-- [ ] Verify basic CLI, HTTP dispatch, session, PDO SQLite capability, and ThinkCore status per available native/container architecture.
-- [ ] Record OS/kernel/architecture/PHP/image digest, unavailable capabilities, and skipped tests with reasons.
-- [ ] Never emulate and label as native hardware evidence; QEMU results are separately marked emulated.
+- [ ] Run CLI, HTTP dispatch, session, PDO SQLite and ThinkCore checks per available environment; metadata script does not run behavioral checks.
+- [x] Record OS/architecture/PHP/modules, unsupported local PHP version and unverified platforms in hardware matrix; container image digest unavailable locally.
+- [x] Mark emulated execution separately and never claim it as native evidence.
 - [ ] Add CI matrix only where stable official runner images and services exist; no hard-coded flaky timing gates.
 
 **Acceptance:** Each claimed runtime has complete evidence or is explicitly excluded from support.

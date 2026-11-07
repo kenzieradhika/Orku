@@ -16,7 +16,7 @@ not available APIs. Update this table when a feature ships.
 | CLI | `help`, `serve`, `routes`, read-only `doctor`, partial `thinkcore:observe` including visible cgroup v2 memory/CPU ceilings and process CPU affinity; three runnable examples | Project generators, `test`, `benchmark`, `optimize`, tuning |
 | Application services | Explicit handler construction; optional scoped container, ordered callable HTTP middleware, PDO prepared-query/transaction foundation, experimental SQLite migrations | Autowiring, route middleware, standalone data package, cross-driver migrations |
 | Runtime | SAPI adapter, local CLI-server integration tests | Persistent workers, worker lifecycle/reset contracts, resource auto-tuning |
-| Verification | Unit/security/live HTTP tests, PHPStan, formatting, dependency audit in CI | Production deployment validation, concurrent production-like comparison suite |
+| Verification | Unit/security/live HTTP tests, PHPStan, formatting, dependency audit in CI; bounded release harnesses and synthetic SQLite concurrency fixture | Representative API/framework comparison, soak/resource evidence, parser fuzz execution, deployment rollback, hardware breadth |
 | Optimization proposals | Existing kernel/view microbenchmarks | ThinkCore, ScopeWeave, FluxCore, MemBound, TraceDNA, RouteMorph, FailMesh, QueryPulse, DriftGuard, SafeRuntime, SmartData, NativeBridge |
 
 TurboKernel is proposed branding for the existing small kernel and future
@@ -59,6 +59,11 @@ remain supported when the optional `.ork` layer arrives.
 ThinkCore's bounded Linux cgroup v2 observation baseline is implemented, including
 per-measurement availability status. This does not implement recommendations,
 cgroup v1/non-Linux sensing or auto-tuning. See [observation scope](thinkcore-rfc.md).
+
+Release-validation runners are experimental evidence tools, not production
+guarantees. Current results and blockers are indexed in
+[release validation results](release-validation-results.md); stable readiness
+remains explicitly blocked in the [release checklist](stable-release-checklist.md).
 
 ## Immediate backlog
 

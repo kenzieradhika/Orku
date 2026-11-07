@@ -15,7 +15,9 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [ ] Spike/recovery phase harness exists, but lacks server/process health metrics and has not run against a disposable deployment (`benchmarks/release/spike_check.py`).
 - [ ] Parallel SQLite integrity fixture now tests 1/4/16/32 worker levels; CSRF/session isolation and non-SQLite drivers remain open (`tests/release/concurrent_integrity_check.php`).
 - [ ] Cold-start fixture validates only a tiny PHP built-in server; Orku/Laravel FPM/Nginx comparison remains untested (`benchmarks/release/cold_start.py`).
-- [ ] ThinkCore deterministic cgroup fixtures added; PHP 8.4/8.5 PHPUnit CI evidence pending (`tests/thinkcore/CgroupFixtureReleaseTest.php`).
+- [ ] ThinkCore fixture suite passes PHP 8.4/8.5 CI; live Docker ceilings and `memory.current` remain unverified (`tests/thinkcore/CgroupFixtureReleaseTest.php`).
+- [ ] Hardware matrix records local PHP 8.3 as unsupported; ARM64 and 1 CPU/512 MiB profiles unavailable; behavioral checks still open (`docs/release-evidence/hardware-matrix.md`).
+- [ ] SSR output safety has local Orku fixture evidence; Laravel output parity, 5-repeat distribution, and HTTP-path comparison remain open (`benchmarks/release/ssr_check.py`).
 - [x] Isolated Apache/mod_php routing and public-root smoke check.
 - [x] Isolated Nginx/PHP-FPM routing and public-root smoke check.
 - [ ] Sustained workload, memory growth and state-isolation evidence.

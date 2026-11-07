@@ -49,3 +49,12 @@ Tests must cover nested limits, unlimited values, fractional quota, absent or
 denied files, malformed content, mount escaping and namespace-relative paths.
 No worker-count recommendations until actual worker RSS/latency observations
 exist. No root requirement, outbound telemetry, persistent storage or config writes.
+
+## Release validation evidence
+
+`tests/thinkcore/CgroupFixtureReleaseTest.php` exercises synthetic cgroup v2
+memory ancestry and status outcomes, fractional/unlimited CPU quota, and CPU
+affinity parsing. It runs in the PHP 8.4/8.5 PHPUnit suite. No live cgroup
+comparison is claimed: host/container limits are not changed by this fixture.
+Coverage of `memory.current` remains unavailable because the public report API
+currently supports only `memory.max` and `cpu.max`.
