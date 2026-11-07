@@ -1,0 +1,17 @@
+{
+  "name": "orku/ssr-benchmark-fixture",
+  "description": "Disposable Laravel Blade fixture for Orku SSR comparison",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.4",
+    "laravel/framework": "12.71.0"
+  },
+  "config": {
+    "platform": {"php": "8.4.0"},
+    "allow-plugins": false,
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

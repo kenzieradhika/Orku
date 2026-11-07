@@ -88,3 +88,22 @@ Timing samples allocate memory, so renderer memory and PHP allocator peak are
 `UNMEASURED`. PHP allocator counters include runtime/fixture allocations and are
 not RSS; process RSS needs an external sampler and is also `UNMEASURED` here.
 No new result is valid until the benchmark is explicitly run and recorded.
+
+## Orku vs Laravel Blade SSR contract
+
+`ssr_compare.php` renders matching static/dynamic, escaped UTF-8, null/empty,
+nested-layout/partial, conditional, and 3/500-item collection cases. The Python
+runner requires byte-identical output and verifies the Laravel lockfile is
+exactly 12.71.0 before render timing. It retains individual nanosecond samples,
+mean, nearest-rank percentiles, batch throughput, timer overhead, CPU time and
+SHA-256 hashes. Renderer/PHP memory remains `UNMEASURED`; raw sample arrays
+contaminate in-process allocation measurements. Cold-template-cache comparison,
+HTTP, and application cold-start measurements remain `NOT IMPLEMENTED`/`NOT RUN`.
+If host PHP is below
+8.4, use the pinned Docker image:
+
+```sh
+python3 benchmarks/release/ssr_compare.py --laravel-root benchmarks/release/laravel-ssr \
+  --docker-laravel --renders 1000 --repeats 5 \
+  --output /tmp/opencode/ssr-comparison.json
+```
