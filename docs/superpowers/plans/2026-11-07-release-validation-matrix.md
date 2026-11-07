@@ -96,11 +96,11 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** Deterministic seeded mutations for path, headers, JSON/form body, route parameters, session/CSRF inputs; fuzz only in-process parsers and disposable loopback. Test max 10,000 generated cases, fixed seed recorded, 30-second timeout, 256 MiB process memory ceiling.
 
-- [ ] Tests assert corpus seed, maximum case count, reproducibility, parser exceptions normalized to safe HTTP errors, and no uncaught fatal error.
-- [ ] Add boundary corpora: malformed percent-encoding, encoded delimiters, controls/CRLF, oversized length/body, duplicate fields/headers, invalid UTF-8, unusual methods, truncated JSON, token length/format variants.
+- [x] Tests assert corpus seed, maximum case count, and reproducibility. Parser exception normalization and uncaught-fatal checks await isolated execution harness.
+- [x] Add deterministic boundary corpus: malformed percent-encoding, encoded delimiters, CRLF, oversized value, duplicate fields, invalid UTF-8, unusual method, truncated JSON, and CSRF length.
 - [ ] Assert no reflection of secret marker in production-mode response/log fixture and no route authorization bypass (authorization cases remain N/A until auth exists).
-- [ ] Run under isolated offline sandbox; write only to temp scratch; preserve minimal reproducer for failures.
-- [ ] Triage findings against actual security boundary; do not call crash-only results vulnerabilities without concrete impact.
+- [ ] Run under isolated offline sandbox; blocked because required OS-enforced sandbox unavailable.
+- [ ] Triage findings against actual security boundary; no parser execution/findings claimed.
 
 **Acceptance:** Deterministic bounded corpus, no uncaught parser failures or unsafe response disclosure; security review remains partial for missing auth and deployment behavior.
 
