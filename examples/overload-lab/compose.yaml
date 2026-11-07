@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: examples/overload-lab/Dockerfile
+    environment:
+      LAB_VARIANT: ${LAB_VARIANT:-baseline}
+    expose: ["9000"]
+    mem_limit: 128m
+    cpus: 0.50
+    pids_limit: 32
+    restart: "no"
+    networks: [lab]
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "127.0.0.1:18080:8080"
+    volumes:
+      - ./nginx.${LAB_VARIANT:-baseline}.conf:/etc/nginx/nginx.conf:ro
+    depends_on: [app]
+    mem_limit: 64m
+    cpus: 0.25
+    pids_limit: 32
+    restart: "no"
+    networks: [lab]
+networks:
+  lab:
+    internal: true

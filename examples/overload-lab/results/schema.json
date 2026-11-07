@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "k6 summary export",
+  "description": "Raw Grafana k6 summary export; metrics are measured output, never synthesized.",
+  "type": "object",
+  "required": ["metrics"],
+  "properties": {
+    "metrics": { "type": "object" }
+  },
+  "additionalProperties": true
+}
