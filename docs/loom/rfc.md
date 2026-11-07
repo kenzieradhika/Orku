@@ -1,6 +1,6 @@
 # Orku Loom RFC: initial renderer and layouts
 
-Status: renderer, one-slot layouts, and partial includes. Existing `Orku\Web\ViewRenderer` and its PHP templates are unchanged.
+Status: renderer, one-slot layouts, partial includes, and components. Existing `Orku\Web\ViewRenderer` and its PHP templates are unchanged.
 
 ## Grammar
 
@@ -27,7 +27,23 @@ The constructor accepts one existing template directory. A name is a dotted sequ
 
 ## Deferred
 
-Components, additional slots, conditions, loops, compilation cache, and invalidation are deferred. Add only with a grammar proposal plus focused tests. No `eval()` is used.
+Additional slots, conditions, loops, compilation cache, and invalidation are deferred. Add only with a grammar proposal plus focused tests. No `eval()` is used.
+
+## Components
+
+Call a component with a literal dotted name and explicit `name=path.to.value` scalar bindings:
+
+```html
+{% component "card" title=page.title %}<p>{{ page.description }}</p>{% endcomponent %}
+```
+
+Component source resolves only under `components/` and begins with one property declaration. Declared properties are required; caller variables are not inherited:
+
+```html
+{% props title %}<article><h2>{{ title }}</h2>{% slot content %}{% endslot %}</article>
+```
+
+One optional `content` slot accepts caller template source, which Loom renders with caller data and the same escaping/context rules. Properties accept only scalar or null values and are interpolated with automatic escaping. No raw HTML binding exists. Nested components are allowed, with cyclic references rejected and nesting capped at 32 component levels. Unknown/duplicate/missing properties, malformed syntax, unsafe contexts, and path violations throw `LoomException`.
 
 ## Compatibility
 
