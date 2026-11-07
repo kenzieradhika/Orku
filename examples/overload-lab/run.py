@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent
 def main() -> int:
     parser = argparse.ArgumentParser(description='Run a bounded, loopback-only k6 experiment.')
     parser.add_argument('--target', default='http://nginx:8080')
-    parser.add_argument('--scenario', choices=('baseline', 'ramp', 'spike', 'recovery'), default='baseline')
+    parser.add_argument('--scenario', choices=('baseline', 'ramp', 'spike', 'recovery', 'admission', 'legitimate', 'recovery_check', 'overload_fixture'), default='baseline')
     parser.add_argument('--yes-really-local-load', action='store_true')
     args = parser.parse_args()
     try:
@@ -35,6 +35,9 @@ def main() -> int:
     name = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ') + f'-{args.scenario}.json'
     env = os.environ | {
         'LAB_VARIANT': os.environ.get('LAB_VARIANT', 'baseline'),
+        'LAB_NGINX_CONFIG': os.environ.get('LAB_NGINX_CONFIG', os.environ.get('LAB_VARIANT', 'baseline')),
+        'LAB_APP_VARIANT': os.environ.get('LAB_APP_VARIANT', os.environ.get('LAB_VARIANT', 'baseline')),
+        'LAB_TEST_OVERLOAD': os.environ.get('LAB_TEST_OVERLOAD', '0'),
         'LAB_UID': str(os.getuid()), 'LAB_GID': str(os.getgid()),
         'LAB_TARGET': 'http://nginx:8080', 'SCENARIO': args.scenario,
         'RESULT_FILE': f'/results/{name}',

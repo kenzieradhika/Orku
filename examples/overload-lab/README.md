@@ -31,6 +31,30 @@ LAB_VARIANT=protected python3 run.py --scenario spike --yes-really-local-load
 LAB_VARIANT=protected python3 run.py --scenario recovery --yes-really-local-load
 ```
 
+### Admission-limit validation
+
+The regular protected profile is configured at 8 requests/second. `nginx.protected-tight.conf` is a separate test-only profile (1 request/second, burst 1) to demonstrate admission rejection under the same 4-VU, 4-request/second, 6-second ceiling. Run variants sequentially; force recreation because the Nginx config is a bind-mounted file:
+
+```sh
+LAB_VARIANT=baseline docker compose up -d --build --force-recreate
+LAB_VARIANT=baseline python3 run.py --scenario legitimate --yes-really-local-load
+LAB_VARIANT=baseline python3 run.py --scenario admission --yes-really-local-load
+docker compose down --remove-orphans
+LAB_VARIANT=protected-tight LAB_APP_VARIANT=baseline docker compose up -d --build --force-recreate
+docker exec overload-lab-nginx-1 nginx -T
+LAB_VARIANT=protected-tight python3 run.py --scenario legitimate --yes-really-local-load
+LAB_VARIANT=protected-tight python3 run.py --scenario admission --yes-really-local-load
+docker compose down --remove-orphans
+LAB_VARIANT=protected-tight LAB_APP_VARIANT=protected LAB_TEST_OVERLOAD=1 docker compose up -d --build --force-recreate
+LAB_VARIANT=protected-tight python3 run.py --scenario overload_fixture --yes-really-local-load
+docker compose down --remove-orphans
+LAB_VARIANT=protected-tight LAB_APP_VARIANT=baseline docker compose up -d --build --force-recreate
+LAB_VARIANT=protected-tight python3 run.py --scenario recovery_check --yes-really-local-load
+docker compose down --remove-orphans
+```
+
+`legitimate` checks 1 req/s stays successful. `admission` schedules up to 4 req/s and records 429 as intended rejection, separately from `http_req_failed` and transport failures. `overload_fixture` produces app-origin 503 only when explicitly enabled. `recovery_check` follows teardown/restart and tests low-rate 200s; this is a post-reset recovery observation, not recovery-time latency. Keep each JSON and record container stats during the run if available.
+
 The launcher rejects public/non-loopback URLs, enforces 1–15 seconds; staged duration stays fixed at 6–9 seconds. Stages top out at 4 iterations/s and 4 VUs. The runner has a 25-second hard timeout. k6 uses 0.25 CPU, 128 MiB, 32 PIDs, dropped capabilities, read-only root and Compose-internal DNS. Each run writes raw summary JSON to `results/`. Recreate Compose services between variants; never run both simultaneously on the same port.
 
 ## Stop and cleanup

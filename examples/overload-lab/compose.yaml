@@ -4,7 +4,8 @@ services:
       context: ../..
       dockerfile: examples/overload-lab/Dockerfile
     environment:
-      LAB_VARIANT: ${LAB_VARIANT:-baseline}
+      LAB_VARIANT: ${LAB_APP_VARIANT:-${LAB_VARIANT:-baseline}}
+      LAB_TEST_OVERLOAD: ${LAB_TEST_OVERLOAD:-0}
     mem_limit: 128m
     cpus: 0.50
     pids_limit: 32
@@ -14,10 +15,11 @@ services:
     expose: ["9000"]
   nginx:
     image: nginx:1.27-alpine
+    command: ["/bin/sh", "-c", "cp /etc/nginx/lab.conf /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"]
     ports:
       - "127.0.0.1:18080:8080"
     volumes:
-      - ./nginx.${LAB_VARIANT:-baseline}.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.${LAB_NGINX_CONFIG:-${LAB_VARIANT:-baseline}}.conf:/etc/nginx/lab.conf:ro
     depends_on: [app]
     mem_limit: 64m
     cpus: 0.25
@@ -49,6 +51,9 @@ services:
           create_host_path: true
     environment:
       LAB_TARGET: http://nginx:8080
+      LAB_VARIANT: ${LAB_VARIANT:-baseline}
+      LAB_NGINX_CONFIG: ${LAB_NGINX_CONFIG:-${LAB_VARIANT:-baseline}}
+      LAB_APP_VARIANT: ${LAB_APP_VARIANT:-${LAB_VARIANT:-baseline}}
       SCENARIO: ${SCENARIO:-baseline}
       RESULT_FILE: ${RESULT_FILE:-/results/result.json}
     networks: [lab]

@@ -71,3 +71,12 @@ class SafetyTest(unittest.TestCase):
         self.assertIn("admission: [{ duration: '6s', target: 4 }]", script)
         self.assertIn("legitimate: [{ duration: '6s', target: 1 }]", script)
         self.assertIn('transportFailures.add(1)', script)
+
+    def test_run_exports_actual_compose_profile_metadata(self):
+        root = Path(__file__).resolve().parents[1]
+        launcher = (root / 'run.py').read_text()
+        compose = (root / 'compose.yaml').read_text()
+        self.assertIn("'LAB_VARIANT': os.environ.get('LAB_VARIANT', 'baseline')", launcher)
+        self.assertIn("'LAB_NGINX_CONFIG': os.environ.get('LAB_NGINX_CONFIG', os.environ.get('LAB_VARIANT', 'baseline'))", launcher)
+        self.assertIn('command: ["/bin/sh", "-c", "cp /etc/nginx/lab.conf', compose)
+        self.assertIn('nginx.${LAB_NGINX_CONFIG:-${LAB_VARIANT:-baseline}}.conf', compose)
