@@ -41,3 +41,14 @@ workloads. No severity is assigned to missing functionality or unproven risks.
 
 No authentication security guarantee or full-coverage claim follows from this
 review. The stable-release security gate remains open.
+
+## Bounded fuzz preparation
+
+`tests/release/fuzz_http_inputs.py` generates a deterministic, capped corpus for
+HTTP path/header/body/form/route/CSRF input classes. CI tests only reproducibility
+and bounds; corpus generation does not execute target parsers and is not security
+validation. Parser execution is not claimed: this environment lacks an enforced
+offline sandbox with resource limits. Authorization coverage remains not
+applicable until authentication/authorization features exist. Run target code
+only after an isolated, no-network sandbox and a disposable loopback fixture are
+available; preserve only minimal synthetic reproducers.

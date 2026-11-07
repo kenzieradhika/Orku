@@ -7,6 +7,17 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [x] Dependency audit and Composer validation.
 - [x] Bounded Linux cgroup v2 read-only observation, explicit unknowns.
 - [x] Concurrent loopback benchmark tool and overlap regression.
+- [ ] Representative API benchmark with matched endpoint contracts and raw errors; current benchmark is stateless and has not validated this gate (`benchmarks/release/api_check.py`).
+- [ ] Database query/transaction/connection evidence is SQLite-only and disposable; framework parity and alternate drivers unverified (`tests/release/database_check.py`).
+- [ ] Soak gate remains open: runner is sequential, without server memory/restart/session instrumentation; no 24-hour evidence (`benchmarks/release/soak_check.py`).
+- [ ] Security fuzz gate remains open: deterministic corpus generation exists, but parser execution awaits an enforced offline/resource-limited sandbox (`tests/release/fuzz_http_inputs.py`).
+- [ ] Bounded stress runner exists but has not established generator headroom or server CPU/RAM/OOM metrics; breaking-point evidence remains open (`benchmarks/release/stress_check.py`).
+- [ ] Spike/recovery phase harness exists, but lacks server/process health metrics and has not run against a disposable deployment (`benchmarks/release/spike_check.py`).
+- [ ] Parallel SQLite integrity fixture now tests 1/4/16/32 worker levels; CSRF/session isolation and non-SQLite drivers remain open (`tests/release/concurrent_integrity_check.php`).
+- [ ] Cold-start fixture validates only a tiny PHP built-in server; Orku/Laravel FPM/Nginx comparison remains untested (`benchmarks/release/cold_start.py`).
+- [ ] ThinkCore fixture suite passes PHP 8.4/8.5 CI; live Docker ceilings and `memory.current` remain unverified (`tests/thinkcore/CgroupFixtureReleaseTest.php`).
+- [ ] Hardware matrix records local PHP 8.3 as unsupported; ARM64 and 1 CPU/512 MiB profiles unavailable; behavioral checks still open (`docs/release-evidence/hardware-matrix.md`).
+- [ ] SSR output safety has local Orku fixture evidence; Laravel output parity, 5-repeat distribution, and HTTP-path comparison remain open (`benchmarks/release/ssr_check.py`).
 - [x] Isolated Apache/mod_php routing and public-root smoke check.
 - [x] Isolated Nginx/PHP-FPM routing and public-root smoke check.
 - [ ] Sustained workload, memory growth and state-isolation evidence.
