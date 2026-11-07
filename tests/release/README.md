@@ -23,3 +23,18 @@ directory; remove it manually after verifying it belongs to this run.
 Current fixture exercises direct PDO because Laravel database integration is
 not present and the objective is to validate SQLite semantics first. This does
 not compare framework DB integration or claim performance parity.
+
+## Concurrent integrity fixture
+
+`concurrent_integrity_check.php` uses a new temporary SQLite database, bounded
+local `pcntl_fork` workers, atomic counter updates, unique event rows, and
+rollback verification. Example:
+
+```sh
+php tests/release/concurrent_integrity_check.php 200 8
+```
+
+Limits: 10,000 operations, 32 workers, operation count divisible by worker
+count. It removes only its own temporary DB/WAL files. SQLite lock behavior is
+reported as worker failure, not silently retried as success. This does not test
+web-session isolation or cross-session CSRF; authentication is not implemented.

@@ -137,10 +137,11 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 
 **Deliverable:** Race-focused parallel requests against disposable SQLite DB and separate synthetic sessions. Test atomic increments/unique inserts within transactions; no shared mutable user services.
 
-- [ ] Write tests that run N workers against the same counter and assert exact final count, uniqueness, transaction rollback and cross-session CSRF rejection.
-- [ ] Cap at 32 workers/10,000 operations; use per-run DB and fixed seed.
-- [ ] Assert every operation gets a classified result and no partial/corrupt rows remain.
-- [ ] Run repetitions at concurrency 1/4/16/32; record lock/busy errors separately from data-integrity failures.
+- [x] Add bounded fixture with multiple workers on the same counter; assert exact final count, uniqueness, rollback.
+- [x] Cap at 32 workers/10,000 operations; use per-run DB.
+- [x] Assert worker failures and final row integrity separately.
+- [ ] Run repetitions at concurrency 1/4/16/32; classify SQLite lock/busy errors; current smoke checks only 8 workers.
+- [ ] Cross-session CSRF remains N/A: no auth/session-enabled concurrent HTTP fixture.
 
 **Acceptance:** Exact expected DB state, no cross-session acceptance, all SQLite lock behavior explicitly reported; no concurrency guarantees beyond tested mode.
 
