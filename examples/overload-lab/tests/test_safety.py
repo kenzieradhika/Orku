@@ -20,6 +20,11 @@ class SafetyTest(unittest.TestCase):
         self.assertIn("parser.add_argument('--target', default='http://nginx:8080')", launcher)
         self.assertIn("--yes-really-local-load", launcher)
 
+    def test_front_controller_checks_fixture_router_type(self):
+        entrypoint = (Path(__file__).resolve().parents[1] / 'public/index.php').read_text()
+        self.assertIn('use Orku\\Routing\\Router;', entrypoint)
+        self.assertIn('$router instanceof Router', entrypoint)
+
     def test_rejects_arbitrary_compose_service(self):
         with self.assertRaises(ValueError):
             validate_target('http://unrelated:8080')
@@ -53,7 +58,7 @@ class SafetyTest(unittest.TestCase):
 
     def test_fixtures_stay_within_owned_directory(self):
         root = Path(__file__).resolve().parents[1]
-        for fixture in ('compose.yaml', 'k6/scenarios.js', 'README.md', 'results/schema.json', 'results/comparison-template.md'):
+        for fixture in ('compose.yaml', 'nginx.protected-tight.conf', 'k6/scenarios.js', 'README.md', 'results/schema.json', 'results/comparison-template.md'):
             self.assertTrue((root / fixture).is_file(), fixture)
 
     def test_load_scenario_bound_is_capped_at_60_requests(self):
@@ -63,3 +68,6 @@ class SafetyTest(unittest.TestCase):
         self.assertIn('handleSummary(data)', script)
         self.assertIn('http_status_${status}', script)
         self.assertNotIn('maxDuration =', script)
+        self.assertIn("admission: [{ duration: '6s', target: 4 }]", script)
+        self.assertIn("legitimate: [{ duration: '6s', target: 1 }]", script)
+        self.assertIn('transportFailures.add(1)', script)
