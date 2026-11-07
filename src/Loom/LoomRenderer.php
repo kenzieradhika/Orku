@@ -50,6 +50,9 @@ final class LoomRenderer
             if (!preg_match('/^\{% block content %\}(.*?)\{% endblock %\}$/s', $body, $block) || $block[0] !== $body) {
                 throw new LoomException('Invalid layout content block.');
             }
+            if (str_contains($block[1], '{%')) {
+                throw new LoomException('Unsupported template directive.');
+            }
             if ($content !== null) {
                 throw new LoomException('Nested layout inheritance is unsupported.');
             }
@@ -59,6 +62,9 @@ final class LoomRenderer
         if ($content !== null) {
             if (substr_count($source, '{% slot content %}') !== 1 || substr_count($source, '{% endslot %}') !== 1) {
                 throw new LoomException('Layout must define exactly one content slot.');
+            }
+            if (str_contains(str_replace(['{% slot content %}', '{% endslot %}'], '', $source), '{%')) {
+                throw new LoomException('Unsupported template directive.');
             }
             $marker = "\0ORKU_LAYOUT_CONTENT\0";
             $source = preg_replace('/\{% slot content %\}.*?\{% endslot %\}/s', $marker, $source, 1) ?? $source;

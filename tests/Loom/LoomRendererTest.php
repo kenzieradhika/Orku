@@ -107,6 +107,22 @@ final class LoomRendererTest extends TestCase
         (new LoomRenderer($this->root))->render('page');
     }
 
+    public function testUnsupportedDirectiveInsideChildBlockFails(): void
+    {
+        file_put_contents($this->root.'/layout.ork', '{% slot content %}{% endslot %}');
+        file_put_contents($this->root.'/page.ork', "{% extends \"layout\" %}{% block content %}{% include \"secret\" %}{% endblock %}");
+        $this->expectException(LoomException::class);
+        (new LoomRenderer($this->root))->render('page');
+    }
+
+    public function testUnsupportedDirectiveInParentLayoutFails(): void
+    {
+        file_put_contents($this->root.'/layout.ork', '{% slot content %}{% endslot %}{% include "secret" %}');
+        file_put_contents($this->root.'/page.ork', "{% extends \"layout\" %}{% block content %}ok{% endblock %}");
+        $this->expectException(LoomException::class);
+        (new LoomRenderer($this->root))->render('page');
+    }
+
     public function testInterpolationIsRejectedOutsideHtmlText(): void
     {
         file_put_contents($this->root.'/page.ork', '<a title="{{ name }}">x</a>');
