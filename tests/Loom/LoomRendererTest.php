@@ -21,7 +21,14 @@ final class LoomRendererTest extends TestCase
     protected function tearDown(): void
     {
         foreach (glob($this->root.'/*') ?: [] as $file) {
-            unlink($file);
+            if (is_dir($file)) {
+                foreach (glob($file.'/*') ?: [] as $child) {
+                    unlink($child);
+                }
+                rmdir($file);
+            } else {
+                unlink($file);
+            }
         }
         rmdir($this->root);
     }
@@ -75,6 +82,70 @@ final class LoomRendererTest extends TestCase
         file_put_contents($this->root.'/page.ork', '{{ value }}');
         $renderer = new LoomRenderer($this->root);
         self::assertSame($renderer->render('page', ['value' => 'same']), $renderer->render('page', ['value' => 'same']));
+    }
+
+    public function testPartialRendersWithCallerDataAndEscaping(): void
+    {
+        file_put_contents($this->root.'/page.ork', '<h1>{% include "partials.title" %}</h1>');
+        mkdir($this->root.'/partials');
+        file_put_contents($this->root.'/partials/title.ork', '{{ title }}');
+        self::assertSame('<h1>&lt;Hello&gt;</h1>', (new LoomRenderer($this->root))->render('page', ['title' => '<Hello>']));
+    }
+
+    public function testPartialCycleFailsDeterministically(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% include "partials.one" %}');
+        mkdir($this->root.'/partials');
+        file_put_contents($this->root.'/partials/one.ork', '{% include "partials.two" %}');
+        file_put_contents($this->root.'/partials/two.ork', '{% include "partials.one" %}');
+        try {
+            (new LoomRenderer($this->root))->render('page');
+            self::fail('Expected cyclic partial error.');
+        } catch (LoomException $error) {
+            self::assertSame('Cyclic template reference.', $error->getMessage());
+        }
+    }
+
+    public function testPartialTraversalAndUnknownDirectiveFail(): void
+    {
+        file_put_contents($this->root.'/page.ork', '{% include "../outside" %}');
+        try {
+            (new LoomRenderer($this->root))->render('page');
+            self::fail('Expected invalid partial name error.');
+        } catch (LoomException $error) {
+            self::assertSame('Unsupported template directive.', $error->getMessage());
+        }
+    }
+
+    public function testPartialCannotEscapeRootThroughSymlink(): void
+    {
+        $outside = $this->root.'-outside.ork';
+        file_put_contents($outside, 'outside');
+        symlink($outside, $this->root.'/linked.ork');
+        file_put_contents($this->root.'/page.ork', '{% include "linked" %}');
+        try {
+            $this->expectException(LoomException::class);
+            (new LoomRenderer($this->root))->render('page');
+        } finally {
+            unlink($this->root.'/linked.ork');
+            unlink($outside);
+        }
+    }
+
+    public function testPartialKeepsHtmlParserContextAndRejectsAttributeUse(): void
+    {
+        file_put_contents($this->root.'/page.ork', '<a title="{% include "partial" %}">x</a>');
+        file_put_contents($this->root.'/partial.ork', '{{ value }}');
+        $this->expectException(LoomException::class);
+        (new LoomRenderer($this->root))->render('page', ['value' => 'x']);
+    }
+
+    public function testPartialDirectiveIsRejectedInsideHtmlComment(): void
+    {
+        file_put_contents($this->root.'/page.ork', '<!-- {% include "partial" %} -->');
+        file_put_contents($this->root.'/partial.ork', 'included');
+        $this->expectException(LoomException::class);
+        (new LoomRenderer($this->root))->render('page');
     }
 
     public function testChildRendersIntoNamedParentContentSlot(): void

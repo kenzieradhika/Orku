@@ -1,6 +1,6 @@
 # Orku Loom RFC: initial renderer and layouts
 
-Status: initial implementation. Existing `Orku\Web\ViewRenderer` and its PHP templates are unchanged.
+Status: renderer, one-slot layouts, and partial includes. Existing `Orku\Web\ViewRenderer` and its PHP templates are unchanged.
 
 ## Grammar
 
@@ -13,6 +13,10 @@ whitespace   = (space | tab | CR | LF)*
 
 Markup is literal trusted project source. Interpolation is only accepted between tags, not in attributes, comments, or `script`/`style` raw-text elements. Values resolve through arrays only. Missing values, objects, unsupported expressions, malformed delimiters, and PHP opening tags fail with `LoomException`. Interpolated values use UTF-8 `htmlspecialchars` with quote escaping and invalid-byte substitution. There is no raw-output escape hatch.
 
+## Partials
+
+`{% include "partials.card" %}` renders `partials/card.ork` at the include position with the caller's data. Include directives are accepted only in HTML text context. The partial uses the same interpolation and HTML-state validation as its caller. Include paths use the standard dotted template-name grammar and are resolved under the configured root. Recursive and cyclic references fail with `LoomException`. Only this include directive is recognized; include arguments and other directives are unsupported.
+
 ## Layout inheritance
 
 A child starts with `{% extends "layout" %}` and contains exactly one `{% block content %}...{% endblock %}`. A parent defines exactly one `{% slot content %}...{% endslot %}`. Child block content is rendered first using the same escaping rules, then inserted into that named parent slot. Template names use the same rooted `.ork` resolution as direct rendering. Cycles and nested inheritance fail. Other directives are rejected. Layout files must define the slot; fallback slot content is not used in this version.
@@ -23,7 +27,7 @@ The constructor accepts one existing template directory. A name is a dotted sequ
 
 ## Deferred
 
-Partials, components, additional slots, conditions, loops, compilation cache, and invalidation are deferred. Add only with a grammar proposal plus focused tests. No `eval()` is used.
+Components, additional slots, conditions, loops, compilation cache, and invalidation are deferred. Add only with a grammar proposal plus focused tests. No `eval()` is used.
 
 ## Compatibility
 

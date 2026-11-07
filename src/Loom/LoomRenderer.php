@@ -30,7 +30,7 @@ final class LoomRenderer
     private function renderTemplate(string $name, array $data, array $layouts, ?string $content = null): string
     {
         if (in_array($name, $layouts, true)) {
-            throw new LoomException('Cyclic template layout.');
+            throw new LoomException('Cyclic template reference.');
         }
         if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z][a-zA-Z0-9_-]*)*$/D', $name)) {
             throw new LoomException('Invalid template name.');
@@ -45,38 +45,36 @@ final class LoomRenderer
             throw new LoomException('Invalid template source.');
         }
 
-        if (preg_match('/^\{% extends "([a-zA-Z][a-zA-Z0-9_.-]*)" %\}/', $source, $extends)) {
+        if (preg_match('/^\{% extends "([a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z][a-zA-Z0-9_-]*)*)" %\}/', $source, $extends)) {
             $body = substr($source, strlen($extends[0]));
             if (!preg_match('/^\{% block content %\}(.*?)\{% endblock %\}$/s', $body, $block) || $block[0] !== $body) {
                 throw new LoomException('Invalid layout content block.');
             }
-            if (str_contains($block[1], '{%')) {
-                throw new LoomException('Unsupported template directive.');
-            }
             if ($content !== null) {
                 throw new LoomException('Nested layout inheritance is unsupported.');
             }
-            $child = $this->compile($block[1], $data);
+            $child = $this->compile($block[1], $data, [...$layouts, $name]);
             return $this->renderTemplate($extends[1], $data, [...$layouts, $name], $child);
         }
         if ($content !== null) {
             if (substr_count($source, '{% slot content %}') !== 1 || substr_count($source, '{% endslot %}') !== 1) {
                 throw new LoomException('Layout must define exactly one content slot.');
             }
-            if (str_contains(str_replace(['{% slot content %}', '{% endslot %}'], '', $source), '{%')) {
-                throw new LoomException('Unsupported template directive.');
-            }
             $marker = "\0ORKU_LAYOUT_CONTENT\0";
             $source = preg_replace('/\{% slot content %\}.*?\{% endslot %\}/s', $marker, $source, 1) ?? $source;
-        } elseif (str_contains($source, '{%')) {
+        }
+        if (str_contains($source, '{%') && !preg_match('/\{% include "[^"]+" %\}/', $source)) {
             throw new LoomException('Unsupported template directive.');
         }
-        $html = $this->compile($source, $data);
+        $html = $this->compile($source, $data, [...$layouts, $name]);
         return $content === null ? $html : str_replace("\0ORKU_LAYOUT_CONTENT\0", $content, $html);
     }
 
-    /** @param array<string, mixed> $data */
-    private function compile(string $source, array $data): string
+    /**
+     * @param array<string, mixed> $data
+     * @param list<string> $layouts
+     */
+    private function compile(string $source, array $data, array $layouts = []): string
     {
         $output = '';
         $offset = 0;
@@ -87,6 +85,17 @@ final class LoomRenderer
         $length = strlen($source);
 
         while ($offset < $length) {
+            if (substr($source, $offset, 2) === '{%' && $state !== 'text') {
+                throw new LoomException('Template directive is only allowed in HTML text.');
+            }
+            if ($state === 'text' && substr($source, $offset, 2) === '{%') {
+                if (!preg_match('/^\{% include "([a-zA-Z][a-zA-Z0-9_-]*(?:\.[a-zA-Z][a-zA-Z0-9_-]*)*)" %\}/', substr($source, $offset), $include)) {
+                    throw new LoomException('Unsupported template directive.');
+                }
+                $output .= $this->renderTemplate($include[1], $data, $layouts);
+                $offset += strlen($include[0]);
+                continue;
+            }
             if (substr($source, $offset, 2) === '{{' && $state !== 'text') {
                 throw new LoomException('Interpolation is only allowed in HTML text.');
             }
@@ -122,8 +131,9 @@ final class LoomRenderer
                 if ($end === false) {
                     throw new LoomException('Unclosed HTML comment.');
                 }
-                if (str_contains(substr($source, $offset, $end - $offset), '{{')) {
-                    throw new LoomException('Interpolation is only allowed in HTML text.');
+                $comment = substr($source, $offset, $end - $offset);
+                if (str_contains($comment, '{{') || str_contains($comment, '{%')) {
+                    throw new LoomException('Template syntax is not allowed in HTML comments.');
                 }
                 $output .= substr($source, $offset, $end + 3 - $offset);
                 $offset = $end + 3;
