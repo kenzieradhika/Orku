@@ -83,8 +83,13 @@ final class CgroupFixtureReleaseTest extends TestCase
         );
         self::assertSame(
             ['value' => null, 'status' => 'unmapped'],
-            Cgroup::report('0::/app', '31 22 0:28 /tenant /cg rw - cgroup2 cgroup rw',
-                static fn () => '1', 'memory.max', $parse)
+            Cgroup::report(
+                '0::/app',
+                '31 22 0:28 /tenant /cg rw - cgroup2 cgroup rw',
+                static fn () => '1',
+                'memory.max',
+                $parse
+            )
         );
     }
 }
