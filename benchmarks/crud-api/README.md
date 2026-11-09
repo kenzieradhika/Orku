@@ -9,6 +9,11 @@ This suite measures **end-to-end HTTP CRUD only**. Direct database microbenchmar
 remain in `tests/release/database_check.py` (Orku only); cross-framework DB-only
 timings are not claimed here.
 
+Not a Laravel Eloquent vs Orku Database comparison: both apps call the same
+`Orku\CrudBench\CrudStore` class on raw PDO, so the measured difference is the
+framework HTTP stack around identical data-access code. ORM/query-builder
+performance is out of scope for this suite.
+
 ## Files
 
 | Path | Purpose |
@@ -41,6 +46,11 @@ docker compose --profile orku --profile laravel down -v
 ```
 
 Run frameworks sequentially on the same idle host. Alternate repeats if comparing.
+Report the median of three repeats and the observed range, never the best run.
+A measured interval is roughly 1-2 seconds, so P99 is noisy and a single outlier
+moves it; treat sub-5% RPS gaps as unresolved. If one container pins its CPU
+limit (cgroup `cpu_fraction_of_one_core` at the `cpus` quota), the throughput gap
+is a lower bound, not an exact ratio.
 `--requests` is per phase (five phases: list, get, create, replace, delete), so
 400 means 2,000 measured requests. Hard caps: 2,000 requests/phase, 5,000 measured
 total, concurrency 64, 120 seconds, 5-second request timeout, loopback URLs only.
