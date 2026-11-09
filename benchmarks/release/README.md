@@ -3,8 +3,9 @@
 `api_check.py` accepts HTTP loopback URLs only. Per run it caps the total at
 10,000 requests, concurrency at 128, elapsed time at 120 seconds, request
 timeouts at 5 seconds, and response bodies at 64 KiB. The supplied scenario is
-deliberately a single health endpoint: no database API fixture exists yet, and
-this runner alone does not satisfy the real-world API release gate.
+deliberately a single health endpoint. The separate `benchmarks/crud-api/`
+suite now provides shared Orku/Laravel SQLite CRUD fixtures with parity
+verification, bounded load and integrity evidence.
 
 Use the same endpoint contracts against Orku and a separately prepared,
 disposable Laravel app. Verify response equivalence before measuring:

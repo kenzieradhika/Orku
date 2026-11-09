@@ -1,0 +1,6 @@
+.git/
+vendor/
+**/vendor/
+**/node_modules/
+.phpunit.cache/
+benchmarks/results/

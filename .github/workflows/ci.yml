@@ -22,6 +22,7 @@ jobs:
       - run: python3 -m unittest discover -s benchmarks -p 'test_http_latency.py'
       - run: python3 -m unittest discover -s benchmarks -p 'test_compare_optimized.py'
       - run: python3 -m unittest discover -s benchmarks/release -p 'test_*.py'
+      - run: python3 -m unittest discover -s benchmarks/crud-api -p 'test_*.py'
       - run: python3 -m unittest discover -s tests/release -p 'test_database_check.py'
       - run: python3 -m unittest discover -s tests/release -p 'test_fuzz_http_inputs.py'
       - run: python3 -m unittest discover -s tests/release -p 'test_concurrent_integrity.py'
