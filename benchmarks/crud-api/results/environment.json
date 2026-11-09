@@ -1,7 +1,7 @@
 {
   "suite": "orku-laravel-crud-api",
   "measured_at_utc": "2026-11-09",
-  "source_revision": "a980059c082d9f342ce231c2d19df3551b0d68fe",
+  "source_revision": "54998592877cdfb6ad3d4ba135149854d8833db2",
   "host": {
     "os": "Linux 7.0.0-38-generic x86_64",
     "cpu_count": 16,
