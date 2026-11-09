@@ -1,8 +1,11 @@
 # Disposable SQLite check
 
 Run only against a newly-created temporary file. It creates 100 synthetic rows,
-checks point lookups, bounded lists, repeated PDO open/close, transaction commit
-and rollback, then removes its database. It does not invoke Orku migrations or
+checks point lookups and bounded lists through both the `Orku\Data\Database`
+wrapper and a raw prepared-PDO control, repeated PDO open/close, and transaction
+commit/rollback (including a measured wrapper transaction cycle), then removes
+its database. The fixture loads the Composer autoloader, so install dependencies
+first. It does not invoke Orku migrations or
 touch an application database. SQLite/PDO results do not establish support for
 other database drivers.
 
@@ -27,8 +30,8 @@ not compare framework DB integration or claim performance parity.
 ## Concurrent integrity fixture
 
 `concurrent_integrity_check.php` uses a new temporary SQLite database, bounded
-local `pcntl_fork` workers, atomic counter updates, unique event rows, and
-rollback verification. Example:
+local `pcntl_fork` workers, `Orku\Data\Database` transactions for atomic counter
+updates and unique event rows, and rollback verification. Example:
 
 ```sh
 php tests/release/concurrent_integrity_check.php 200 8

@@ -43,13 +43,16 @@ class DatabaseCheckTest(unittest.TestCase):
             self.assertTrue(report['rollback_verified'])
             self.assertTrue(report['commit_verified'])
             self.assertEqual(report['errors'], 0)
+            self.assertEqual(report['summary']['point_lookup_orku']['operations'], 5)
+            self.assertEqual(report['summary']['bounded_list_orku']['operations'], 5)
+            self.assertEqual(report['summary']['transaction_cycle_orku']['operations'], 5)
             self.assertGreaterEqual(len(report['operations']), 5)
             self.assertFalse((Path(tmp) / 'fixture.sqlite').exists())
 
     def test_timeout_cleans_temporary_directory(self):
         with tempfile.TemporaryDirectory(prefix='orku-db-parent-') as parent:
             def timeout_after_db_created(command, **kwargs):
-                Path(command[3]).write_bytes(b'disposable')
+                Path(command[2]).write_bytes(b'disposable')
                 raise database_check.subprocess.TimeoutExpired(command, kwargs['timeout'])
 
             with patch.object(database_check.subprocess, 'run', side_effect=timeout_after_db_created):

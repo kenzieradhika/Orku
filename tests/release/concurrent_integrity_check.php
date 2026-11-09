@@ -15,6 +15,11 @@ if (!extension_loaded('pdo_sqlite') || !extension_loaded('pcntl')) {
     fwrite(STDERR, "pdo_sqlite and pcntl required\n");
     exit(2);
 }
+if (!is_file(dirname(__DIR__, 2).'/vendor/autoload.php')) {
+    fwrite(STDERR, "Composer autoloader required.\n");
+    exit(2);
+}
+require dirname(__DIR__, 2).'/vendor/autoload.php';
 $path = tempnam(sys_get_temp_dir(), 'orku-integrity-');
 if ($path === false) {
     throw new RuntimeException('Could not create temporary database.');
@@ -38,12 +43,16 @@ try {
             try {
                 $pdo = new PDO('sqlite:'.$path, options: [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
                 $pdo->exec('PRAGMA busy_timeout='.$busyTimeoutMs);
+                $database = new Orku\Data\Database($pdo);
                 for ($seq = 0; $seq < intdiv($operations, $workers); ++$seq) {
-                    $pdo->beginTransaction();
-                    $pdo->exec('UPDATE counter SET value = value + 1 WHERE id = 1');
-                    $insert = $pdo->prepare('INSERT INTO events (worker, seq) VALUES (?, ?)');
-                    $insert->execute([$worker, $seq]);
-                    $pdo->commit();
+                    $database->transaction(static function (Orku\Data\Database $database) use ($worker, $seq): void {
+                        if ($database->execute('UPDATE counter SET value = value + 1 WHERE id = 1') !== 1) {
+                            throw new RuntimeException('Counter update count mismatch');
+                        }
+                        if ($database->execute('INSERT INTO events (worker, seq) VALUES (?, ?)', [$worker, $seq]) !== 1) {
+                            throw new RuntimeException('Event insert count mismatch');
+                        }
+                    });
                 }
                 exit(0);
             } catch (Throwable $error) {

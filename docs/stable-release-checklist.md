@@ -8,7 +8,7 @@ Track evidence here; do not silently redefine ORK.md as completed.
 - [x] Bounded Linux cgroup v2 read-only observation, explicit unknowns.
 - [x] Concurrent loopback benchmark tool and overlap regression.
 - [ ] Representative API benchmark with matched endpoint contracts and raw errors; current benchmark is stateless and has not validated this gate (`benchmarks/release/api_check.py`).
-- [ ] Database query/transaction/connection evidence is SQLite-only and disposable; framework parity and alternate drivers unverified (`tests/release/database_check.py`).
+- [ ] Database query/transaction/connection evidence is SQLite-only and disposable; wrapper point/list/transaction paths now covered with raw-PDO control and concurrent integrity, but framework parity and alternate drivers remain unverified (`tests/release/database_check.py`, `tests/release/concurrent_integrity_check.php`).
 - [ ] Soak gate remains open: runner is sequential, without server memory/restart/session instrumentation; no 24-hour evidence (`benchmarks/release/soak_check.py`).
 - [ ] Security fuzz gate remains open: deterministic corpus generation exists, but parser execution awaits an enforced offline/resource-limited sandbox (`tests/release/fuzz_http_inputs.py`).
 - [ ] Bounded stress runner exists but has not established generator headroom or server CPU/RAM/OOM metrics; breaking-point evidence remains open (`benchmarks/release/stress_check.py`).

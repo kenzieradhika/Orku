@@ -8,6 +8,7 @@ not proof that every P0/P1 workload gate passed. The live checklist is
 | --- | --- | --- | --- |
 | Loopback API runner | `ffd9c46` | Unit/contract tests; CI passed PHP 8.4/8.5. | No representative Orku/Laravel API comparison. |
 | Disposable SQLite/PDO | `52f1f45` | Five-iteration synthetic sample; commit/rollback/cleanup; zero errors. | No app migration, Laravel comparison, other DB driver, or resource-limited run. |
+| SQLite wrapper reliability | `perf/database-reliability-evidence` | `Orku\Data\Database` point lookup/list/transaction coverage plus raw-PDO control; 100-iteration sample (PHP 8.4.27, SQLite 3.40.1, 2 CPU/512 MiB): 0 errors, P50 0.044 ms lookup vs 0.030 ms PDO control, 7.09 ms transaction cycle; 320-operation concurrency at 1/4/16/32 workers exact state, 0 lock errors. | Wrapper overhead is single-host microbenchmark evidence; no Laravel or alternate-driver parity. |
 | Soak rehearsal harness | `6b1e4a4` | Bounds/stop/error-window tests; CI passed. | Sequential only; no server resource/session instrumentation; no 24h run. |
 | HTTP fuzz corpus | `21781c1` | Deterministic bounded corpus tests; CI passed. | Parser execution not run; no enforced offline resource sandbox. |
 | Stress ramp | `55ee0ad` | Bounded runner and threshold tests; CI passed. | No client calibration or server resource metrics; no workload run. |
