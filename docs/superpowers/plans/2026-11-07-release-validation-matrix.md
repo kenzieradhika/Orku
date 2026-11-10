@@ -56,7 +56,7 @@ Do not execute all 12 load scenarios in one CI job. Ship each task independently
 - [x] Run tests; verify failures before implementation.
 - [x] Implement runner with a 120-second batch deadline, max 10,000 requests per scenario, concurrency ≤128, JSON raw output.
 - [x] Verify endpoint response bodies/status are equivalent before measuring; fail run on mismatches.
-- [ ] Run a bounded local sample; record both client and server resource use plus all batch rows. Blocked: matching representative API fixtures are not available; current health route is not real-world API coverage.
+- [x] Run three bounded alternating local samples with matched CRUD fixtures; raw rows, cgroup CPU/memory and parity evidence in `benchmarks/crud-api/results/`.
 - [x] Update evidence index/checklist; CI runs tests only, never the benchmark.
 
 **Acceptance:** All endpoints use same payload/semantics; zero hidden errors; raw and summarized results retained; client bottleneck and middleware differences disclosed.

@@ -1,0 +1,74 @@
+name: orku-crud-api-benchmark
+
+services:
+  orku-fpm:
+    profiles: [orku]
+    build:
+      context: ../..
+      dockerfile: benchmarks/crud-api/Dockerfile
+      target: orku
+    container_name: orku-crud-orku
+    environment:
+      CRUD_DB_PATH: /data/crud.sqlite
+      CRUD_BENCH_MAINTENANCE: "1"
+    volumes:
+      - orku-data:/data
+    cpus: "2.0"
+    mem_limit: 512m
+    pids_limit: 128
+
+  orku-web:
+    profiles: [orku]
+    image: nginx:1.27-alpine
+    container_name: orku-crud-orku-web
+    depends_on: [orku-fpm]
+    ports: ["18090:80"]
+    volumes:
+      - ./nginx-orku.conf:/etc/nginx/conf.d/default.conf:ro
+    cpus: "0.5"
+    mem_limit: 64m
+    pids_limit: 64
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/items?limit=1"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  laravel-fpm:
+    profiles: [laravel]
+    build:
+      context: ../..
+      dockerfile: benchmarks/crud-api/Dockerfile
+      target: laravel
+    container_name: orku-crud-laravel
+    environment:
+      CRUD_DB_PATH: /data/crud.sqlite
+      CRUD_BENCH_MAINTENANCE: "1"
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes:
+      - laravel-data:/data
+    cpus: "2.0"
+    mem_limit: 512m
+    pids_limit: 128
+
+  laravel-web:
+    profiles: [laravel]
+    image: nginx:1.27-alpine
+    container_name: orku-crud-laravel-web
+    depends_on: [laravel-fpm]
+    ports: ["18091:80"]
+    volumes:
+      - ./nginx-laravel.conf:/etc/nginx/conf.d/default.conf:ro
+    cpus: "0.5"
+    mem_limit: 64m
+    pids_limit: 64
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/items?limit=1"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+volumes:
+  orku-data:
+  laravel-data:

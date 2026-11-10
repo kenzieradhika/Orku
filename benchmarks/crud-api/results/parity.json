@@ -1,0 +1,407 @@
+{
+  "mode": "contract_parity",
+  "passed": true,
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+    "source_revision": "3b4514ff824b42dddcf1991a337e4bb18794d428"
+  },
+  "candidate": "http://127.0.0.1:18090",
+  "reference": "http://127.0.0.1:18091",
+  "checks": [
+    {
+      "name": "list",
+      "method": "GET",
+      "path": "/api/items?limit=3",
+      "candidate_status": 200,
+      "reference_status": 200,
+      "candidate": {
+        "data": [
+          {
+            "id": 1,
+            "title": "Seed item 0001",
+            "body": "Seed body 0001",
+            "version": 1,
+            "client_key": "seed-0001"
+          },
+          {
+            "id": 2,
+            "title": "Seed item 0002",
+            "body": "Seed body 0002",
+            "version": 1,
+            "client_key": "seed-0002"
+          },
+          {
+            "id": 3,
+            "title": "Seed item 0003",
+            "body": "Seed body 0003",
+            "version": 1,
+            "client_key": "seed-0003"
+          }
+        ],
+        "count": 3
+      },
+      "reference": {
+        "data": [
+          {
+            "id": 1,
+            "title": "Seed item 0001",
+            "body": "Seed body 0001",
+            "version": 1,
+            "client_key": "seed-0001"
+          },
+          {
+            "id": 2,
+            "title": "Seed item 0002",
+            "body": "Seed body 0002",
+            "version": 1,
+            "client_key": "seed-0002"
+          },
+          {
+            "id": 3,
+            "title": "Seed item 0003",
+            "body": "Seed body 0003",
+            "version": 1,
+            "client_key": "seed-0003"
+          }
+        ],
+        "count": 3
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "get",
+      "method": "GET",
+      "path": "/api/items/1",
+      "candidate_status": 200,
+      "reference_status": 200,
+      "candidate": {
+        "id": 1,
+        "title": "Seed item 0001",
+        "body": "Seed body 0001",
+        "version": 1,
+        "client_key": "seed-0001"
+      },
+      "reference": {
+        "id": 1,
+        "title": "Seed item 0001",
+        "body": "Seed body 0001",
+        "version": 1,
+        "client_key": "seed-0001"
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "get-missing",
+      "method": "GET",
+      "path": "/api/items/9999",
+      "candidate_status": 404,
+      "reference_status": 404,
+      "candidate": {
+        "error": {
+          "status": 404,
+          "message": "Not Found"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 404,
+          "message": "Not Found"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "list-invalid",
+      "method": "GET",
+      "path": "/api/items?limit=0",
+      "candidate_status": 422,
+      "reference_status": 422,
+      "candidate": {
+        "error": {
+          "status": 422,
+          "message": "Unprocessable Content"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 422,
+          "message": "Unprocessable Content"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "create",
+      "method": "POST",
+      "path": "/api/items",
+      "candidate_status": 201,
+      "reference_status": 201,
+      "candidate": {
+        "id": 201,
+        "title": "Parity item",
+        "body": "Parity body",
+        "version": 1,
+        "client_key": "parity-1"
+      },
+      "reference": {
+        "id": 201,
+        "title": "Parity item",
+        "body": "Parity body",
+        "version": 1,
+        "client_key": "parity-1"
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "create-duplicate",
+      "method": "POST",
+      "path": "/api/items",
+      "candidate_status": 409,
+      "reference_status": 409,
+      "candidate": {
+        "error": {
+          "status": 409,
+          "message": "Conflict"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 409,
+          "message": "Conflict"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "create-invalid",
+      "method": "POST",
+      "path": "/api/items",
+      "candidate_status": 422,
+      "reference_status": 422,
+      "candidate": {
+        "error": {
+          "status": 422,
+          "message": "Unprocessable Content"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 422,
+          "message": "Unprocessable Content"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "create-unknown-field",
+      "method": "POST",
+      "path": "/api/items",
+      "candidate_status": 422,
+      "reference_status": 422,
+      "candidate": {
+        "error": {
+          "status": 422,
+          "message": "Unprocessable Content"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 422,
+          "message": "Unprocessable Content"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "update",
+      "method": "PUT",
+      "path": "/api/items/201",
+      "candidate_status": 200,
+      "reference_status": 200,
+      "candidate": {
+        "id": 201,
+        "title": "Updated",
+        "body": "Updated body",
+        "version": 2,
+        "client_key": "parity-1"
+      },
+      "reference": {
+        "id": 201,
+        "title": "Updated",
+        "body": "Updated body",
+        "version": 2,
+        "client_key": "parity-1"
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "update-stale",
+      "method": "PUT",
+      "path": "/api/items/201",
+      "candidate_status": 409,
+      "reference_status": 409,
+      "candidate": {
+        "error": {
+          "status": 409,
+          "message": "Conflict"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 409,
+          "message": "Conflict"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "delete-stale",
+      "method": "DELETE",
+      "path": "/api/items/201?version=1",
+      "candidate_status": 409,
+      "reference_status": 409,
+      "candidate": {
+        "error": {
+          "status": 409,
+          "message": "Conflict"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 409,
+          "message": "Conflict"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "delete",
+      "method": "DELETE",
+      "path": "/api/items/201?version=2",
+      "candidate_status": 204,
+      "reference_status": 204,
+      "candidate": null,
+      "reference": null,
+      "content_type": {
+        "candidate": "text/plain",
+        "reference": ""
+      },
+      "equivalent": true
+    },
+    {
+      "name": "get-deleted",
+      "method": "GET",
+      "path": "/api/items/201",
+      "candidate_status": 404,
+      "reference_status": 404,
+      "candidate": {
+        "error": {
+          "status": 404,
+          "message": "Not Found"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 404,
+          "message": "Not Found"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "rollback",
+      "method": "POST",
+      "path": "/api/items?simulate_failure=1",
+      "candidate_status": 500,
+      "reference_status": 500,
+      "candidate": {
+        "error": {
+          "status": 500,
+          "message": "Internal Server Error"
+        }
+      },
+      "reference": {
+        "error": {
+          "status": 500,
+          "message": "Internal Server Error"
+        }
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    },
+    {
+      "name": "rollback-state",
+      "method": "GET",
+      "path": "/api/bench/state",
+      "candidate_status": 200,
+      "reference_status": 200,
+      "candidate": {
+        "rows": 200,
+        "max_version": 1,
+        "version_sum": 200
+      },
+      "reference": {
+        "rows": 200,
+        "max_version": 1,
+        "version_sum": 200
+      },
+      "content_type": {
+        "candidate": "application/json",
+        "reference": "application/json"
+      },
+      "equivalent": true
+    }
+  ]
+}

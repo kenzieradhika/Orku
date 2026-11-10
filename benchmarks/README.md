@@ -91,3 +91,11 @@ resource metrics are null. These are not sustained memory-growth measurements.
 
 This baseline does not establish production capacity, cold bootstrap,
 pool-wide resources or comparative framework performance.
+
+## CRUD/API comparison over SQLite
+
+`benchmarks/crud-api/` contains disposable Orku and Laravel 12.71.0 fixtures that
+share one contract, schema, seed and PHP request-semantics implementation, plus
+equal PHP-FPM/Nginx containers. Run `verify_parity.py` before `run_benchmark.py`;
+see that directory's README for bounded load, integrity checks, cgroup sampling
+and the exact environment metadata that must accompany any published number.
