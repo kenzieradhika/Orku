@@ -10,6 +10,7 @@ use Orku\Http\Response;
 final class Session
 {
     private bool $started = false;
+    private bool $invalidated = false;
 
     public function __construct(private readonly Request $request, private readonly bool $secure = true, private readonly string $path = '/')
     {
@@ -31,12 +32,29 @@ final class Session
         $_SESSION[$key] = $value;
     }
 
+    public function remove(string $key): void
+    {
+        $this->start();
+        unset($_SESSION[$key]);
+    }
+
+    public function invalidate(): void
+    {
+        $this->start();
+        $_SESSION = [];
+        if (!session_regenerate_id(true)) {
+            throw new \RuntimeException('Cannot invalidate session.');
+        }
+        $this->invalidated = true;
+    }
+
     public function regenerate(): void
     {
         $this->start();
         if (!session_regenerate_id(true)) {
             throw new \RuntimeException('Cannot rotate session ID.');
         }
+        $this->invalidated = false;
     }
 
     public function commit(Response $response): Response
@@ -51,13 +69,20 @@ final class Session
         $this->started = false;
         $_SESSION = [];
         $cookie = 'orku_session='.$id.'; Path='.$this->path.($this->secure ? '; Secure' : '').'; HttpOnly; SameSite=Lax';
-
         $cookies = $response->cookies;
         if (($existing = $response->header('set-cookie')) !== null) {
             $cookies[] = $existing;
         }
+        if ($this->invalidated) {
+            $cookies[] = 'orku_session=; Path='.$this->path.($this->secure ? '; Secure' : '').'; HttpOnly; SameSite=Lax; Max-Age=0';
+        }
 
-        return new Response($response->body, $response->status, ['set-cookie' => $cookie, 'cache-control' => 'no-store'] + $response->headers, $cookies);
+        $headers = ['cache-control' => 'no-store'] + $response->headers;
+        if (!$this->invalidated) {
+            $headers['set-cookie'] = $cookie;
+        }
+
+        return new Response($response->body, $response->status, $headers, $cookies);
     }
 
     private function start(): void
