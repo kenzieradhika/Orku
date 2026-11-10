@@ -54,6 +54,7 @@ final class Session
         if (!session_regenerate_id(true)) {
             throw new \RuntimeException('Cannot rotate session ID.');
         }
+        $this->invalidated = false;
     }
 
     public function commit(Response $response): Response

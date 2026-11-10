@@ -1,6 +1,6 @@
 # Authentication
 
-Orku AuthCore is optional. It provides password verification, a session-backed
+Authentication is implemented as an optional Orku AuthCore foundation. Authorization is not implemented. AuthCore is not a complete production-ready identity platform. It provides password verification, a session-backed
 guard and callable authentication middleware. Applications supply their
 credential provider and an atomic shared throttle store. No database or
 process-local throttling implementation is included.
@@ -15,11 +15,13 @@ invalidates the previous ID and expires the session cookie. Configure the
 existing session cookie as Secure under HTTPS; do not enable insecure cookies
 in production.
 
-`ThrottleStore::consume()` must atomically enforce its limit across workers.
-Use a database transaction, atomic cache primitive or gateway integration.
-The account identifier and source context form the throttling key. Source
-context must come from a trusted boundary. Do not trust forwarded IP headers
-unless trusted proxies are explicitly configured.
+`ThrottleStore::consume()` must atomically enforce each limit across workers.
+Login applies separate account and source-context buckets, both with the
+configured attempt limit. Use a database transaction, atomic cache primitive
+or gateway integration. Source context must come from a trusted boundary. Do
+not trust forwarded IP headers unless trusted proxies are explicitly
+configured. Any storage failure must fail closed; do not catch it and allow
+login to continue.
 
 `CredentialProvider` owns identity lookup and password-hash storage. Use
 `PasswordHasher` to create hashes; it selects Argon2id when available and

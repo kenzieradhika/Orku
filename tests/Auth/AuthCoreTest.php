@@ -93,11 +93,88 @@ final class AuthCoreTest extends TestCase
             self::assertFalse($service->login($name, $password, $csrf->token(), $csrf, $session, 'local'));
             $session->commit(Response::text('ok'));
         }
-        self::assertSame(2, $throttle->attempts);
+        self::assertSame(4, $throttle->attempts);
         $throttle->blocked = true;
         $session = new Session(new Request('POST', '/login'));
         $csrf = new CsrfManager($session);
         self::assertFalse($service->login('ada', 'secret', $csrf->token(), $csrf, $session, 'local'));
+        $session->commit(Response::text('ok'));
+    }
+
+    #[RunInSeparateProcess]
+    public function testThrottleUsesIndependentAccountAndSourceBuckets(): void
+    {
+        $provider = new TestProvider();
+        $throttle = new TestThrottle();
+        $service = new LoginService($provider, new PasswordHasher(), $throttle, new TestClock(1000));
+        foreach ([['ada', 'source-a'], ['bob', 'source-a'], ['ada', 'source-b']] as [$identifier, $source]) {
+            $session = new Session(new Request('POST', '/login'));
+            $csrf = new CsrfManager($session);
+            self::assertFalse($service->login($identifier, 'bad', $csrf->token(), $csrf, $session, $source));
+            $session->commit(Response::text('ok'));
+        }
+        self::assertSame(6, $throttle->attempts);
+        self::assertSame(['account:', 'source:', 'account:', 'source:', 'account:', 'source:'], array_map(static fn (string $key): string => substr($key, 0, strpos($key, ':') + 1), $throttle->keys));
+        self::assertSame($throttle->keys[1], $throttle->keys[3]);
+        self::assertSame($throttle->keys[0], $throttle->keys[4]);
+    }
+
+    #[RunInSeparateProcess]
+    public function testThrottleStoreFailureDoesNotAuthenticate(): void
+    {
+        $provider = new TestProvider();
+        $throttle = new TestThrottle();
+        $throttle->fail = true;
+        $service = new LoginService($provider, new PasswordHasher(), $throttle, new TestClock(1000));
+        $session = new Session(new Request('POST', '/login'));
+        $csrf = new CsrfManager($session);
+        try {
+            $service->login('ada', 'secret', $csrf->token(), $csrf, $session, 'source');
+            self::fail('Throttle backend failure must propagate.');
+        } catch (\RuntimeException $error) {
+            self::assertSame('throttle unavailable', $error->getMessage());
+            self::assertNull((new Guard($session, $provider, new TestClock(1000)))->identity());
+        } finally {
+            $session->commit(Response::text('ok'));
+        }
+    }
+
+    #[RunInSeparateProcess]
+    public function testUnknownAccountVerificationCreatesDummyHashOnlyOnce(): void
+    {
+        $hasher = new PasswordHasher();
+        self::assertFalse($hasher->verifyDummy('first'));
+        self::assertFalse($hasher->verifyDummy('second'));
+    }
+
+    #[RunInSeparateProcess]
+    public function testLoginAfterLogoutReissuesRotatedSessionCookie(): void
+    {
+        $clock = new TestClock(1000);
+        $provider = new TestProvider();
+        $session = new Session(new Request('POST', '/session'));
+        $csrf = new CsrfManager($session);
+        $service = new LoginService($provider, new PasswordHasher(), new TestThrottle(), $clock);
+        self::assertTrue($service->login('ada', 'secret', $csrf->token(), $csrf, $session, 'source'));
+        $oldId = session_id();
+        (new Guard($session, $provider, $clock))->logout($csrf->token(), $csrf);
+        self::assertTrue($service->login('ada', 'secret', $csrf->token(), $csrf, $session, 'source'));
+        $newId = session_id();
+        self::assertNotSame($oldId, $newId);
+        $response = $session->commit(Response::text('ok'));
+        self::assertCount(0, $response->cookies);
+        self::assertStringContainsString('orku_session='.$newId.';', $response->header('set-cookie'));
+        $fresh = new Session(new Request('GET', '/', cookies: ['orku_session' => $newId]));
+        self::assertSame('user-1', (new Guard($fresh, $provider, $clock))->identity()?->id);
+        $fresh->commit(Response::text('ok'));
+    }
+
+    #[RunInSeparateProcess]
+    public function testMalformedSessionIdStartsUnauthenticatedWithFreshId(): void
+    {
+        $session = new Session(new Request('GET', '/', cookies: ['orku_session' => 'not a valid session id']));
+        self::assertNull((new Guard($session, new TestProvider(), new TestClock(1000)))->identity());
+        self::assertMatchesRegularExpression('/^[a-zA-Z0-9,-]{16,128}$/D', session_id());
         $session->commit(Response::text('ok'));
     }
 
@@ -208,10 +285,17 @@ final class TestThrottle implements ThrottleStore
 {
     public int $attempts = 0;
     public bool $blocked = false;
+    public bool $fail = false;
+    /** @var list<string> */
+    public array $keys = [];
 
     public function consume(string $key, int $now, int $windowSeconds, int $limit): bool
     {
         ++$this->attempts;
+        $this->keys[] = $key;
+        if ($this->fail) {
+            throw new \RuntimeException('throttle unavailable');
+        }
 
         return !$this->blocked;
     }
